@@ -147,59 +147,12 @@ img, svg { display: block; max-width: 100%; }
 .hero-brand {
   display: flex;
   align-items: center;
-  gap: 1rem;
 }
 
-.logo-mark {
-  width: 72px;
-  height: 72px;
-  flex-shrink: 0;
-}
-
-@media (min-width: 600px) {
-  .logo-mark { width: 88px; height: 88px; }
-}
-
-@media (min-width: 900px) {
-  .logo-mark { width: 108px; height: 108px; }
-}
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-}
-
-.logo-name {
-  font-family: var(--font-cond);
-  font-size: clamp(1.8rem, 5vw, 3.2rem);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: var(--white);
+.hero-logo {
+  width: clamp(220px, 40vw, 420px);
+  height: auto;
   display: block;
-}
-
-.logo-bottom-row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin-top: 0.1rem;
-}
-
-.logo-domain {
-  font-family: var(--font-cond);
-  font-size: clamp(0.6rem, 1.5vw, 0.85rem);
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  color: var(--light-grey);
-}
-
-.logo-radio {
-  font-family: var(--font-cond);
-  font-size: clamp(1.8rem, 5vw, 3.2rem);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: var(--white);
 }
 
 /* Listen modes + counter */
