@@ -3,17 +3,16 @@
 ═══════════════════════════════════════════════════════ */
 
 /* ── Visit Counter ────────────────────────────────────
-   Fetches from /api/counter (Netlify Function + Upstash).
-   The function increments the shared counter on every call
-   and returns the current value. localStorage is used only
-   to show a number instantly on load while the request is
-   in flight — it is overwritten with the real value once
-   the response arrives.
+   Increments the shared counter once per browser session.
+   sessionStorage prevents repeat increments on refresh.
+   localStorage caches the last known count so the display
+   is never blank while the fetch is in flight.
 ─────────────────────────────────────────────────────── */
 (function initVisitCounter() {
-  const SEED      = 292560;
-  const CACHE_KEY = 'sruk_visits_cache';
-  const el        = document.getElementById('visitCounter');
+  const SEED        = 292560;
+  const CACHE_KEY   = 'sruk_visits_cache';
+  const SESSION_KEY = 'sruk_counted';
+  const el          = document.getElementById('visitCounter');
 
   if (!el) return;
 
@@ -22,6 +21,10 @@
   el.textContent = (isNaN(cached) || cached < SEED)
     ? SEED.toLocaleString('en-GB')
     : cached.toLocaleString('en-GB');
+
+  // Only increment once per browser session
+  if (sessionStorage.getItem(SESSION_KEY)) return;
+  sessionStorage.setItem(SESSION_KEY, '1');
 
   fetch('/api/counter')
     .then(function (res) {
