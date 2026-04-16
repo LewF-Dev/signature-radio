@@ -73,6 +73,7 @@
   const label      = document.getElementById('playerBtnLabel');
   const trackEl    = document.getElementById('playerTrack');
   const audio      = document.getElementById('liveAudio');
+  const slider     = document.getElementById('volumeSlider');
 
   if (!btn || !audio) return;
 
@@ -137,4 +138,19 @@
     label.textContent = 'LISTEN';
     setPlayIcon();
   });
+
+  // Volume slider
+  if (slider) {
+    // Restore last saved volume
+    const saved = parseFloat(localStorage.getItem('sruk_volume'));
+    if (!isNaN(saved)) {
+      audio.volume = saved;
+      slider.value = saved;
+    }
+
+    slider.addEventListener('input', function () {
+      audio.volume = parseFloat(slider.value);
+      localStorage.setItem('sruk_volume', slider.value);
+    });
+  }
 })();
