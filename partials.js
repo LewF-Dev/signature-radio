@@ -7,14 +7,12 @@
 
   /* ── Ticker ─────────────────────────────────────── */
   const tickerText = 'Signature Radio UK - The Soundtrack Of Your Life - DAB Launching May 1st 2026 - Join The Revolution - Follow us @SignatureRadioUK';
-  // Duplicate for seamless loop
+  const sep = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+  // Four copies ensures no gap at any viewport width
   const tickerHTML = `
   <div class="ticker-wrap" aria-label="Station announcements">
     <div class="ticker-track" id="tickerTrack">
-      <span>${tickerText}</span>
-      <span class="ticker-sep">&nbsp;&nbsp;&nbsp;</span>
-      <span>${tickerText}</span>
-      <span class="ticker-sep">&nbsp;&nbsp;&nbsp;</span>
+      <span>${tickerText}</span>${sep}<span>${tickerText}</span>${sep}<span>${tickerText}</span>${sep}<span>${tickerText}</span>${sep}
     </div>
   </div>`;
 
