@@ -65,19 +65,16 @@
 
 
 /* ── Live Player ──────────────────────────────────────
-   Toggles play/pause on the HTML5 audio element.
-   Swap the <source src=""> in index.html for the real
-   stream URL when available.
+   Plays the live Shoutcast stream. Fetches now-playing
+   metadata from /api/nowplaying on load and every 30s.
 ─────────────────────────────────────────────────────── */
 (function initPlayer() {
-  const btn   = document.getElementById('playerBtn');
-  const label = document.getElementById('playerBtnLabel');
-  const audio = document.getElementById('liveAudio');
+  const btn        = document.getElementById('playerBtn');
+  const label      = document.getElementById('playerBtnLabel');
+  const trackEl    = document.getElementById('playerTrack');
+  const audio      = document.getElementById('liveAudio');
 
   if (!btn || !audio) return;
-
-  // SVG namespace needed to replace the icon element
-  const NS = 'http://www.w3.org/2000/svg';
 
   function setPlayIcon() {
     const svg = btn.querySelector('svg');
@@ -91,17 +88,31 @@
     svg.innerHTML = '<rect x="5" y="3" width="4" height="18" fill="currentColor"/><rect x="15" y="3" width="4" height="18" fill="currentColor"/>';
   }
 
+  // Fetch now-playing metadata and update the player track display
+  function fetchNowPlaying() {
+    fetch('/api/nowplaying')
+      .then(function (res) {
+        if (!res.ok) throw new Error('nowplaying fetch failed');
+        return res.json();
+      })
+      .then(function (data) {
+        if (trackEl && data.title) {
+          trackEl.textContent = data.title;
+          trackEl.title = data.title;
+        }
+      })
+      .catch(function () {
+        // Keep existing track display on failure
+      });
+  }
+
+  // Poll on load and every 30 seconds
+  fetchNowPlaying();
+  setInterval(fetchNowPlaying, 30000);
+
   let playing = false;
 
   btn.addEventListener('click', function () {
-    // No stream configured yet
-    const src = audio.querySelector('source') && audio.querySelector('source').getAttribute('src');
-    if (!src) {
-      label.textContent = 'SOON';
-      btn.title = 'Stream URL coming soon — check back shortly';
-      return;
-    }
-
     if (!playing) {
       audio.play().then(function () {
         playing = true;
@@ -118,5 +129,12 @@
       btn.setAttribute('aria-label', 'Play live stream');
       setPlayIcon();
     }
+  });
+
+  // If the stream stalls or errors, reset the button state
+  audio.addEventListener('error', function () {
+    playing = false;
+    label.textContent = 'LISTEN';
+    setPlayIcon();
   });
 })();
