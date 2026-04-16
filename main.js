@@ -43,8 +43,8 @@
 
 
 /* ── Slideshow ────────────────────────────────────────
-   Fade transition between slides. Auto-advances every 6s.
-   Pauses on hover. Keyboard accessible (arrow keys).
+   Fade transition between slides. Auto-advances every 8s.
+   Pauses on hover. Arrow keys, swipe, and dot navigation.
 ─────────────────────────────────────────────────────── */
 (function initSlideshow() {
   const slideshow = document.getElementById('slideshow');
@@ -52,21 +52,23 @@
 
   const slides   = Array.from(slideshow.querySelectorAll('.slide'));
   const dotsWrap = document.getElementById('slideshowDots');
-  const prevBtn  = slideshow.querySelector('.slideshow-prev');
-  const nextBtn  = slideshow.querySelector('.slideshow-next');
-  const INTERVAL = 6000;
+  const prevBtn  = document.getElementById('slideshowPrev');
+  const nextBtn  = document.getElementById('slideshowNext');
+  const INTERVAL = 8000;
+  const SWIPE_THRESHOLD = 40; // px
 
   if (!slides.length) return;
 
   let current = 0;
   let timer;
+  let touchStartX = 0;
 
   // Build dot indicators
   const dots = slides.map(function (_, i) {
     const dot = document.createElement('button');
     dot.className = 'slideshow-dot' + (i === 0 ? ' active' : '');
     dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-    dot.addEventListener('click', function () { goTo(i); });
+    dot.addEventListener('click', function () { stopTimer(); goTo(i); startTimer(); });
     dotsWrap.appendChild(dot);
     return dot;
   });
@@ -90,19 +92,32 @@
     clearInterval(timer);
   }
 
-  prevBtn.addEventListener('click', function () { stopTimer(); prev(); startTimer(); });
-  nextBtn.addEventListener('click', function () { stopTimer(); next(); startTimer(); });
+  if (prevBtn) prevBtn.addEventListener('click', function () { stopTimer(); prev(); startTimer(); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { stopTimer(); next(); startTimer(); });
 
   // Pause auto-advance on hover
   slideshow.addEventListener('mouseenter', stopTimer);
   slideshow.addEventListener('mouseleave', startTimer);
 
-  // Keyboard navigation when slideshow is focused
+  // Keyboard navigation
   slideshow.setAttribute('tabindex', '0');
   slideshow.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft')  { stopTimer(); prev(); startTimer(); }
     if (e.key === 'ArrowRight') { stopTimer(); next(); startTimer(); }
   });
+
+  // Swipe support
+  slideshow.addEventListener('touchstart', function (e) {
+    touchStartX = e.changedTouches[0].clientX;
+  }, { passive: true });
+
+  slideshow.addEventListener('touchend', function (e) {
+    const delta = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(delta) < SWIPE_THRESHOLD) return;
+    stopTimer();
+    if (delta < 0) next(); else prev();
+    startTimer();
+  }, { passive: true });
 
   startTimer();
 })();
