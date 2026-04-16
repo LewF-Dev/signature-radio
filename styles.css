@@ -572,6 +572,16 @@ img, svg { display: block; max-width: 100%; }
 }
 
 /* ── About ────────────────────────────────────────── */
+.about-subtitle {
+  font-family: var(--font-cond);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--light-grey);
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
 .about-body p {
   font-size: 0.95rem;
   color: rgba(255,255,255,0.85);
@@ -762,6 +772,19 @@ img, svg { display: block; max-width: 100%; }
   margin-top: 0.5rem;
   color: rgba(255,255,255,0.35) !important;
   font-size: 0.78rem !important;
+}
+
+/* ── Video ────────────────────────────────────────── */
+.video-wrap {
+  max-width: 860px;
+}
+
+.station-video {
+  width: 100%;
+  display: block;
+  border-radius: 3px;
+  background: #000;
+  aspect-ratio: 16 / 9;
 }
 
 /* ── Business page layout ─────────────────────────── */

@@ -6,29 +6,15 @@
 (function injectPartials() {
 
   /* ── Ticker ─────────────────────────────────────── */
+  const tickerText = 'Signature Radio UK - The Soundtrack Of Your Life - DAB Launching May 1st 2026 - Join The Revolution - Follow us @SignatureRadioUK';
+  // Duplicate for seamless loop
   const tickerHTML = `
   <div class="ticker-wrap" aria-label="Station announcements">
     <div class="ticker-track" id="tickerTrack">
-      <span>Signature Radio UK</span>
-      <span class="ticker-sep">✦</span>
-      <span>The Soundtrack Of Your Life</span>
-      <span class="ticker-sep">✦</span>
-      <span>DAB Launching May 1st 2026 — Join The Revolution</span>
-      <span class="ticker-sep">✦</span>
-      <span>Broadcasting across Bristol, North Somerset &amp; South Gloucestershire</span>
-      <span class="ticker-sep">✦</span>
-      <span>Reaching 1.2 Million People</span>
-      <span class="ticker-sep">✦</span>
-      <span>Signature Radio UK</span>
-      <span class="ticker-sep">✦</span>
-      <span>The Soundtrack Of Your Life</span>
-      <span class="ticker-sep">✦</span>
-      <span>DAB Launching May 1st 2026 — Join The Revolution</span>
-      <span class="ticker-sep">✦</span>
-      <span>Broadcasting across Bristol, North Somerset &amp; South Gloucestershire</span>
-      <span class="ticker-sep">✦</span>
-      <span>Reaching 1.2 Million People</span>
-      <span class="ticker-sep">✦</span>
+      <span>${tickerText}</span>
+      <span class="ticker-sep">&nbsp;&nbsp;&nbsp;</span>
+      <span>${tickerText}</span>
+      <span class="ticker-sep">&nbsp;&nbsp;&nbsp;</span>
     </div>
   </div>`;
 
