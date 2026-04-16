@@ -3,34 +3,39 @@
 ═══════════════════════════════════════════════════════ */
 
 /* ── Visit Counter ────────────────────────────────────
-   Persists in localStorage. Seeded at 292560.
-   Increments once per browser session (sessionStorage flag).
-   NOTE: This is a per-device counter. For a true cross-user
-   live counter, replace with a backend API call (e.g. a
-   serverless function writing to a KV store or database).
+   Fetches from /api/counter (Netlify Function + Upstash).
+   The function increments the shared counter on every call
+   and returns the current value. localStorage is used only
+   to show a number instantly on load while the request is
+   in flight — it is overwritten with the real value once
+   the response arrives.
 ─────────────────────────────────────────────────────── */
 (function initVisitCounter() {
   const SEED      = 292560;
-  const STORE_KEY = 'sruk_visits';
-  const FLAG_KEY  = 'sruk_visited_this_session';
+  const CACHE_KEY = 'sruk_visits_cache';
+  const el        = document.getElementById('visitCounter');
 
-  let count = parseInt(localStorage.getItem(STORE_KEY), 10);
+  if (!el) return;
 
-  if (isNaN(count) || count < SEED) {
-    count = SEED;
-  }
+  // Show cached value immediately so the counter isn't blank on load
+  const cached = parseInt(localStorage.getItem(CACHE_KEY), 10);
+  el.textContent = (isNaN(cached) || cached < SEED)
+    ? SEED.toLocaleString('en-GB')
+    : cached.toLocaleString('en-GB');
 
-  // Only increment once per browser session
-  if (!sessionStorage.getItem(FLAG_KEY)) {
-    count += 1;
-    localStorage.setItem(STORE_KEY, count);
-    sessionStorage.setItem(FLAG_KEY, '1');
-  }
-
-  const el = document.getElementById('visitCounter');
-  if (el) {
-    el.textContent = count.toLocaleString('en-GB');
-  }
+  fetch('/api/counter')
+    .then(function (res) {
+      if (!res.ok) throw new Error('Network response not ok');
+      return res.json();
+    })
+    .then(function (data) {
+      const count = data.count || SEED;
+      el.textContent = count.toLocaleString('en-GB');
+      localStorage.setItem(CACHE_KEY, count);
+    })
+    .catch(function () {
+      // Silently keep the cached/seed value on failure
+    });
 })();
 
 
