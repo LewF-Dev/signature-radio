@@ -342,6 +342,7 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .nav-links li a:hover { color: var(--red); }
+.nav-links li a.active { color: var(--red); }
 
 @media (min-width: 900px) {
   .nav-links {
@@ -360,7 +361,8 @@ img, svg { display: block; max-width: 100%; }
     border-bottom: 2px solid transparent;
   }
 
-  .nav-links li a:hover {
+  .nav-links li a:hover,
+  .nav-links li a.active {
     color: var(--red);
     border-bottom-color: var(--red);
   }
@@ -531,6 +533,15 @@ img, svg { display: block; max-width: 100%; }
 
 @media (min-width: 900px) {
   .section { padding: 4rem 0; }
+}
+
+/* Extra top padding for inner pages (no hero above the nav) */
+.page-section {
+  padding-top: 4rem;
+}
+
+@media (min-width: 900px) {
+  .page-section { padding-top: 5rem; }
 }
 
 .section-heading {

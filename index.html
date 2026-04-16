@@ -13,47 +13,15 @@
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════
-       TICKER
-  ═══════════════════════════════════════════ -->
-  <div class="ticker-wrap" aria-label="Station announcements">
-    <div class="ticker-track" id="tickerTrack">
-      <span>Signature Radio UK</span>
-      <span class="ticker-sep">✦</span>
-      <span>The Soundtrack Of Your Life</span>
-      <span class="ticker-sep">✦</span>
-      <span>DAB Launching May 1st 2026 — Join The Revolution</span>
-      <span class="ticker-sep">✦</span>
-      <span>Broadcasting across Bristol, North Somerset &amp; South Gloucestershire</span>
-      <span class="ticker-sep">✦</span>
-      <span>Reaching 1.2 Million People</span>
-      <span class="ticker-sep">✦</span>
-      <span>Signature Radio UK</span>
-      <span class="ticker-sep">✦</span>
-      <span>The Soundtrack Of Your Life</span>
-      <span class="ticker-sep">✦</span>
-      <span>DAB Launching May 1st 2026 — Join The Revolution</span>
-      <span class="ticker-sep">✦</span>
-      <span>Broadcasting across Bristol, North Somerset &amp; South Gloucestershire</span>
-      <span class="ticker-sep">✦</span>
-      <span>Reaching 1.2 Million People</span>
-      <span class="ticker-sep">✦</span>
-    </div>
-  </div>
+  <div id="ticker-mount"></div>
 
-  <!-- ═══════════════════════════════════════════
-       HERO
-  ═══════════════════════════════════════════ -->
   <header class="hero" role="banner">
     <div class="hero-content">
       <div class="hero-brand">
-        <!-- Logo mark SVG — white circle, black play arrow, diagonal notch -->
         <div class="logo-mark" aria-hidden="true">
           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="48" fill="white"/>
-            <!-- Play arrow -->
             <polygon points="38,27 38,73 76,50" fill="black"/>
-            <!-- Diagonal notch cut from top of circle through top-left of arrow -->
             <polygon points="50,2 38,27 26,2" fill="black"/>
           </svg>
         </div>
@@ -65,74 +33,21 @@
           </div>
         </div>
       </div>
-
       <div class="hero-listen">
         <p class="listen-modes">DAB &nbsp;|&nbsp; ONLINE &nbsp;|&nbsp; SMART DEVICES</p>
         <p class="visit-counter-label">SITE VISITS</p>
         <p class="visit-counter" id="visitCounter" aria-live="polite">292,560</p>
       </div>
     </div>
-
-    <!-- Hero image -->
     <div class="hero-image" aria-hidden="true">
       <img src="Best-Afro-Hair_Venus-removebg-preview.avif" alt="" class="hero-img" />
     </div>
   </header>
 
-  <!-- ═══════════════════════════════════════════
-       NAV + PLAYER BAR
-  ═══════════════════════════════════════════ -->
-  <nav class="nav-bar" role="navigation" aria-label="Main navigation">
-    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation">
-      <span></span><span></span><span></span>
-    </button>
-    <ul class="nav-links" id="navLinks" role="list">
-      <li><a href="#home">HOME</a></li>
-      <li><a href="#about">ABOUT US</a></li>
-      <li><a href="#newsletter">NEWSLETTER</a></li>
-      <li><a href="#presenters">PRESENTERS</a></li>
-      <li><a href="#schedule">SCHEDULE</a></li>
-      <li><a href="#business">BUSINESS</a></li>
-      <li><a href="#contact">CONTACT</a></li>
-    </ul>
+  <div id="nav-mount"></div>
 
-    <div class="player-widget" id="playerWidget">
-      <div class="player-meta">
-        <span class="player-label">NOW PLAYING</span>
-        <span class="player-track" id="playerTrack">Signature Radio UK</span>
-      </div>
-      <button class="player-btn" id="playerBtn" aria-label="Play live stream">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <polygon points="5,3 19,12 5,21" id="playIcon"/>
-        </svg>
-        <span id="playerBtnLabel">LISTEN</span>
-      </button>
-      <div class="volume-control" id="volumeControl" aria-label="Volume">
-        <svg class="volume-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
-        </svg>
-        <input
-          type="range"
-          id="volumeSlider"
-          class="volume-slider"
-          min="0"
-          max="1"
-          step="0.05"
-          value="1"
-          aria-label="Volume"
-        />
-      </div>
-      <audio id="liveAudio" preload="none">
-        <source src="https://centova87.shoutcastservices.com/proxy/reid/stream" type="audio/mpeg" />
-      </audio>
-    </div>
-  </nav>
+  <main>
 
-  <main id="home">
-
-    <!-- ═══════════════════════════════════════════
-         ANNOUNCEMENT BANNER
-    ═══════════════════════════════════════════ -->
     <section class="announcement" aria-label="Major announcement">
       <div class="container">
         <h2 class="announcement-title">MAJOR ANNOUNCEMENT: DAB DIGITAL RADIO</h2>
@@ -140,165 +55,22 @@
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════
-         ABOUT
-    ═══════════════════════════════════════════ -->
     <section class="section" id="about" aria-labelledby="about-heading">
       <div class="container">
         <h2 class="section-heading" id="about-heading">ABOUT SIGNATURE RADIO UK</h2>
-        <div class="about-grid">
-          <div class="about-body">
-            <p>Signature Radio UK is more than a radio station — it is a movement. Our philosophy is rooted in precision, quality, and a commitment to the listener experience. By focusing on high-fidelity streams and a curated sound that resonates with a sophisticated audience, we have built more than a platform. We have built a standard.</p>
-            <p>In an era of reactive media, we choose to be proactive. We anticipate the needs of our audience and mitigate the noise of the modern world. We operate with transparency and excellence at our core, ensuring that every beat played is part of <em>"The Soundtrack Of Your Life."</em></p>
-            <p class="about-tagline"><em>Anticipate. Mitigate. Legislate.</em></p>
-          </div>
+        <div class="about-body">
+          <p>Signature Radio UK is more than a radio station — it is a movement. Our philosophy is rooted in precision, quality, and a commitment to the listener experience. By focusing on high-fidelity streams and a curated sound that resonates with a sophisticated audience, we have built more than a platform. We have built a standard.</p>
+          <p>In an era of reactive media, we choose to be proactive. We anticipate the needs of our audience and mitigate the noise of the modern world. We operate with transparency and excellence at our core, ensuring that every beat played is part of <em>"The Soundtrack Of Your Life."</em></p>
+          <p class="about-tagline"><em>Anticipate. Mitigate. Legislate.</em></p>
         </div>
-      </div>
-    </section>
-
-    <hr class="section-divider" />
-
-    <!-- ═══════════════════════════════════════════
-         SCHEDULE
-    ═══════════════════════════════════════════ -->
-    <section class="section" id="schedule" aria-labelledby="schedule-heading">
-      <div class="container">
-        <div class="two-col">
-
-          <div class="col">
-            <h2 class="section-heading" id="schedule-heading">SUNDAY SHOW SCHEDULE</h2>
-            <ul class="schedule-list" role="list">
-              <li>
-                <span class="show-name">Arnie's Disco Show</span>
-                <span class="show-genre">Classic 70s &amp; 80s Disco</span>
-                <span class="show-time">10 am – Midday</span>
-              </li>
-              <li>
-                <span class="show-name">DJ Bandyt Reggae Revival Show</span>
-                <span class="show-genre">Reggae Revival</span>
-                <span class="show-time">Midday – 2 pm</span>
-              </li>
-              <li>
-                <span class="show-name">Bennjamin Sky – The Bear Sounds Show</span>
-                <span class="show-genre">Soul, Reggae &amp; Smooth Grooves</span>
-                <span class="show-time">2 pm – 4 pm</span>
-              </li>
-              <li>
-                <span class="show-name">The Signature Mix</span>
-                <span class="show-genre">Signature Radio UK Selection</span>
-                <span class="show-time">4 pm – 5 pm</span>
-              </li>
-              <li>
-                <span class="show-name">DJ Kordova – Urban Dior</span>
-                <span class="show-genre">Eclectic Mix</span>
-                <span class="show-time">5 pm – 6 pm</span>
-              </li>
-              <li>
-                <span class="show-name">The Ministry of Dub Show</span>
-                <span class="show-genre">Dub &amp; Roots</span>
-                <span class="show-time">6 pm – 7 pm</span>
-              </li>
-              <li>
-                <span class="show-name">Signature Radio Presents: The Guest Mix</span>
-                <span class="show-genre"></span>
-                <span class="show-time">7 pm – 8 pm</span>
-              </li>
-              <li>
-                <span class="show-name">Saul Boogie</span>
-                <span class="show-genre">90s New Jack Swing, Hip Hop &amp; R&amp;B</span>
-                <span class="show-time">8 pm – 9 pm</span>
-              </li>
-              <li>
-                <span class="show-name">DJ Kaie – Inside the K-Suite</span>
-                <span class="show-genre">Slow Jams</span>
-                <span class="show-time">9 pm – 11 pm</span>
-              </li>
-              <li class="show-overnight">
-                <span class="show-name"><em>Signature Radio: Through The Night</em></span>
-                <span class="show-genre">Non-Stop Music</span>
-                <span class="show-time"></span>
-              </li>
-            </ul>
-            <p class="schedule-note">* Saturday shows and repeat broadcasts of our flagship shows feature throughout the weekend.</p>
-          </div>
-
-          <div class="col" id="get-involved">
-            <h2 class="section-heading">GET INVOLVED</h2>
-
-            <div class="involve-block">
-              <h3>Shout-outs &amp; Requests</h3>
-              <p>Send your requests and shout-outs to the studio via:</p>
-              <a href="mailto:studio@signatureradio.uk" class="link-red">studio@signatureradio.uk</a>
-            </div>
-
-            <div class="involve-block involve-talent">
-              <h3>On the lookout for new talent</h3>
-              <p>If you feel you have the talent to do a show on Signature Radio, we want to hear from you. We are seeking local talent and diverse voices.</p>
-              <p>Please send a <strong>30-minute mix</strong> of your musical style. Speech content is a major bonus. Submit to:</p>
-              <a href="mailto:info@signatureradio.uk" class="link-red">info@signatureradio.uk</a>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <hr class="section-divider" />
-
-    <!-- ═══════════════════════════════════════════
-         NEWSLETTER
-    ═══════════════════════════════════════════ -->
-    <section class="section" id="newsletter" aria-labelledby="newsletter-heading">
-      <div class="container">
-        <h2 class="section-heading" id="newsletter-heading">NEWSLETTER &amp; STATION UPDATES</h2>
-        <p class="section-intro">Stay updated with the latest movements from Signature Radio UK. From exclusive industry insights to upcoming broadcast schedules and technical milestones, our newsletter keeps you at the centre of the action.</p>
-        <div class="newsletter-cta">
-          <h3>Subscribe for Updates</h3>
-          <p>Connect with <a href="mailto:info@signatureradio.uk" class="link-red">info@signatureradio.uk</a> to join our mailing list.</p>
-        </div>
-      </div>
-    </section>
-
-    <hr class="section-divider" />
-
-    <!-- ═══════════════════════════════════════════
-         BUSINESS
-    ═══════════════════════════════════════════ -->
-    <section class="section" id="business" aria-labelledby="business-heading">
-      <div class="container">
-        <h2 class="section-heading" id="business-heading">BUSINESS &amp; ADVERTISING</h2>
-        <p class="section-intro">Reach 1.2 million people across Bristol, North Somerset, and South Gloucestershire. For advertising, sponsorship, and commercial enquiries:</p>
-        <a href="mailto:info@signatureradio.uk" class="link-red">info@signatureradio.uk</a>
       </div>
     </section>
 
   </main>
 
-  <!-- ═══════════════════════════════════════════
-       FOOTER
-  ═══════════════════════════════════════════ -->
-  <footer class="footer" id="contact" role="contentinfo">
-    <div class="container footer-grid">
-      <div class="footer-col">
-        <p class="footer-brand">SIGNATURE RADIO UK</p>
-        <p><strong>Contact:</strong> 07885 297391</p>
-        <p><strong>Email:</strong> <a href="mailto:studio@signatureradio.uk">studio@signatureradio.uk</a></p>
-        <address>
-          <strong>Address:</strong><br />
-          145–147 East Street,<br />
-          Bedminster, Bristol, BS3 4EJ
-        </address>
-      </div>
-      <div class="footer-col footer-right">
-        <p class="footer-tagline"><em>The Soundtrack Of Your Life</em></p>
-        <p>Registered in England &amp; Wales</p>
-        <p>Company Registration Number: 15051646</p>
-        <p><em>Licensed via PRS and PPL</em></p>
-        <p class="footer-copy">&copy; 2026 Signature Radio UK</p>
-      </div>
-    </div>
-  </footer>
+  <div id="footer-mount"></div>
 
+  <script src="partials.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
