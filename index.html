@@ -75,9 +75,16 @@
     <section class="section" aria-label="Station video">
       <div class="container">
         <div class="video-wrap">
-          <video controls preload="none" class="station-video">
-            <source src="media/signature-radio-video.mp4" type="video/mp4" />
-          </video>
+          <div class="video-container" id="videoContainer">
+            <video preload="metadata" class="station-video" id="stationVideo">
+              <source src="media/signature-radio-video.mp4#t=0.1" type="video/mp4" />
+            </video>
+            <button class="video-play-btn" id="videoPlayBtn" aria-label="Play video">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <polygon points="5,3 19,12 5,21"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </section>

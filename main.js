@@ -42,6 +42,37 @@
 })();
 
 
+/* ── Video player ─────────────────────────────────────
+   Custom play/pause overlay. #t=0.1 in the src causes
+   browsers to load the first frame as a natural poster.
+─────────────────────────────────────────────────────── */
+(function initVideo() {
+  const container = document.getElementById('videoContainer');
+  const video     = document.getElementById('stationVideo');
+  const btn       = document.getElementById('videoPlayBtn');
+
+  if (!container || !video) return;
+
+  function play() {
+    video.play();
+    container.classList.add('playing');
+  }
+
+  function pause() {
+    video.pause();
+    container.classList.remove('playing');
+  }
+
+  container.addEventListener('click', function () {
+    if (video.paused) { play(); } else { pause(); }
+  });
+
+  // Show overlay again when video ends
+  video.addEventListener('ended', function () {
+    container.classList.remove('playing');
+  });
+})();
+
 /* ── Slideshow ────────────────────────────────────────
    Fade transition between slides. Auto-advances every 8s.
    Pauses on hover. Arrow keys, swipe, and dot navigation.
