@@ -42,6 +42,71 @@
 })();
 
 
+/* ── Slideshow ────────────────────────────────────────
+   Fade transition between slides. Auto-advances every 6s.
+   Pauses on hover. Keyboard accessible (arrow keys).
+─────────────────────────────────────────────────────── */
+(function initSlideshow() {
+  const slideshow = document.getElementById('slideshow');
+  if (!slideshow) return;
+
+  const slides   = Array.from(slideshow.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('slideshowDots');
+  const prevBtn  = slideshow.querySelector('.slideshow-prev');
+  const nextBtn  = slideshow.querySelector('.slideshow-next');
+  const INTERVAL = 6000;
+
+  if (!slides.length) return;
+
+  let current = 0;
+  let timer;
+
+  // Build dot indicators
+  const dots = slides.map(function (_, i) {
+    const dot = document.createElement('button');
+    dot.className = 'slideshow-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    dot.addEventListener('click', function () { goTo(i); });
+    dotsWrap.appendChild(dot);
+    return dot;
+  });
+
+  function goTo(index) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (index + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  function startTimer() {
+    timer = setInterval(next, INTERVAL);
+  }
+
+  function stopTimer() {
+    clearInterval(timer);
+  }
+
+  prevBtn.addEventListener('click', function () { stopTimer(); prev(); startTimer(); });
+  nextBtn.addEventListener('click', function () { stopTimer(); next(); startTimer(); });
+
+  // Pause auto-advance on hover
+  slideshow.addEventListener('mouseenter', stopTimer);
+  slideshow.addEventListener('mouseleave', startTimer);
+
+  // Keyboard navigation when slideshow is focused
+  slideshow.setAttribute('tabindex', '0');
+  slideshow.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft')  { stopTimer(); prev(); startTimer(); }
+    if (e.key === 'ArrowRight') { stopTimer(); next(); startTimer(); }
+  });
+
+  startTimer();
+})();
+
 /* ── Mobile Nav Toggle ────────────────────────────── */
 (function initNav() {
   const toggle = document.getElementById('navToggle');
