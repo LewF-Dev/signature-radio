@@ -43,11 +43,6 @@
     return;
   }
 
-  // Use the stored login time so the window stays stable across token refreshes.
-  // Falls back to session.created_at if localStorage entry is missing.
-  const sessionStart = localStorage.getItem('sruk_presenter_login_at')
-    || new Date(session.created_at).toISOString();
-
   // ── Sign out ───────────────────────────────────────
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async function () {
@@ -58,10 +53,11 @@
   }
 
   // ── Load message history ───────────────────────────
+  // All messages within the 24-hour window are shown — presenters use
+  // timestamps to determine which messages were sent during their show.
   const { data, error } = await supabase
     .from('listener_messages')
     .select('*')
-    .gte('created_at', sessionStart)
     .order('created_at', { ascending: false })
     .limit(50);
 
@@ -79,8 +75,6 @@
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'listener_messages' },
       function (payload) {
-        // Ignore messages that arrived before this session started
-        if (new Date(payload.new.created_at) < new Date(sessionStart)) return;
         if (emptyMsg && emptyMsg.parentNode) emptyMsg.remove();
         prependCard(payload.new, true);
         showToast(payload.new);
@@ -105,7 +99,9 @@
     card.className = 'message-card';
     if (!animate) card.style.animation = 'none';
 
-    const time = new Date(msg.created_at).toLocaleTimeString('en-GB', {
+    const msgDate = new Date(msg.created_at);
+    const time = msgDate.toLocaleString('en-GB', {
+      day: '2-digit', month: 'short',
       hour: '2-digit', minute: '2-digit',
     });
 
