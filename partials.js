@@ -30,6 +30,7 @@
       <li><a href="schedule.html">SCHEDULE</a></li>
       <li><a href="business.html">BUSINESS</a></li>
       <li><a href="contact.html">CONTACT</a></li>
+      <li class="nav-dashboard-item" id="navDashboardItem" style="display:none"><a href="presenter-dashboard.html" id="navDashboardLink">DASHBOARD</a></li>
     </ul>
     <div class="player-widget" id="playerWidget">
       <div class="player-meta">
@@ -98,5 +99,27 @@
       a.classList.add('active');
     }
   });
+
+  // Show the Dashboard nav link if a presenter session exists in localStorage.
+  // presenter-auth.js manages the full Supabase session; this is a fast
+  // synchronous check so the link appears without waiting for the SDK.
+  (function syncDashboardLink() {
+    const item = document.getElementById('navDashboardItem');
+    if (!item) return;
+    try {
+      // Supabase stores its session under a key matching this pattern
+      const keys = Object.keys(localStorage).filter(function (k) {
+        return k.startsWith('sb-') && k.endsWith('-auth-token');
+      });
+      if (keys.length > 0) {
+        const session = JSON.parse(localStorage.getItem(keys[0]));
+        if (session && session.access_token) {
+          item.style.display = '';
+        }
+      }
+    } catch (e) {
+      // localStorage unavailable or parse error — leave link hidden
+    }
+  })();
 
 })();

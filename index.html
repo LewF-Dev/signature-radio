@@ -42,6 +42,41 @@
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════
+         MESSAGE THE STUDIO
+    ═══════════════════════════════════════════ -->
+    <section class="studio-message-bar" aria-label="Message the studio">
+      <div class="container">
+        <div class="studio-message-inner">
+          <p class="studio-message-text">Got a shout-out or request? Send a message straight to the studio.</p>
+          <button class="btn-primary" id="openMessageModal">MESSAGE THE STUDIO</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Message modal -->
+    <div class="modal-overlay" id="messageModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+      <div class="modal">
+        <button class="modal-close" id="closeMessageModal" aria-label="Close">&times;</button>
+        <h2 class="modal-title" id="modalTitle">MESSAGE THE STUDIO</h2>
+        <p class="modal-intro">Your message goes directly to the presenter on air.</p>
+        <form class="modal-form" id="messageForm" novalidate>
+          <div class="form-group">
+            <label for="msgName" class="form-label">Your name <span class="form-optional">(optional)</span></label>
+            <input type="text" id="msgName" class="form-input" placeholder="e.g. Sarah from Bristol" maxlength="80" autocomplete="name" />
+          </div>
+          <div class="form-group">
+            <label for="msgText" class="form-label">Message <span class="form-required">*</span></label>
+            <textarea id="msgText" class="form-input form-textarea" placeholder="Your shout-out or request…" maxlength="500" required></textarea>
+            <span class="char-count" id="charCount">0 / 500</span>
+          </div>
+          <p class="form-error" id="msgError" role="alert" aria-live="polite"></p>
+          <button type="submit" class="btn-primary" id="msgSubmitBtn">SEND MESSAGE</button>
+        </form>
+        <p class="modal-success" id="msgSuccess" hidden>Message sent! The presenter will see it shortly.</p>
+      </div>
+    </div>
+
     <section class="section" id="about" aria-labelledby="about-heading">
       <div class="container">
         <h2 class="section-heading" id="about-heading">ABOUT SIGNATURE RADIO UK</h2>
@@ -106,5 +141,7 @@
 
   <script src="partials.js"></script>
   <script src="main.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="presenter-auth.js"></script>
 </body>
 </html>

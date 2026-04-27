@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Presenter Dashboard — Signature Radio UK</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Barlow:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div id="ticker-mount"></div>
+  <header class="hero" role="banner">
+    <div class="hero-content">
+      <div class="hero-brand">
+        <img src="logo.jpg" alt="Signature Radio UK" class="hero-logo" />
+      </div>
+    </div>
+    <div class="hero-image" aria-hidden="true">
+      <img src="Best-Afro-Hair_Venus-removebg-preview.avif" alt="" class="hero-img" />
+    </div>
+  </header>
+  <div id="nav-mount"></div>
+
+  <main>
+    <section class="section page-section" aria-labelledby="dashboard-heading">
+      <div class="container">
+
+        <div class="dashboard-header">
+          <h1 class="section-heading" id="dashboard-heading">PRESENTER DASHBOARD</h1>
+          <button class="btn-secondary" id="logoutBtn">SIGN OUT</button>
+        </div>
+
+        <p class="dashboard-intro">
+          Messages from listeners appear here in real time. New messages will pop up automatically.
+        </p>
+
+        <div class="dashboard-status" id="dashboardStatus" aria-live="polite">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusLabel">Connecting…</span>
+        </div>
+
+        <div class="message-list" id="messageList" aria-label="Listener messages" aria-live="polite">
+          <p class="message-empty" id="messageEmpty">No messages yet.</p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast popup container — appended to body so it overlays everything -->
+  <div class="toast-container" id="toastContainer" aria-live="assertive" aria-atomic="false"></div>
+
+  <div id="footer-mount"></div>
+
+  <script src="partials.js"></script>
+  <script src="main.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="presenter-auth.js"></script>
+</body>
+</html>
