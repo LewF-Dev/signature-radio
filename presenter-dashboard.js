@@ -43,14 +43,16 @@
     return;
   }
 
-  // Use session creation time as the window start — presenter only
-  // sees messages sent after they logged in
-  const sessionStart = new Date(session.created_at).toISOString();
+  // Use the stored login time so the window stays stable across token refreshes.
+  // Falls back to session.created_at if localStorage entry is missing.
+  const sessionStart = localStorage.getItem('sruk_presenter_login_at')
+    || new Date(session.created_at).toISOString();
 
   // ── Sign out ───────────────────────────────────────
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async function () {
       await supabase.auth.signOut();
+      localStorage.removeItem('sruk_presenter_login_at');
       window.location.href = 'index.html';
     });
   }

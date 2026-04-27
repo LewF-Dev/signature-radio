@@ -73,6 +73,7 @@
   if (signOutBtn) {
     signOutBtn.addEventListener('click', async function () {
       await supabase.auth.signOut();
+      clearLoginTime();
       window.location.reload();
     });
   }
@@ -80,6 +81,7 @@
   // ── Check existing session ─────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
+    recordLoginTime();
     onLoggedIn();
     return;
   }
@@ -141,6 +143,7 @@
         return;
       }
 
+      recordLoginTime();
       closeLoginPanel();
       onLoggedIn();
     });
@@ -189,9 +192,23 @@
         return;
       }
 
+      recordLoginTime();
       closeSetupPanel();
       onLoggedIn();
     });
+  }
+
+  // ── Store original login time ──────────────────────
+  // session.created_at updates on token refresh, so we persist the
+  // original login time in localStorage to keep the message window stable.
+  function recordLoginTime() {
+    if (!localStorage.getItem('sruk_presenter_login_at')) {
+      localStorage.setItem('sruk_presenter_login_at', new Date().toISOString());
+    }
+  }
+
+  function clearLoginTime() {
+    localStorage.removeItem('sruk_presenter_login_at');
   }
 
   // ── Post-login state ───────────────────────────────
