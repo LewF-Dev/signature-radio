@@ -1285,6 +1285,111 @@ img, svg { display: block; max-width: 100%; }
   overflow: hidden;
 }
 
+/* ── Presenter Bubble ─────────────────────────────── */
+.presenter-bubble {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 150;
+  display: none; /* shown via JS once auth state is known */
+}
+
+.presenter-bubble-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--off-black);
+  border: 1px solid #333;
+  border-left: 3px solid var(--red);
+  border-radius: 3px;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  padding: 0.6rem 1rem;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+
+.presenter-bubble-btn:hover {
+  background: var(--dark-grey);
+  border-color: var(--red);
+  color: var(--white);
+}
+
+.presenter-bubble-arrow {
+  color: var(--red);
+  font-size: 1rem;
+  transition: transform 0.2s;
+}
+
+.presenter-bubble-btn:hover .presenter-bubble-arrow {
+  transform: translateX(3px);
+}
+
+/* ── Presenter Panel Overlay ──────────────────────── */
+.presenter-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.presenter-panel-overlay[hidden] { display: none; }
+
+.presenter-panel {
+  background: var(--dark-grey);
+  border: 1px solid #2a2a2a;
+  border-top: 3px solid var(--red);
+  border-radius: 3px;
+  padding: 2rem 1.75rem;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  animation: panel-in 0.2s ease;
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.presenter-panel-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+  background: none;
+  border: none;
+  color: var(--light-grey);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.presenter-panel-close:hover { color: var(--white); }
+
+.presenter-panel-title {
+  font-family: var(--font-cond);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--red);
+  margin-bottom: 0.35rem;
+}
+
+.presenter-panel-intro {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 1.5rem;
+}
+
 /* ── Focus styles (accessibility) ────────────────── */
 :focus-visible {
   outline: 2px solid var(--red);

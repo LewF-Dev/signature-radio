@@ -91,6 +91,60 @@
   const footerTarget = document.getElementById('footer-mount');
   if (footerTarget) footerTarget.outerHTML = footerHTML;
 
+  // Inject presenter auth UI (bubble + panels)
+  const authHTML = `
+  <!-- Presenter bubble -->
+  <div class="presenter-bubble" id="presenterBubble" role="complementary" aria-label="Presenter login">
+    <button class="presenter-bubble-btn" id="presenterBubbleBtn" aria-expanded="false" aria-controls="presenterLoginPanel">
+      Are you a presenter? <span class="presenter-bubble-arrow">→</span>
+    </button>
+  </div>
+
+  <!-- Login panel -->
+  <div class="presenter-panel-overlay" id="presenterLoginPanel" hidden role="dialog" aria-modal="true" aria-labelledby="loginPanelTitle">
+    <div class="presenter-panel">
+      <button class="presenter-panel-close" id="presenterPanelClose" aria-label="Close">&times;</button>
+      <h2 class="presenter-panel-title" id="loginPanelTitle">PRESENTER LOGIN</h2>
+      <p class="presenter-panel-intro">Sign in with your Signature Radio credentials.</p>
+      <form class="login-form" id="presenterLoginForm" novalidate>
+        <div class="form-group">
+          <label for="presenterEmail" class="form-label">Email</label>
+          <input type="email" id="presenterEmail" class="form-input" autocomplete="email" required placeholder="your@email.com" />
+        </div>
+        <div class="form-group">
+          <label for="presenterPassword" class="form-label">Password</label>
+          <input type="password" id="presenterPassword" class="form-input" autocomplete="current-password" required placeholder="••••••••" />
+        </div>
+        <p class="login-error" id="presenterLoginError" role="alert" aria-live="polite"></p>
+        <button type="submit" class="btn-primary" id="presenterLoginBtn">SIGN IN</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Password setup panel (shown when invite token detected in URL) -->
+  <div class="presenter-panel-overlay" id="presenterSetupPanel" hidden role="dialog" aria-modal="true" aria-labelledby="setupPanelTitle">
+    <div class="presenter-panel">
+      <h2 class="presenter-panel-title" id="setupPanelTitle">SET YOUR PASSWORD</h2>
+      <p class="presenter-panel-intro">Welcome to Signature Radio. Choose a password to complete your account setup.</p>
+      <form class="login-form" id="presenterSetupForm" novalidate>
+        <div class="form-group">
+          <label for="setupPassword" class="form-label">New password</label>
+          <input type="password" id="setupPassword" class="form-input" autocomplete="new-password" required placeholder="••••••••" minlength="8" />
+        </div>
+        <div class="form-group">
+          <label for="setupPasswordConfirm" class="form-label">Confirm password</label>
+          <input type="password" id="setupPasswordConfirm" class="form-input" autocomplete="new-password" required placeholder="••••••••" />
+        </div>
+        <p class="login-error" id="presenterSetupError" role="alert" aria-live="polite"></p>
+        <button type="submit" class="btn-primary" id="presenterSetupBtn">SET PASSWORD &amp; SIGN IN</button>
+      </form>
+    </div>
+  </div>`;
+
+  const authMount = document.createElement('div');
+  authMount.innerHTML = authHTML;
+  document.body.appendChild(authMount);
+
   // Highlight active nav link based on current page
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a').forEach(function (a) {
