@@ -30,7 +30,7 @@
       <li><a href="schedule.html">SCHEDULE</a></li>
       <li><a href="business.html">BUSINESS</a></li>
       <li><a href="contact.html">CONTACT</a></li>
-      <li class="nav-dashboard-item" id="navDashboardItem" style="display:none"><a href="presenter-dashboard.html" id="navDashboardLink">DASHBOARD</a></li>
+      <li class="nav-dashboard-item" id="navDashboardItem" style="display:none"><a href="presenter-dashboard.html" id="navDashboardLink">LIVE CHAT</a></li>
     </ul>
     <div class="player-widget" id="playerWidget">
       <div class="player-meta">
