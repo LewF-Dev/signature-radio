@@ -43,6 +43,10 @@
     return;
   }
 
+  // Use session creation time as the window start — presenter only
+  // sees messages sent after they logged in
+  const sessionStart = new Date(session.created_at).toISOString();
+
   // ── Sign out ───────────────────────────────────────
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async function () {
@@ -55,6 +59,7 @@
   const { data, error } = await supabase
     .from('listener_messages')
     .select('*')
+    .gte('created_at', sessionStart)
     .order('created_at', { ascending: false })
     .limit(50);
 
@@ -72,6 +77,8 @@
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'listener_messages' },
       function (payload) {
+        // Ignore messages that arrived before this session started
+        if (new Date(payload.new.created_at) < new Date(sessionStart)) return;
         if (emptyMsg && emptyMsg.parentNode) emptyMsg.remove();
         prependCard(payload.new, true);
         showToast(payload.new);
