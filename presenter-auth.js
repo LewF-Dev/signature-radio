@@ -69,6 +69,14 @@
     return;
   }
 
+  // ── Sign out (from bubble) — wired early so it works on all paths ─
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', async function () {
+      await supabase.auth.signOut();
+      window.location.reload();
+    });
+  }
+
   // ── Check existing session ─────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
@@ -208,13 +216,7 @@
     if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'none';
   }
 
-  // ── Sign out (from bubble) ─────────────────────────
-  if (signOutBtn) {
-    signOutBtn.addEventListener('click', async function () {
-      await supabase.auth.signOut();
-      window.location.reload();
-    });
-  }
+
 
 })();
 
