@@ -94,10 +94,14 @@
   // Inject presenter auth UI (bubble + panels)
   const authHTML = `
   <!-- Presenter bubble -->
-  <div class="presenter-bubble" id="presenterBubble" role="complementary" aria-label="Presenter login">
+  <div class="presenter-bubble" id="presenterBubble" role="complementary" aria-label="Presenter controls">
     <button class="presenter-bubble-btn" id="presenterBubbleBtn" aria-expanded="false" aria-controls="presenterLoginPanel">
       Are you a presenter? <span class="presenter-bubble-arrow">→</span>
     </button>
+    <div class="presenter-bubble-loggedin" id="presenterBubbleLoggedIn" style="display:none">
+      <span class="presenter-bubble-status">● ON AIR</span>
+      <button class="presenter-bubble-signout" id="presenterSignOutBtn">Sign out</button>
+    </div>
   </div>
 
   <!-- Login panel -->

@@ -13,8 +13,10 @@
   const SUPABASE_ANON_KEY = window.SRUK_SUPABASE_ANON_KEY || '';
 
   // ── Elements ───────────────────────────────────────
-  const bubble        = document.getElementById('presenterBubble');
-  const bubbleBtn     = document.getElementById('presenterBubbleBtn');
+  const bubble           = document.getElementById('presenterBubble');
+  const bubbleBtn        = document.getElementById('presenterBubbleBtn');
+  const bubbleLoggedIn   = document.getElementById('presenterBubbleLoggedIn');
+  const signOutBtn       = document.getElementById('presenterSignOutBtn');
   const loginPanel    = document.getElementById('presenterLoginPanel');
   const loginClose    = document.getElementById('presenterPanelClose');
   const loginForm     = document.getElementById('presenterLoginForm');
@@ -186,17 +188,32 @@
 
   // ── Post-login state ───────────────────────────────
   function onLoggedIn() {
-    if (bubble) bubble.style.display = 'none';
+    // Swap bubble to logged-in state
+    if (bubbleBtn)      bubbleBtn.style.display      = 'none';
+    if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'flex';
+    if (bubble)         bubble.style.display         = 'block';
 
+    // Show dashboard nav link
     const dashItem = document.getElementById('navDashboardItem');
     if (dashItem) dashItem.style.display = '';
 
+    // Hide message studio bar
     const studioBar = document.querySelector('.studio-message-bar');
     if (studioBar) studioBar.style.display = 'none';
   }
 
   function showBubble() {
-    if (bubble) bubble.style.display = 'block';
+    if (bubble)         bubble.style.display         = 'block';
+    if (bubbleBtn)      bubbleBtn.style.display      = '';
+    if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'none';
+  }
+
+  // ── Sign out (from bubble) ─────────────────────────
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', async function () {
+      await supabase.auth.signOut();
+      window.location.reload();
+    });
   }
 
 })();
