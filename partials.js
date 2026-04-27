@@ -62,7 +62,7 @@
       <div class="footer-col">
         <p class="footer-brand">SIGNATURE RADIO UK</p>
         <p><strong>Contact:</strong> 07885 297391</p>
-        <p><strong>Email:</strong> <a href="mailto:studio@signatureradio.uk">studio@signatureradio.uk</a></p>
+        <p><strong>Email:</strong> <a href="mailto:studio@signatureradio.uk" target="_blank" rel="noopener">studio@signatureradio.uk</a></p>
         <address>
           <strong>Address:</strong><br />
           145–147 East Street,<br />
