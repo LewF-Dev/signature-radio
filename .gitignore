@@ -4,4 +4,4 @@ Thumbs.db
 node_modules/
 dist/
 .env
-supabase-config.js
+# supabase-config.js is intentionally committed — it contains only public-safe credentials

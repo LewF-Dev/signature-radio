@@ -30,7 +30,10 @@
   const setupBtn      = document.getElementById('presenterSetupBtn');
 
   // ── Load Supabase SDK ──────────────────────────────
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (bubble) bubble.style.display = 'block';
+    return;
+  }
 
   let createClient;
   try {
@@ -193,7 +196,7 @@
   }
 
   function showBubble() {
-    if (bubble) bubble.style.display = '';
+    if (bubble) bubble.style.display = 'block';
   }
 
 })();
