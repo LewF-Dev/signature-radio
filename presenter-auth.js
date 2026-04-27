@@ -218,13 +218,73 @@
     if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'flex';
     if (bubble)         bubble.style.display         = 'block';
 
-    // Show dashboard nav link
+    // Show live chat nav link
     const dashItem = document.getElementById('navDashboardItem');
     if (dashItem) dashItem.style.display = '';
 
     // Hide message studio bar
     const studioBar = document.querySelector('.studio-message-bar');
     if (studioBar) studioBar.style.display = 'none';
+
+    // Start site-wide real-time toasts — skip on dashboard to avoid
+    // duplicate toasts (presenter-dashboard.js handles that page)
+    const page = window.location.pathname.split('/').pop();
+    if (page !== 'presenter-dashboard.html') {
+      startSitewideRealtime();
+    }
+  }
+
+  // ── Site-wide real-time toasts ─────────────────────
+  function startSitewideRealtime() {
+    // Ensure toast container exists on every page
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toastContainer';
+      toastContainer.className = 'toast-container';
+      toastContainer.setAttribute('aria-live', 'assertive');
+      toastContainer.setAttribute('aria-atomic', 'false');
+      document.body.appendChild(toastContainer);
+    }
+
+    supabase
+      .channel('sitewide_messages')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'listener_messages' },
+        function (payload) {
+          showToast(payload.new, toastContainer);
+        }
+      )
+      .subscribe();
+  }
+
+  function showToast(msg, container) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.setAttribute('role', 'status');
+
+    toast.innerHTML =
+      '<p class="toast-label">New Message</p>' +
+      '<p class="toast-name">' + escHtml(msg.name || 'Anonymous') + '</p>' +
+      '<p class="toast-body">' + escHtml(msg.message) + '</p>';
+
+    container.appendChild(toast);
+
+    setTimeout(function () {
+      toast.classList.add('toast-out');
+      toast.addEventListener('animationend', function () {
+        toast.remove();
+      }, { once: true });
+    }, 8000);
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
   function showBubble() {
