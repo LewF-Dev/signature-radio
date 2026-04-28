@@ -110,6 +110,18 @@ img, svg { display: block; max-width: 100%; }
   100% { transform: translateX(-50%); }
 }
 
+/* ── Hero animated background ────────────────────── */
+@keyframes hero-glow-drift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes hero-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.75; }
+}
+
 /* ── Hero ─────────────────────────────────────────── */
 .hero {
   position: relative;
@@ -118,6 +130,20 @@ img, svg { display: block; max-width: 100%; }
   display: flex;
   align-items: stretch;
   overflow: hidden;
+}
+
+/* Animated glow layer — sits behind content via pseudo-element */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 20% 60%, rgba(180,0,0,0.18) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 30%, rgba(120,0,0,0.10) 0%, transparent 55%);
+  background-size: 200% 200%;
+  animation: hero-glow-drift 18s ease-in-out infinite,
+             hero-pulse 8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .hero-content {
@@ -1572,6 +1598,7 @@ img, svg { display: block; max-width: 100%; }
   .toast.toast-out { animation: none; opacity: 0; }
 
   /* Hero */
+  .hero::before { animation: none; }
   .hero-logo,
   .listen-modes,
   .visit-counter-label,
