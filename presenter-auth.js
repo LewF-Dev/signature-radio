@@ -7,7 +7,34 @@
      - Session persistence across pages
 ═══════════════════════════════════════════════════════ */
 
-(async function initPresenterAuth() {
+window.SRUK_initPresenterAuth = async function initPresenterAuth() {
+  // Only run full init once — on re-runs just update UI state
+  if (window.SRUK && window.SRUK.presenterAuthReady) {
+    // Re-apply logged-in state if session exists
+    const bubble       = document.getElementById('presenterBubble');
+    const bubbleBtn    = document.getElementById('presenterBubbleBtn');
+    const bubbleLoggedIn = document.getElementById('presenterBubbleLoggedIn');
+    const dashItem     = document.getElementById('navDashboardItem');
+    const studioBar    = document.querySelector('.studio-message-bar');
+    const keys = Object.keys(localStorage).filter(function (k) {
+      return k.startsWith('sb-') && k.endsWith('-auth-token');
+    });
+    const hasSession = keys.length > 0 && (function () {
+      try { return !!JSON.parse(localStorage.getItem(keys[0]))?.access_token; } catch (e) { return false; }
+    })();
+    if (hasSession) {
+      if (bubbleBtn)      bubbleBtn.style.display      = 'none';
+      if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'flex';
+      if (bubble)         bubble.style.display         = 'block';
+      if (dashItem)       dashItem.style.display       = '';
+      if (studioBar)      studioBar.style.display      = 'none';
+    } else {
+      if (bubble)         bubble.style.display         = 'block';
+      if (bubbleBtn)      bubbleBtn.style.display      = '';
+      if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'none';
+    }
+    return;
+  }
 
   const SUPABASE_URL      = window.SRUK_SUPABASE_URL      || '';
   const SUPABASE_ANON_KEY = window.SRUK_SUPABASE_ANON_KEY || '';
@@ -47,6 +74,9 @@
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.SRUK = window.SRUK || {};
+  window.SRUK.presenterAuthReady = true;
+  window.SRUK.supabase = supabase;
 
   // ── Check for invite token in URL hash ────────────
   const hash        = window.location.hash;
@@ -293,9 +323,8 @@
     if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'none';
   }
 
-
-
-})();
+};
+window.SRUK_initPresenterAuth();
 
 
 /* ═══════════════════════════════════════════════════════
@@ -304,6 +333,9 @@
 (function initMessageModal() {
   const openBtn   = document.getElementById('openMessageModal');
   const modal     = document.getElementById('messageModal');
+  if (!openBtn || !modal) return;
+  if (openBtn.dataset.modalInit) return;
+  openBtn.dataset.modalInit = '1';
   const closeBtn  = document.getElementById('closeMessageModal');
   const form      = document.getElementById('messageForm');
   const nameEl    = document.getElementById('msgName');
@@ -312,8 +344,6 @@
   const errorEl   = document.getElementById('msgError');
   const submitBtn = document.getElementById('msgSubmitBtn');
   const successEl = document.getElementById('msgSuccess');
-
-  if (!openBtn || !modal) return;
 
   function openModal() {
     modal.hidden = false;

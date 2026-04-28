@@ -5,7 +5,7 @@
    toast popups, and sign out.
 ═══════════════════════════════════════════════════════ */
 
-(async function initDashboard() {
+window.SRUK_initDashboard = async function initDashboard() {
 
   const SUPABASE_URL      = window.SRUK_SUPABASE_URL      || '';
   const SUPABASE_ANON_KEY = window.SRUK_SUPABASE_ANON_KEY || '';
@@ -69,7 +69,7 @@
   }
 
   // ── Real-time subscription ─────────────────────────
-  supabase
+  const channel = supabase
     .channel('dashboard_messages')
     .on(
       'postgres_changes',
@@ -87,6 +87,13 @@
         setStatus('error', 'Connection lost — refresh to reconnect');
       }
     });
+
+  // Expose cleanup so router can unsubscribe when navigating away
+  window.SRUK = window.SRUK || {};
+  window.SRUK.cleanupDashboard = function () {
+    channel.unsubscribe();
+    window.SRUK.cleanupDashboard = null;
+  };
 
   // ── Helpers ────────────────────────────────────────
   function setStatus(type, text) {
@@ -145,4 +152,5 @@
       .replace(/"/g, '&quot;');
   }
 
-})();
+};
+window.SRUK_initDashboard();

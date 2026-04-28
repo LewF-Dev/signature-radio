@@ -77,7 +77,16 @@
    Fade transition between slides. Auto-advances every 8s.
    Pauses on hover. Arrow keys, swipe, and dot navigation.
 ─────────────────────────────────────────────────────── */
-(function initSlideshow() {
+window.SRUK = window.SRUK || {};
+window.SRUK.cleanupSlideshow = null;
+
+window.SRUK_initSlideshow = function initSlideshow() {
+  // Clean up any previous instance before re-initialising
+  if (window.SRUK.cleanupSlideshow) {
+    window.SRUK.cleanupSlideshow();
+    window.SRUK.cleanupSlideshow = null;
+  }
+
   const slideshow = document.getElementById('slideshow');
   if (!slideshow) return;
 
@@ -151,7 +160,11 @@
   }, { passive: true });
 
   startTimer();
-})();
+
+  // Expose cleanup so the router can stop the timer before swapping pages
+  window.SRUK.cleanupSlideshow = stopTimer;
+};
+window.SRUK_initSlideshow();
 
 /* ── Scroll Reveal ────────────────────────────────────
    Watches all .reveal elements and adds .is-visible
