@@ -228,9 +228,13 @@
         return res.json();
       })
       .then(function (data) {
-        if (trackEl && data.title) {
-          trackEl.textContent = data.title;
-          trackEl.title = data.title;
+        if (trackEl) {
+          // Show "Track — Show Name" when a show is scheduled, otherwise just the track
+          const display = (data.show && data.title !== data.show)
+            ? data.title + ' \u2014 ' + data.show
+            : (data.title || 'Signature Radio UK');
+          trackEl.textContent = display;
+          trackEl.title = display;
         }
       })
       .catch(function () {
