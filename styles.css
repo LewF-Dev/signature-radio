@@ -221,6 +221,49 @@ img, svg { display: block; max-width: 100%; }
   gap: 1.25rem;
 }
 
+/* ── Community section ───────────────────────────── */
+.community-inner {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.community-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.community-text p {
+  color: var(--light-grey);
+  line-height: 1.7;
+}
+
+.community-flyer {
+  flex: 0 0 auto;
+  width: clamp(180px, 28vw, 280px);
+}
+
+.community-flyer-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 700px) {
+  .community-inner {
+    flex-direction: column-reverse;
+    gap: 2rem;
+  }
+  .community-flyer {
+    width: clamp(160px, 60vw, 240px);
+    align-self: center;
+  }
+}
+
 /* Alexa badge */
 .alexa-badge {
   display: flex;
