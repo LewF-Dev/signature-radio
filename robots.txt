@@ -1,2 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /presenter-dashboard.html
+Disallow: /api/
+
+Sitemap: https://www.signatureradio.uk/sitemap.xml
