@@ -52,20 +52,19 @@ window.SRUK_initDashboard = async function initDashboard() {
   }
 
   // ── Load message history ───────────────────────────
-  // Show messages from the last 12 hours so the page feels active.
-  const since = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from('listener_messages')
-    .select('*')
-    .gte('created_at', since)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (!error && data && data.length > 0) {
-    if (emptyMsg) emptyMsg.remove();
-    data.slice().reverse().forEach(function (msg) {
-      prependCard(msg, false);
-    });
+  // Fetch via the server-side function so RLS doesn't block unauthenticated reads.
+  try {
+    const res = await fetch('/api/messages/public');
+    const json = await res.json();
+    const messages = json.messages || [];
+    if (messages.length > 0) {
+      if (emptyMsg) emptyMsg.remove();
+      messages.slice().reverse().forEach(function (msg) {
+        prependCard(msg, false);
+      });
+    }
+  } catch (e) {
+    // History unavailable — real-time will still work
   }
 
   // ── Real-time subscription ─────────────────────────
