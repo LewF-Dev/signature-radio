@@ -114,6 +114,25 @@
         </div>
       </div>
     </section>
+
+    <!-- ═══════════════════════════════════════════
+         EVENTS
+    ═══════════════════════════════════════════ -->
+    <section class="section events-section" aria-labelledby="events-heading">
+      <div class="container">
+        <h2 class="section-heading reveal reveal--left" id="events-heading">EVENTS</h2>
+      </div>
+      <div class="coverflow" id="coverflow" aria-label="Upcoming events">
+        <button class="coverflow-btn coverflow-prev" id="coverflowPrev" aria-label="Previous event">&#8249;</button>
+        <div class="coverflow-stage" id="coverflowStage">
+          <div class="coverflow-card" data-index="0">
+            <img src="assets/signature-radio-ToTos-bar-flyer.jpeg" alt="The R&Boat After Party at Toto's Bar — Sat 1st August" />
+          </div>
+          <!-- Additional event cards go here as new flyers are added -->
+        </div>
+        <button class="coverflow-btn coverflow-next" id="coverflowNext" aria-label="Next event">&#8250;</button>
+      </div>
+    </section>
   </main>
 
   <div id="footer-mount"></div>
@@ -123,5 +142,89 @@
   <script src="supabase-config.js"></script>
   <script src="presenter-auth.js"></script>
   <script src="router.js"></script>
+  <script>
+  (function initCoverflow() {
+    var stage   = document.getElementById('coverflowStage');
+    var prevBtn = document.getElementById('coverflowPrev');
+    var nextBtn = document.getElementById('coverflowNext');
+    if (!stage) return;
+
+    var cards   = Array.from(stage.querySelectorAll('.coverflow-card'));
+    var total   = cards.length;
+    var current = 0;
+    var timer;
+
+    var POSITIONS = ['pos-left', 'pos-center', 'pos-right', 'pos-hidden'];
+
+    function getPos(cardIndex, activeIndex) {
+      if (total === 1) return 'pos-center';
+      var diff = (cardIndex - activeIndex + total) % total;
+      if (diff === 0)           return 'pos-center';
+      if (diff === 1)           return 'pos-right';
+      if (diff === total - 1)   return 'pos-left';
+      return 'pos-hidden';
+    }
+
+    function render() {
+      cards.forEach(function (card, i) {
+        POSITIONS.forEach(function (p) { card.classList.remove(p); });
+        card.classList.add(getPos(i, current));
+      });
+    }
+
+    function next() {
+      current = (current + 1) % total;
+      render();
+    }
+
+    function prev() {
+      current = (current - 1 + total) % total;
+      render();
+    }
+
+    function startTimer() {
+      if (total < 2) return;
+      timer = setInterval(next, 4000);
+    }
+
+    function stopTimer() {
+      clearInterval(timer);
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', function () { stopTimer(); next(); startTimer(); });
+    if (prevBtn) prevBtn.addEventListener('click', function () { stopTimer(); prev(); startTimer(); });
+
+    // Click a side card to bring it to centre
+    stage.addEventListener('click', function (e) {
+      var card = e.target.closest('.coverflow-card');
+      if (!card) return;
+      var idx = cards.indexOf(card);
+      if (idx === current) return;
+      stopTimer();
+      current = idx;
+      render();
+      startTimer();
+    });
+
+    // Pause on hover
+    stage.addEventListener('mouseenter', stopTimer);
+    stage.addEventListener('mouseleave', startTimer);
+
+    // Touch swipe
+    var touchX = 0;
+    stage.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', function (e) {
+      var diff = touchX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) { stopTimer(); diff > 0 ? next() : prev(); startTimer(); }
+    }, { passive: true });
+
+    render();
+    startTimer();
+
+    // Expose cleanup for SPA router
+    window.SRUK = window.SRUK || {};
+    window.SRUK.cleanupCoverflow = stopTimer;
+  })();
+  </script>
 </body>
 </html>

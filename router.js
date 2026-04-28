@@ -107,6 +107,7 @@
     if (window.SRUK) {
       if (typeof window.SRUK.cleanupSlideshow  === 'function') window.SRUK.cleanupSlideshow();
       if (typeof window.SRUK.cleanupDashboard  === 'function') window.SRUK.cleanupDashboard();
+      if (typeof window.SRUK.cleanupCoverflow  === 'function') window.SRUK.cleanupCoverflow();
     }
     // Close any open modals
     document.querySelectorAll('.modal-overlay:not([hidden]), .presenter-panel-overlay:not([hidden])')
