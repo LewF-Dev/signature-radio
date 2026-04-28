@@ -21,17 +21,19 @@
     const href = a.getAttribute('href');
     if (!href) return;
 
-    // Skip: external, hash-only, mailto, target="_blank", download
+    // Skip: external, hash-only, mailto, tel, target="_blank", download
     if (
       a.target === '_blank' ||
       a.hasAttribute('download') ||
       href.startsWith('mailto:') ||
-      href.startsWith('http') && !href.startsWith(SAME_ORIGIN) ||
+      href.startsWith('tel:') ||
       href.startsWith('#')
     ) return;
 
-    // Skip presenter dashboard — needs full load for auth guard
-    const dest = href.split('/').pop() || 'index.html';
+    // Skip absolute URLs pointing to a different origin
+    if (href.startsWith('http') && !href.startsWith(SAME_ORIGIN)) return;
+
+    const dest = href.split('/').pop().split('?')[0] || 'index.html';
     if (FULL_RELOAD_PAGES.includes(dest)) return;
 
     e.preventDefault();
@@ -69,16 +71,24 @@
         curMain.replaceWith(newMain);
       }
 
-      // Update <title>
-      document.title = doc.title;
+      // 1. Update <title> — read from parsed <title> element directly
+      const newTitle = doc.querySelector('title');
+      if (newTitle) document.title = newTitle.textContent;
 
-      // Update active nav link
+      // 2. Update active nav link (router's own + partials.js helper)
       updateActiveNav(url);
+      if (window.SRUK && typeof window.SRUK.syncActiveNav === 'function') {
+        window.SRUK.syncActiveNav();
+      }
+      if (window.SRUK && typeof window.SRUK.syncDashboardLink === 'function') {
+        window.SRUK.syncDashboardLink();
+      }
 
-      // Scroll to top
-      window.scrollTo(0, 0);
+      // 3. Scroll to top — assign scrollTop directly to bypass CSS scroll-behavior: smooth
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
 
-      // Re-run per-page initialisers
+      // 4. Re-run per-page initialisers (includes presenter bubble sync)
       reinit(url);
 
     } catch (err) {
@@ -103,29 +113,29 @@
   function reinit(url) {
     const page = url.split('/').pop().split('?')[0] || 'index.html';
 
-    // Always re-run scroll reveal
-    if (window.initScrollReveal) window.initScrollReveal();
-    else reinitScrollReveal();
+    // Always re-run scroll reveal on new content
+    reinitScrollReveal();
 
     // Always re-run visit counter (only activates if element present)
     reinitCounter();
 
     // Page-specific
     if (page === 'index.html' || page === '') {
-      // Message modal is guarded by data-modal-init so safe to call
       if (window.initMessageModal) window.initMessageModal();
     }
 
     if (page === 'business.html') {
-      reinitSlideshow();
+      if (typeof window.SRUK_initSlideshow === 'function') window.SRUK_initSlideshow();
     }
 
     if (page === 'presenter-dashboard.html') {
-      reinitDashboard();
+      if (typeof window.SRUK_initDashboard === 'function') window.SRUK_initDashboard();
     }
 
-    // Re-run presenter auth (handles session state, bubble, message bar)
-    reinitPresenterAuth();
+    // 4. Re-sync presenter bubble and session state on every navigation
+    if (typeof window.SRUK_initPresenterAuth === 'function') {
+      window.SRUK_initPresenterAuth();
+    }
   }
 
   // ── Scroll reveal re-init ──────────────────────────
@@ -155,35 +165,21 @@
       .catch(function () {});
   }
 
-  // ── Slideshow re-init ──────────────────────────────
-  function reinitSlideshow() {
-    // Trigger main.js slideshow init by dispatching a custom event
-    // main.js listens for DOMContentLoaded equivalent — we call directly
-    if (typeof window.SRUK_initSlideshow === 'function') {
-      window.SRUK_initSlideshow();
-    }
-  }
-
-  // ── Dashboard re-init ──────────────────────────────
-  function reinitDashboard() {
-    if (typeof window.SRUK_initDashboard === 'function') {
-      window.SRUK_initDashboard();
-    }
-  }
-
-  // ── Presenter auth re-init ─────────────────────────
-  function reinitPresenterAuth() {
-    if (typeof window.SRUK_initPresenterAuth === 'function') {
-      window.SRUK_initPresenterAuth();
-    }
-  }
-
   // ── Active nav link ────────────────────────────────
   function updateActiveNav(url) {
-    const page = url.split('/').pop().split('?')[0] || 'index.html';
+    // Resolve to a pathname so both relative and absolute hrefs work
+    let page;
+    try {
+      page = new URL(url, window.location.href).pathname.split('/').pop().split('?')[0] || 'index.html';
+    } catch (e) {
+      page = url.split('/').pop().split('?')[0] || 'index.html';
+    }
+
     document.querySelectorAll('.nav-links a').forEach(function (a) {
       const href = a.getAttribute('href');
-      a.classList.toggle('active', href === page || (page === '' && href === 'index.html'));
+      if (!href || href.startsWith('http')) return;
+      const aPage = href.split('/').pop().split('?')[0] || 'index.html';
+      a.classList.toggle('active', aPage === page);
     });
   }
 

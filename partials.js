@@ -151,18 +151,29 @@
   document.body.appendChild(authMount);
 
   // Highlight active nav link based on current page
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav-links a').forEach(function (a) {
-    const href = a.getAttribute('href');
-    if (href === currentPage || (currentPage === '' && href === 'index.html')) {
-      a.classList.add('active');
-    }
-  });
+  syncActiveNav();
 
   // Show the Dashboard nav link if a presenter session exists in localStorage.
   // presenter-auth.js manages the full Supabase session; this is a fast
   // synchronous check so the link appears without waiting for the SDK.
-  (function syncDashboardLink() {
+  syncDashboardLink();
+
+  // Expose sync helpers so router.js can call them after each navigation
+  window.SRUK = window.SRUK || {};
+  window.SRUK.syncActiveNav    = syncActiveNav;
+  window.SRUK.syncDashboardLink = syncDashboardLink;
+
+  function syncActiveNav() {
+    const page = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-links a').forEach(function (a) {
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('http')) return;
+      const aPage = href.split('/').pop() || 'index.html';
+      a.classList.toggle('active', aPage === page);
+    });
+  }
+
+  function syncDashboardLink() {
     const item = document.getElementById('navDashboardItem');
     if (!item) return;
     try {
@@ -179,6 +190,6 @@
     } catch (e) {
       // localStorage unavailable or parse error — leave link hidden
     }
-  })();
+  }
 
 })();
