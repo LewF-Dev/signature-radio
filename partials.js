@@ -31,7 +31,7 @@
       <li><a href="business.html">BUSINESS</a></li>
       <li><a href="contact.html">CONTACT</a></li>
       <li><a href="https://drive.google.com/drive/folders/1xrrHW_wQUVmA8ssQkFez8WtezYM5hQze" target="_blank" rel="noopener">ARCHIVE</a></li>
-      <li class="nav-dashboard-item" id="navDashboardItem" style="display:none"><a href="presenter-dashboard.html" id="navDashboardLink">LIVE CHAT</a></li>
+      <li class="nav-dashboard-item" id="navDashboardItem"><a href="presenter-dashboard.html" id="navDashboardLink">LIVE CHAT</a></li>
     </ul>
     <div class="player-widget" id="playerWidget">
       <div class="player-meta">
@@ -174,22 +174,7 @@
   }
 
   function syncDashboardLink() {
-    const item = document.getElementById('navDashboardItem');
-    if (!item) return;
-    try {
-      // Supabase stores its session under a key matching this pattern
-      const keys = Object.keys(localStorage).filter(function (k) {
-        return k.startsWith('sb-') && k.endsWith('-auth-token');
-      });
-      if (keys.length > 0) {
-        const session = JSON.parse(localStorage.getItem(keys[0]));
-        if (session && session.access_token) {
-          item.style.display = '';
-        }
-      }
-    } catch (e) {
-      // localStorage unavailable or parse error — leave link hidden
-    }
+    // Live Chat is visible to all users — nothing to sync
   }
 
 })();

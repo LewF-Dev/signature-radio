@@ -26,7 +26,7 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
       if (bubbleBtn)      bubbleBtn.style.display      = 'none';
       if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'flex';
       if (bubble)         bubble.style.display         = 'block';
-      if (dashItem)       dashItem.style.display       = '';
+
       if (studioBar)      studioBar.style.display      = 'none';
     } else {
       if (bubble)         bubble.style.display         = 'block';
@@ -247,10 +247,6 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
     if (bubbleBtn)      bubbleBtn.style.display      = 'none';
     if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'flex';
     if (bubble)         bubble.style.display         = 'block';
-
-    // Show live chat nav link
-    const dashItem = document.getElementById('navDashboardItem');
-    if (dashItem) dashItem.style.display = '';
 
     // Hide message studio bar
     const studioBar = document.querySelector('.studio-message-bar');

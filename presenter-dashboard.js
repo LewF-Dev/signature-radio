@@ -36,20 +36,19 @@ window.SRUK_initDashboard = async function initDashboard() {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── Auth guard ─────────────────────────────────────
+  // ── Auth check — presenters get sign-out button, guests view read-only ─
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    window.location.href = 'index.html';
-    return;
-  }
-
-  // ── Sign out ───────────────────────────────────────
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async function () {
-      await supabase.auth.signOut();
-      localStorage.removeItem('sruk_presenter_login_at');
-      window.location.href = 'index.html';
-    });
+  if (session) {
+    if (logoutBtn) {
+      logoutBtn.style.display = '';
+      logoutBtn.addEventListener('click', async function () {
+        await supabase.auth.signOut();
+        localStorage.removeItem('sruk_presenter_login_at');
+        window.location.href = 'index.html';
+      });
+    }
+  } else {
+    if (logoutBtn) logoutBtn.style.display = 'none';
   }
 
   // ── Load message history ───────────────────────────
