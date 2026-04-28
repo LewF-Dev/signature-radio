@@ -134,7 +134,17 @@
     }
 
     if (page === 'presenter-dashboard.html') {
-      if (typeof window.SRUK_initDashboard === 'function') window.SRUK_initDashboard();
+      if (typeof window.SRUK_initDashboard === 'function') {
+        window.SRUK_initDashboard();
+      } else {
+        // Script not yet loaded (SPA navigation from another page) — load it now
+        var s = document.createElement('script');
+        s.src = 'presenter-dashboard.js';
+        s.onload = function () {
+          if (typeof window.SRUK_initDashboard === 'function') window.SRUK_initDashboard();
+        };
+        document.body.appendChild(s);
+      }
     }
 
     // 4. Re-sync presenter bubble and session state on every navigation
