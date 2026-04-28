@@ -17,18 +17,45 @@ This is the official website for Signature Radio UK. It lets listeners tune in t
 ## Pages
 
 ### Home
-The main landing page. Contains the station logo and live visitor counter, the DAB launch announcement, a direct link to message the studio, the station's about section, a promotional video, and a talent submission callout for prospective presenters.
+
+![Homepage top](docs/screenshots/home-1.png)
+
+The main landing page. Contains the station logo and live visitor counter, the DAB launch announcement, a direct link to message the studio, the station's about section, and a promotional video.
+
+![Homepage middle](docs/screenshots/home-2.png)
+
+![Homepage bottom](docs/screenshots/home-3.png)
+
+The lower section includes a talent submission callout for prospective presenters, contact details, and the footer.
+
+---
 
 ### About Us
+
+![About Us](docs/screenshots/about.png)
+
 Tells the story of how Signature Radio UK was built — from its online roots with 80,000 listeners through to the DAB launch on 1st May 2026, reaching a potential audience of 1.2 million people across Bristol, South Gloucestershire, North Somerset and Severnside.
 
+---
+
 ### Newsletter
+
+![Newsletter](docs/screenshots/newsletter.png)
+
 Station updates and the DAB announcement. Includes a prompt to join the mailing list via [info@signatureradio.uk](mailto:info@signatureradio.uk).
 
+---
+
 ### Presenters
+
 *(Coming soon — page is currently in development.)*
 
+---
+
 ### Schedule
+
+![Schedule](docs/screenshots/schedule.png)
+
 The Sunday show schedule, listing every show with its time slot and genre. Also includes the Get Involved section for shout-outs, requests, and talent submissions.
 
 **Sunday shows:**
@@ -45,45 +72,69 @@ The Sunday show schedule, listing every show with its time slot and genre. Also 
 | 9pm – 11pm | DJ Kaie – The K-Suite | Slow Jams |
 | 11pm onwards | Signature Radio: Through The Night | Non-Stop Music |
 
+---
+
 ### Business & Advertising
+
+![Business](docs/screenshots/business.png)
+
 For brands and advertisers. Includes a contact email and an image slideshow showcasing the station's commercial proposition — reaching 1.2 million people across the Bristol area.
 
+---
+
 ### Contact
+
+![Contact](docs/screenshots/contact.png)
+
 All contact details in one place: studio line, general and business enquiries, shout-outs and requests, physical address, and the talent submission box.
 
-### Live Chat
-A public feed of messages sent to the studio. Anyone can view it — no login required. Messages from the last 12 hours are shown on load, and new messages appear automatically in real time as listeners send them. Logged-in presenters also see a Sign Out button here.
+---
 
-### Archive
-Links to the station's Google Drive archive of past recordings and content. Opens in a new tab.
+### Live Chat
+
+![Live Chat](docs/screenshots/live-chat.png)
+
+A public feed of messages sent to the studio. Anyone can view it — no login required. Messages from the last 12 hours are shown on load, and new ones appear automatically in real time. Logged-in presenters also see a Sign Out button here.
 
 ---
 
 ## Features
 
 ### Live Player
+
+![Live Player](docs/screenshots/player.png)
+
 Sits in the navigation bar on every page. Shows the current track name (pulled live from the broadcast stream), a LISTEN / PAUSE button, and a volume slider. Audio continues playing uninterrupted as you navigate between pages — the player is never reloaded.
 
-### Now Playing
-The track name in the player updates automatically every 30 seconds from the live Shoutcast stream. On Sundays during scheduled shows, it also displays the show name alongside the track.
+The track name updates automatically every 30 seconds. On Sundays during scheduled shows, it also displays the show name alongside the track.
+
+---
 
 ### Message the Studio
+
+![Message the Studio modal](docs/screenshots/message-modal.png)
+
 A button on the homepage opens a form where listeners can send their name (optional) and a message (up to 500 characters) directly to the studio. The message appears instantly in the presenter's Live Chat dashboard. No account needed.
 
-### Live Chat
-Real-time feed of listener messages. Visible to everyone. Updates live without needing to refresh the page.
-
-### Site Visit Counter
-Displayed on the homepage hero. Counts every visit to the site and updates in real time.
+---
 
 ### Presenter Bubble
-A small button in the bottom-left corner of every page. For listeners it shows "Are you a presenter?" — clicking it opens a login panel. Once a presenter signs in, it changes to a green **● ON AIR** indicator with a Sign Out button.
+
+![Presenter bubble — logged out](docs/screenshots/bubble-logged-out.png)
+
+A small button in the bottom-left corner of every page. For listeners it shows "Are you a presenter?" — clicking it opens a login panel.
+
+![Presenter bubble — on air](docs/screenshots/bubble-on-air.png)
+
+Once a presenter signs in, it changes to a green **● ON AIR** indicator with a Sign Out button.
+
+---
 
 ### Presenter Dashboard
-When a presenter is signed in, the Live Chat page becomes their dashboard. Messages from listeners appear here in real time with toast notifications popping up for each new message, so they never miss one even if they're scrolled up.
 
-### Scroll Animations
-Content on each page fades and slides in as you scroll down, giving the site a polished, broadcast-quality feel.
+![Live Chat — presenter view](docs/screenshots/live-chat-presenter.png)
+
+When a presenter is signed in, the Live Chat page shows a Sign Out button and receives real-time toast notifications for every new message, so they never miss one even if they're scrolled up.
 
 ---
 
@@ -93,7 +144,7 @@ Content on each page fades and slides in as you scroll down, giving the site a p
 Click the **"Are you a presenter?"** bubble in the bottom-left corner of any page. Enter your Signature Radio email and password. Once signed in, the bubble changes to **● ON AIR**.
 
 ### Accessing the Dashboard
-After signing in, navigate to **Live Chat** in the navigation bar. Listener messages appear here in real time.
+Navigate to **Live Chat** in the navigation bar. Listener messages appear here in real time.
 
 ### Signing Out
 Click **Sign Out** in the **● ON AIR** bubble, or use the Sign Out button on the Live Chat page.
@@ -135,8 +186,6 @@ The site runs entirely on free-tier services:
 ---
 
 ## Technical Reference
-
-This section is for developers.
 
 ### Stack
 - Static HTML/CSS/JS — no framework, no build step
@@ -210,12 +259,12 @@ The Supabase public URL and anon key are also set in `supabase-config.js` for br
 | `message` | text | Message body, max 500 chars |
 | `created_at` | timestamptz | Set automatically |
 
-Row Level Security is enabled. The browser-side anon key cannot read rows directly — all reads go through the `/api/messages/public` Netlify function which uses the service role key server-side. Writes (message submission) also go through `/api/message`.
+Row Level Security is enabled. The browser-side anon key cannot read rows directly — all reads go through the `/api/messages/public` Netlify function which uses the service role key server-side. Writes also go through `/api/message`.
 
 Real-time is enabled on the table for the live dashboard subscription.
 
 ### Presenter Auth Flow
-Supabase Auth handles all authentication. Presenters are invited by email (Supabase invite link). The invite token is detected in the URL hash on landing, a session is set, and the password setup panel is shown. Subsequent logins use email/password via the presenter bubble.
+Supabase Auth handles all authentication. Presenters are invited by email. The invite token is detected in the URL hash on landing, a session is set, and the password setup panel is shown. Subsequent logins use email/password via the presenter bubble.
 
 Session state is persisted in `localStorage` under the standard Supabase key (`sb-*-auth-token`). `presenter-auth.js` reads this synchronously on every page load to restore the logged-in UI state without waiting for the Supabase SDK to initialise.
 
