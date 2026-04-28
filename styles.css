@@ -233,7 +233,7 @@ img, svg { display: block; max-width: 100%; }
   width: clamp(22px, 3vw, 32px);
   height: auto;
   display: block;
-  margin-bottom: -18px;
+  margin-bottom: -16px;
 }
 
 .alexa-wordmark {
