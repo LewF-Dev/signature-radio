@@ -298,22 +298,22 @@ img, svg { display: block; max-width: 100%; }
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: none;
+  border: none;
   color: var(--white);
-  font-size: 2rem;
+  font-size: 2.5rem;
   line-height: 1;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
-.coverflow-btn:hover { background: rgba(255,255,255,0.18); }
+.coverflow-btn:hover { opacity: 1; }
 .coverflow-prev { left: clamp(8px, 3vw, 40px); }
 .coverflow-next { right: clamp(8px, 3vw, 40px); }
 
