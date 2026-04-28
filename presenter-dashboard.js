@@ -52,11 +52,12 @@ window.SRUK_initDashboard = async function initDashboard() {
   }
 
   // ── Load message history ───────────────────────────
-  // All messages within the 24-hour window are shown — presenters use
-  // timestamps to determine which messages were sent during their show.
+  // Show messages from the last 12 hours so the page feels active.
+  const since = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from('listener_messages')
     .select('*')
+    .gte('created_at', since)
     .order('created_at', { ascending: false })
     .limit(50);
 
