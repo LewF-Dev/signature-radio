@@ -153,6 +153,26 @@
   startTimer();
 })();
 
+/* ── Scroll Reveal ────────────────────────────────────
+   Watches all .reveal elements and adds .is-visible
+   when they enter the viewport.
+─────────────────────────────────────────────────────── */
+(function initScrollReveal() {
+  const els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  els.forEach(function (el) { observer.observe(el); });
+})();
+
 /* ── Mobile Nav Toggle ────────────────────────────── */
 (function initNav() {
   const toggle = document.getElementById('navToggle');

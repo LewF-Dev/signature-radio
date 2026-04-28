@@ -1442,11 +1442,155 @@ img, svg { display: block; max-width: 100%; }
   outline-offset: 3px;
 }
 
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════ */
+
+/* ── Keyframes ────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Hero entrance ────────────────────────────────── */
+.hero-logo {
+  animation: fade-up 0.7s ease both;
+  animation-delay: 0.1s;
+}
+
+.listen-modes {
+  animation: fade-up 0.6s ease both;
+  animation-delay: 0.25s;
+}
+
+.visit-counter-label,
+.visit-counter {
+  animation: fade-in 0.6s ease both;
+  animation-delay: 0.4s;
+}
+
+.hero-img {
+  animation: fade-in 1s ease both;
+  animation-delay: 0.2s;
+}
+
+/* ── Inner page load animations ───────────────────── */
+.page-load-fade {
+  opacity: 0;
+  animation: fade-up 0.6s ease forwards;
+}
+
+.page-load-fade:nth-child(1) { animation-delay: 0.1s; }
+.page-load-fade:nth-child(2) { animation-delay: 0.2s; }
+.page-load-fade:nth-child(3) { animation-delay: 0.3s; }
+.page-load-fade:nth-child(4) { animation-delay: 0.4s; }
+.page-load-fade:nth-child(5) { animation-delay: 0.5s; }
+
+/* ── Scroll-reveal system ─────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.reveal--left {
+  transform: translateX(-12px);
+}
+
+.reveal--scale {
+  transform: scale(0.97) translateY(12px);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Stagger delays for sibling reveals */
+.reveal-stagger > .reveal:nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger > .reveal:nth-child(2) { transition-delay: 80ms; }
+.reveal-stagger > .reveal:nth-child(3) { transition-delay: 160ms; }
+.reveal-stagger > .reveal:nth-child(4) { transition-delay: 240ms; }
+.reveal-stagger > .reveal:nth-child(5) { transition-delay: 320ms; }
+
+/* ── Schedule list stagger ────────────────────────── */
+.schedule-list li.reveal:nth-child(1)  { transition-delay: 0ms; }
+.schedule-list li.reveal:nth-child(2)  { transition-delay: 50ms; }
+.schedule-list li.reveal:nth-child(3)  { transition-delay: 100ms; }
+.schedule-list li.reveal:nth-child(4)  { transition-delay: 150ms; }
+.schedule-list li.reveal:nth-child(5)  { transition-delay: 200ms; }
+.schedule-list li.reveal:nth-child(6)  { transition-delay: 250ms; }
+.schedule-list li.reveal:nth-child(7)  { transition-delay: 300ms; }
+.schedule-list li.reveal:nth-child(8)  { transition-delay: 350ms; }
+.schedule-list li.reveal:nth-child(9)  { transition-delay: 400ms; }
+.schedule-list li.reveal:nth-child(10) { transition-delay: 450ms; }
+
+/* ── Interactive polish ───────────────────────────── */
+.btn-primary {
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Modal overlay fade */
+.modal-overlay:not([hidden]) {
+  animation: overlay-in 0.2s ease;
+}
+
+/* Message modal panel entrance — reuse existing panel-in keyframe */
+.modal {
+  animation: panel-in 0.25s ease;
+}
+
 /* ── Reduced motion ───────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track { animation: none; }
-  html { scroll-behavior: auto; }
-  .message-card { animation: none; }
-  .toast        { animation: none; }
+  .ticker-track  { animation: none; }
+  html           { scroll-behavior: auto; }
+  .message-card  { animation: none; }
+  .toast         { animation: none; }
   .toast.toast-out { animation: none; opacity: 0; }
+
+  /* Hero */
+  .hero-logo,
+  .listen-modes,
+  .visit-counter-label,
+  .visit-counter,
+  .hero-img { animation: none; opacity: 1; }
+
+  /* Page load */
+  .page-load-fade { animation: none; opacity: 1; }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* Interactive */
+  .btn-primary:hover:not(:disabled) { transform: none; }
+  .modal-overlay:not([hidden])      { animation: none; }
+  .modal                            { animation: none; }
+  .presenter-panel                  { animation: none; }
 }
