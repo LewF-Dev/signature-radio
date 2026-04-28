@@ -326,7 +326,7 @@ window.SRUK_initPresenterAuth();
 /* ═══════════════════════════════════════════════════════
    Message modal (listener-facing, index.html only)
 ═══════════════════════════════════════════════════════ */
-(function initMessageModal() {
+window.initMessageModal = function initMessageModal() {
   const openBtn   = document.getElementById('openMessageModal');
   const modal     = document.getElementById('messageModal');
   if (!openBtn || !modal) return;
@@ -413,4 +413,5 @@ window.SRUK_initPresenterAuth();
       }
     });
   }
-})();
+};
+window.initMessageModal();
