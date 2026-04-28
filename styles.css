@@ -233,13 +233,13 @@ img, svg { display: block; max-width: 100%; }
   width: clamp(22px, 3vw, 32px);
   height: auto;
   display: block;
+  margin-bottom: -10px;
 }
 
 .alexa-wordmark {
   width: clamp(52px, 7vw, 72px);
   height: auto;
   display: block;
-  margin-top: -4px;
 }
 
 /* Hero image */
