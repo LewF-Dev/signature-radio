@@ -75,6 +75,11 @@
       const newTitle = doc.querySelector('title');
       if (newTitle) document.title = newTitle.textContent;
 
+      // Show homepage hero only on index, hide on all other pages
+      const destPage = url.split('/').pop().split('?')[0] || 'index.html';
+      const hero = document.getElementById('siteHero');
+      if (hero) hero.style.display = (destPage === 'index.html' || destPage === '') ? '' : 'none';
+
       // 2. Update active nav link (router's own + partials.js helper)
       updateActiveNav(url);
       if (window.SRUK && typeof window.SRUK.syncActiveNav === 'function') {
