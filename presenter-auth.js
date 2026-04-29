@@ -28,6 +28,11 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
       if (bubble)         bubble.style.display         = 'block';
 
       if (studioBar)      studioBar.style.display      = 'none';
+
+      // Re-subscribe toasts if navigated to a new page
+      if (typeof window.SRUK.startSitewideRealtime === 'function') {
+        window.SRUK.startSitewideRealtime();
+      }
     } else {
       if (bubble)         bubble.style.display         = 'block';
       if (bubbleBtn)      bubbleBtn.style.display      = '';
@@ -110,9 +115,6 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
 
   // ── Check existing session ─────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
-
-  // Start toasts for all visitors regardless of session
-  startSitewideRealtime();
 
   if (session) {
     recordLoginTime();
@@ -255,16 +257,23 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
     // Hide message studio bar
     const studioBar = document.querySelector('.studio-message-bar');
     if (studioBar) studioBar.style.display = 'none';
+
+    // Start site-wide real-time toasts — presenter only, skip dashboard
+    // (presenter-dashboard.js handles its own subscription there)
+    const page = window.location.pathname.split('/').pop();
+    if (page !== 'presenter-dashboard.html') {
+      startSitewideRealtime();
+    }
   }
 
   // ── Site-wide real-time toasts ─────────────────────
-  // Runs for all visitors, not just presenters. Subscribed once per
-  // page load — the Supabase client persists across SPA navigation
-  // so we guard against double-subscription with a flag.
+  // Presenter-only. Subscribed once — guarded against double-subscription.
+  // Exposed on window.SRUK so the re-run path can call it after SPA navigation.
   function startSitewideRealtime() {
     if (window.SRUK && window.SRUK.sitewideRealtimeStarted) return;
     window.SRUK = window.SRUK || {};
     window.SRUK.sitewideRealtimeStarted = true;
+    window.SRUK.startSitewideRealtime = startSitewideRealtime;
 
     const page = window.location.pathname.split('/').pop();
     if (page === 'presenter-dashboard.html') return;
