@@ -110,6 +110,10 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
 
   // ── Check existing session ─────────────────────────
   const { data: { session } } = await supabase.auth.getSession();
+
+  // Start toasts for all visitors regardless of session
+  startSitewideRealtime();
+
   if (session) {
     recordLoginTime();
     onLoggedIn();
@@ -251,18 +255,21 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
     // Hide message studio bar
     const studioBar = document.querySelector('.studio-message-bar');
     if (studioBar) studioBar.style.display = 'none';
-
-    // Start site-wide real-time toasts — skip on dashboard to avoid
-    // duplicate toasts (presenter-dashboard.js handles that page)
-    const page = window.location.pathname.split('/').pop();
-    if (page !== 'presenter-dashboard.html') {
-      startSitewideRealtime();
-    }
   }
 
   // ── Site-wide real-time toasts ─────────────────────
+  // Runs for all visitors, not just presenters. Subscribed once per
+  // page load — the Supabase client persists across SPA navigation
+  // so we guard against double-subscription with a flag.
   function startSitewideRealtime() {
-    // Ensure toast container exists on every page
+    if (window.SRUK && window.SRUK.sitewideRealtimeStarted) return;
+    window.SRUK = window.SRUK || {};
+    window.SRUK.sitewideRealtimeStarted = true;
+
+    const page = window.location.pathname.split('/').pop();
+    if (page === 'presenter-dashboard.html') return;
+
+    // Ensure toast container exists
     let toastContainer = document.getElementById('toastContainer');
     if (!toastContainer) {
       toastContainer = document.createElement('div');
