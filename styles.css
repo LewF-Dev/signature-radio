@@ -189,7 +189,7 @@ img, svg { display: block; max-width: 100%; }
   display: block;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 1024px) {
   .hero-logo {
     width: 900px;
     margin-top: -42%;
@@ -215,7 +215,7 @@ img, svg { display: block; max-width: 100%; }
   margin: 0;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 1024px) {
   .listen-modes {
     font-size: clamp(1.5rem, 3.75vw, 2rem);
     margin-top: -18%;
@@ -234,7 +234,7 @@ img, svg { display: block; max-width: 100%; }
   margin-bottom: 0;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 1024px) {
   .visit-counter-label {
     margin-top: 3rem;
   }
