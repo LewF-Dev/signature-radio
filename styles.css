@@ -418,7 +418,7 @@ img, svg { display: block; max-width: 100%; }
 }
 
 @media (max-width: 480px) {
-  .hero-image { width: 45%; opacity: 0.4; }
+  .hero-image { width: 100%; opacity: 0.35; }
 }
 
 /* ── Nav Bar ──────────────────────────────────────── */
