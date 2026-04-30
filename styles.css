@@ -183,9 +183,10 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .hero-logo {
-  width: clamp(380px, 72vw, 840px);
+  width: clamp(500px, 90vw, 1000px);
   height: auto;
   display: block;
+  margin-bottom: -18%;
 }
 
 /* Listen modes + counter */
