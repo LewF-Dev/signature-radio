@@ -203,6 +203,7 @@ img, svg { display: block; max-width: 100%; }
   letter-spacing: 0.12em;
   color: var(--white);
   margin: 0;
+  padding-left: 15%;
 }
 
 .visit-counter-label {
