@@ -186,6 +186,7 @@ img, svg { display: block; max-width: 100%; }
   width: clamp(500px, 90vw, 1000px);
   height: auto;
   display: block;
+  margin-top: -22%;
   margin-bottom: -35%;
 }
 
