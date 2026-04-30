@@ -151,11 +151,16 @@ img, svg { display: block; max-width: 100%; }
   z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1.5rem 1.25rem 1.5rem;
+  justify-content: flex-end;
+  padding: 1.5rem 1.25rem 2rem;
   width: 100%;
   max-width: 560px;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 @media (min-width: 600px) {
@@ -169,14 +174,16 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
-/* Logo */
+/* Logo + DAB text as one unit */
 .hero-brand {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
 }
 
 .hero-logo {
-  width: clamp(220px, 38vw, 420px);
+  width: clamp(380px, 72vw, 840px);
   height: auto;
   display: block;
 }
@@ -194,6 +201,7 @@ img, svg { display: block; max-width: 100%; }
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--white);
+  margin: 0;
 }
 
 .visit-counter-label {
