@@ -183,12 +183,18 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .hero-logo {
-  width: 900px;
+  width: clamp(220px, 55vw, 420px);
   max-width: none;
   height: auto;
   display: block;
-  margin-top: -42%;
-  margin-bottom: -42%;
+}
+
+@media (min-width: 600px) {
+  .hero-logo {
+    width: 900px;
+    margin-top: -42%;
+    margin-bottom: -42%;
+  }
 }
 
 /* Listen modes + counter */
@@ -201,14 +207,20 @@ img, svg { display: block; max-width: 100%; }
 
 .listen-modes {
   font-family: var(--font-cond);
-  font-size: clamp(1.5rem, 3.75vw, 2rem);
+  font-size: clamp(1rem, 4vw, 2rem);
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--white);
   white-space: nowrap;
   margin: 0;
-  margin-top: -18%;
-  padding-left: 15%;
+}
+
+@media (min-width: 600px) {
+  .listen-modes {
+    font-size: clamp(1.5rem, 3.75vw, 2rem);
+    margin-top: -18%;
+    padding-left: 15%;
+  }
 }
 
 .visit-counter-label {
@@ -218,8 +230,14 @@ img, svg { display: block; max-width: 100%; }
   letter-spacing: 0.18em;
   color: var(--light-grey);
   text-transform: uppercase;
-  margin-top: 3rem;
+  margin-top: 0.75rem;
   margin-bottom: 0;
+}
+
+@media (min-width: 600px) {
+  .visit-counter-label {
+    margin-top: 3rem;
+  }
 }
 
 .visit-counter {
