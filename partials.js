@@ -36,7 +36,9 @@
     <div class="player-widget" id="playerWidget">
       <div class="player-meta">
         <span class="player-label">NOW PLAYING</span>
-        <span class="player-track" id="playerTrack">Signature Radio UK</span>
+        <div class="player-track-wrap">
+          <span class="player-track" id="playerTrackA">Signature Radio UK</span>
+        </div>
       </div>
       <button class="player-btn" id="playerBtn" aria-label="Play live stream">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

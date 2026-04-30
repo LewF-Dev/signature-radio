@@ -573,19 +573,38 @@ img, svg { display: block; max-width: 100%; }
   text-transform: uppercase;
 }
 
+.player-track-wrap {
+  width: 160px;
+  overflow: hidden;
+  position: relative;
+}
+
 .player-track {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--white);
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  display: inline-block;
+  transition: opacity 0.5s ease;
+}
+
+.player-track.fading {
+  opacity: 0;
+}
+
+.player-track.scrolling {
+  animation: player-scroll var(--scroll-duration, 6s) linear forwards;
+}
+
+@keyframes player-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(var(--scroll-dist, -100px)); }
 }
 
 .player-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   background: var(--red);
   border: none;
@@ -597,6 +616,8 @@ img, svg { display: block; max-width: 100%; }
   font-weight: 700;
   letter-spacing: 0.1em;
   padding: 0.45rem 0.9rem;
+  width: 5.5rem;
+  flex-shrink: 0;
   transition: background 0.2s;
   white-space: nowrap;
 }

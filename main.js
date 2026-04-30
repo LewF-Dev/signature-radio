@@ -215,7 +215,6 @@ window.SRUK_initSlideshow();
 (function initPlayer() {
   const btn        = document.getElementById('playerBtn');
   const label      = document.getElementById('playerBtnLabel');
-  const trackEl    = document.getElementById('playerTrack');
   const audio      = document.getElementById('liveAudio');
   const slider     = document.getElementById('volumeSlider');
 
@@ -233,6 +232,82 @@ window.SRUK_initSlideshow();
     svg.innerHTML = '<rect x="5" y="3" width="4" height="18" fill="currentColor"/><rect x="15" y="3" width="4" height="18" fill="currentColor"/>';
   }
 
+  const trackEl = document.getElementById('playerTrackA');
+
+  let slides = ['Signature Radio UK', 'Signature Radio UK'];
+  let slideIndex = 0;
+  let cycleId = 0; // incremented on every startCycle to cancel stale callbacks
+
+  // Show a slide: static pause → scroll if needed → fade out → call onDone
+  function showSlide(text, id, onDone) {
+    if (!trackEl) return;
+
+    // Reset state
+    trackEl.classList.remove('fading', 'scrolling');
+    trackEl.style.removeProperty('--scroll-dist');
+    trackEl.style.removeProperty('--scroll-duration');
+    trackEl.style.transform = '';
+    trackEl.textContent = text;
+    trackEl.title = text;
+
+    // Defer measurement by one frame so the browser has reflowed
+    requestAnimationFrame(function () {
+      if (id !== cycleId) return; // stale — a new cycle started
+
+      const wrapWidth = trackEl.parentElement ? trackEl.parentElement.offsetWidth : 160;
+      const overflow  = trackEl.scrollWidth - wrapWidth;
+
+      setTimeout(function () {
+        if (id !== cycleId) return;
+
+        if (overflow > 0) {
+          const duration = Math.max(2, overflow / 40);
+          trackEl.style.setProperty('--scroll-dist', '-' + overflow + 'px');
+          trackEl.style.setProperty('--scroll-duration', duration + 's');
+          trackEl.classList.add('scrolling');
+
+          setTimeout(function () {
+            if (id !== cycleId) return;
+            trackEl.classList.add('fading');
+            setTimeout(function () { if (id === cycleId) onDone(); }, 500);
+          }, (duration * 1000) + 800);
+        } else {
+          setTimeout(function () {
+            if (id !== cycleId) return;
+            trackEl.classList.add('fading');
+            setTimeout(function () { if (id === cycleId) onDone(); }, 500);
+          }, 3000);
+        }
+      }, 2000);
+    });
+  }
+
+  function runCycle() {
+    slideIndex = (slideIndex + 1) % slides.length;
+    showSlide(slides[slideIndex], cycleId, runCycle);
+  }
+
+  function startCycle() {
+    cycleId++; // invalidates all in-flight callbacks
+    slideIndex = 0;
+    showSlide(slides[0], cycleId, runCycle);
+  }
+
+  function updatePlayerDisplay(data) {
+    if (!trackEl) return;
+
+    const track = data.title || 'Signature Radio UK';
+    const show  = (data.show && data.title !== data.show) ? data.show : null;
+    const presenter = data.presenter || null;
+    const showLine = show ? (presenter ? presenter + ' \u2014 ' + show : show) : null;
+
+    const newSlides = showLine ? [track, showLine] : [track, 'Signature Radio UK'];
+
+    if (JSON.stringify(newSlides) === JSON.stringify(slides)) return;
+    slides = newSlides;
+    startCycle();
+  }
+
   // Fetch now-playing metadata and update the player track display
   function fetchNowPlaying() {
     fetch('/api/nowplaying')
@@ -240,20 +315,14 @@ window.SRUK_initSlideshow();
         if (!res.ok) throw new Error('nowplaying fetch failed');
         return res.json();
       })
-      .then(function (data) {
-        if (trackEl) {
-          // Show "Track — Show Name" when a show is scheduled, otherwise just the track
-          const display = (data.show && data.title !== data.show)
-            ? data.title + ' \u2014 ' + data.show
-            : (data.title || 'Signature Radio UK');
-          trackEl.textContent = display;
-          trackEl.title = display;
-        }
-      })
+      .then(updatePlayerDisplay)
       .catch(function () {
-        // Keep existing track display on failure
+        // Keep existing display on failure
       });
   }
+
+  // Start cycling immediately, API will update slides when it responds
+  startCycle();
 
   // Poll on load and every 30 seconds
   fetchNowPlaying();
