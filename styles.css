@@ -200,17 +200,18 @@ img, svg { display: block; max-width: 100%; }
 
 .listen-modes {
   font-family: var(--font-cond);
-  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  font-size: clamp(1.5rem, 3.75vw, 2rem);
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--white);
   margin: 0;
+  margin-top: -18%;
   padding-left: 15%;
 }
 
 .visit-counter-label {
   font-family: var(--font-cond);
-  font-size: 0.7rem;
+  font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.18em;
   color: var(--light-grey);
@@ -221,7 +222,7 @@ img, svg { display: block; max-width: 100%; }
 
 .visit-counter {
   font-family: var(--font-cond);
-  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-size: clamp(2.1rem, 5.25vw, 3rem);
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--white);
