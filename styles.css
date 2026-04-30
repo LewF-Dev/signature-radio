@@ -183,7 +183,8 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .hero-logo {
-  width: clamp(750px, 135vw, 1500px);
+  width: 700px;
+  max-width: none;
   height: auto;
   display: block;
   margin-top: -35%;
