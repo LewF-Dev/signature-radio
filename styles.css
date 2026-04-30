@@ -183,12 +183,12 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .hero-logo {
-  width: 700px;
+  width: 900px;
   max-width: none;
   height: auto;
   display: block;
-  margin-top: -35%;
-  margin-bottom: -35%;
+  margin-top: -42%;
+  margin-bottom: -42%;
 }
 
 /* Listen modes + counter */
