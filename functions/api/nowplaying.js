@@ -5,7 +5,7 @@ const STATS_URL = 'http://centova87.shoutcastservices.com:8282/stats?sid=1&json=
 const HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
-  'Cache-Control': 'no-store',
+  'Cache-Control': 'public, max-age=30, s-maxage=30',
 };
 
 export async function onRequest({ request, env }) {
