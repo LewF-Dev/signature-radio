@@ -2,45 +2,6 @@
    Signature Radio UK — main.js
 ═══════════════════════════════════════════════════════ */
 
-/* ── Visit Counter ────────────────────────────────────
-   Increments the shared counter once per browser session.
-   sessionStorage prevents repeat increments on refresh.
-   localStorage caches the last known count so the display
-   is never blank while the fetch is in flight.
-─────────────────────────────────────────────────────── */
-(function initVisitCounter() {
-  const SEED        = 292560;
-  const CACHE_KEY   = 'sruk_visits_cache';
-  const SESSION_KEY = 'sruk_counted';
-  const el          = document.getElementById('visitCounter');
-
-  if (!el) return;
-
-  // Show cached value immediately so the counter isn't blank on load
-  const cached = parseInt(localStorage.getItem(CACHE_KEY), 10);
-  el.textContent = (isNaN(cached) || cached < SEED)
-    ? SEED.toLocaleString('en-GB')
-    : cached.toLocaleString('en-GB');
-
-  // Only increment once per browser session
-  if (sessionStorage.getItem(SESSION_KEY)) return;
-  sessionStorage.setItem(SESSION_KEY, '1');
-
-  fetch('/api/counter')
-    .then(function (res) {
-      if (!res.ok) throw new Error('Network response not ok');
-      return res.json();
-    })
-    .then(function (data) {
-      const count = data.count || SEED;
-      el.textContent = count.toLocaleString('en-GB');
-      localStorage.setItem(CACHE_KEY, count);
-    })
-    .catch(function () {
-      // Silently keep the cached/seed value on failure
-    });
-})();
-
 
 
 /* ── Video player ─────────────────────────────────────
