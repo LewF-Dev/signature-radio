@@ -94,20 +94,20 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .ticker-track {
-  display: inline-block;
+  display: inline-flex;
   white-space: nowrap;
-  animation: ticker-scroll 35s linear infinite;
   font-family: var(--font-cond);
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--white);
+  animation: ticker-scroll var(--ticker-duration, 35s) linear infinite;
 }
 
 @keyframes ticker-scroll {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(var(--ticker-dist, -50%)); }
 }
 
 /* ── Hero animated background ────────────────────── */

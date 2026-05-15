@@ -4,6 +4,35 @@
 
 
 
+/* ── Ticker ───────────────────────────────────────────
+   Measures the first ticker unit and sets the scroll
+   distance as a CSS custom property so the loop is
+   pixel-perfect at every screen size.
+─────────────────────────────────────────────────────── */
+(function initTicker() {
+  function setup() {
+    const track = document.getElementById('tickerTrack');
+    if (!track) return;
+    const unit = track.querySelector('.ticker-unit');
+    if (!unit) return;
+
+    const unitWidth = unit.getBoundingClientRect().width;
+    if (!unitWidth) return;
+
+    // Speed: ~80px/s regardless of text length
+    const duration = Math.round(unitWidth / 80);
+    track.style.setProperty('--ticker-dist', '-' + unitWidth + 'px');
+    track.style.setProperty('--ticker-duration', duration + 's');
+  }
+
+  // Run after layout; retry once if ticker hasn't injected yet
+  if (document.readyState === 'complete') {
+    requestAnimationFrame(setup);
+  } else {
+    window.addEventListener('load', function () { requestAnimationFrame(setup); });
+  }
+})();
+
 /* ── Video player ─────────────────────────────────────
    Custom play/pause overlay. #t=0.1 in the src causes
    browsers to load the first frame as a natural poster.
