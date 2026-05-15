@@ -196,7 +196,7 @@ window.SRUK_initSlideshow();
 
   const trackEl = document.getElementById('playerTrackA');
 
-  let slides = ['Signature Radio UK', 'Signature Radio UK'];
+  let slides = ['Signature Radio UK'];
   let slideIndex = 0;
   let cycleId = 0; // incremented on every startCycle to cancel stale callbacks
 
@@ -263,10 +263,23 @@ window.SRUK_initSlideshow();
     const presenter = data.presenter || null;
     const showLine = show ? (presenter ? presenter + ' \u2014 ' + show : show) : null;
 
-    const newSlides = showLine ? [track, showLine] : [track, 'Signature Radio UK'];
+    const newSlides = showLine ? [track, showLine] : [track];
 
     if (JSON.stringify(newSlides) === JSON.stringify(slides)) return;
     slides = newSlides;
+
+    // Single unique slide — set statically, no transition needed
+    if (newSlides.length === 1) {
+      cycleId++;
+      trackEl.classList.remove('fading', 'scrolling');
+      trackEl.style.removeProperty('--scroll-dist');
+      trackEl.style.removeProperty('--scroll-duration');
+      trackEl.style.transform = '';
+      trackEl.textContent = newSlides[0];
+      trackEl.title = newSlides[0];
+      return;
+    }
+
     startCycle();
   }
 
@@ -283,8 +296,9 @@ window.SRUK_initSlideshow();
       });
   }
 
-  // Start cycling immediately, API will update slides when it responds
-  startCycle();
+  // Show static text immediately; API will start the cycle if there are multiple slides
+  trackEl.textContent = slides[0];
+  trackEl.title = slides[0];
 
   // Poll on load and every 30 seconds
   fetchNowPlaying();
