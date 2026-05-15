@@ -3,7 +3,7 @@ import { getCurrentShow } from '../../schedule-data.js';
 const STATS_URL = 'http://centova87.shoutcastservices.com:8282/stats?sid=1&json=1';
 
 const HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://signatureradio.uk',
   'Content-Type': 'application/json',
   'Cache-Control': 'public, max-age=30, s-maxage=30',
 };

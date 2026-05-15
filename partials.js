@@ -64,7 +64,7 @@
     <div class="container footer-grid">
       <div class="footer-col">
         <p class="footer-brand">SIGNATURE RADIO UK</p>
-        <p><strong>Contact:</strong> 07885 297391</p>
+        <p><strong>Contact:</strong> 0117 442 0922</p>
         <p><strong>Email:</strong> <a href="mailto:studio@signatureradio.uk" target="_blank" rel="noopener">studio@signatureradio.uk</a></p>
         <address>
           <strong>Address:</strong><br />
