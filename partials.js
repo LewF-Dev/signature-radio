@@ -8,11 +8,12 @@
   /* ── Ticker ─────────────────────────────────────── */
   const tickerText = 'Signature Radio UK - The Soundtrack Of Your Life - DAB Launching May 1st 2026 - Join The Revolution - Follow us @SignatureRadioUK';
   const sep = '\u00a0\u00a0\u00a0\u00a0\u00a0';
-  // Two copies: JS measures the first and animates exactly that distance for a seamless loop
+  // Six copies ensures the track is always wider than the viewport at any screen size.
+  // JS measures one unit and animates exactly that distance for a seamless loop.
   const tickerHTML = `
   <div class="ticker-wrap" aria-label="Station announcements">
     <div class="ticker-track" id="tickerTrack">
-      <span class="ticker-unit">${tickerText}${sep}</span><span class="ticker-unit">${tickerText}${sep}</span>
+      <span class="ticker-unit">${tickerText}${sep}</span><span class="ticker-unit">${tickerText}${sep}</span><span class="ticker-unit">${tickerText}${sep}</span><span class="ticker-unit">${tickerText}${sep}</span><span class="ticker-unit">${tickerText}${sep}</span><span class="ticker-unit">${tickerText}${sep}</span>
     </div>
   </div>`;
 
