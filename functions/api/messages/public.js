@@ -41,7 +41,8 @@ export async function onRequest({ request, env }) {
   );
 
   if (!res.ok) {
-    return new Response(JSON.stringify({ messages: [] }), { status: 200, headers });
+    const errText = await res.text();
+    return new Response(JSON.stringify({ messages: [], error: `${res.status}: ${errText}` }), { status: 200, headers });
   }
 
   const messages = await res.json();
