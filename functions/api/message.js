@@ -38,7 +38,7 @@ export async function onRequest({ request, env }) {
   const SUPABASE_SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+    return new Response(JSON.stringify({ ok: false, debug: { hasUrl: !!SUPABASE_URL, hasKey: !!SUPABASE_SERVICE_KEY } }), { status: 200, headers });
   }
 
   const res = await fetch(`${SUPABASE_URL}/rest/v1/listener_messages`, {
