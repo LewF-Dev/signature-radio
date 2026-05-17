@@ -277,13 +277,16 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
   // Presenter-only. Subscribed once — guarded against double-subscription.
   // Exposed on window.SRUK so the re-run path can call it after SPA navigation.
   function startSitewideRealtime() {
+    const page = window.location.pathname.split('/').pop();
+    // Never subscribe on the dashboard — it manages its own subscription
+    if (page === 'presenter-dashboard.html') {
+      stopSitewideRealtime();
+      return;
+    }
     if (window.SRUK && window.SRUK.sitewideRealtimeStarted) return;
     window.SRUK = window.SRUK || {};
     window.SRUK.sitewideRealtimeStarted = true;
     window.SRUK.startSitewideRealtime = startSitewideRealtime;
-
-    const page = window.location.pathname.split('/').pop();
-    if (page === 'presenter-dashboard.html') return;
 
     // Ensure toast container exists
     let toastContainer = document.getElementById('toastContainer');
@@ -296,7 +299,7 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
       document.body.appendChild(toastContainer);
     }
 
-    supabase
+    const sitewideChannel = supabase
       .channel('sitewide_messages')
       .on(
         'postgres_changes',
@@ -306,6 +309,19 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
         }
       )
       .subscribe();
+
+    window.SRUK.sitewideChannel = sitewideChannel;
+    window.SRUK.stopSitewideRealtime = stopSitewideRealtime;
+  }
+
+  function stopSitewideRealtime() {
+    if (window.SRUK && window.SRUK.sitewideChannel) {
+      window.SRUK.sitewideChannel.unsubscribe();
+      window.SRUK.sitewideChannel = null;
+    }
+    if (window.SRUK) {
+      window.SRUK.sitewideRealtimeStarted = false;
+    }
   }
 
   function showToast(msg, container) {
