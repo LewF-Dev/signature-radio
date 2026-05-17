@@ -109,6 +109,8 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
     signOutBtn.addEventListener('click', async function () {
       await supabase.auth.signOut();
       clearLoginTime();
+      const item = document.getElementById('navDashboardItem');
+      if (item) item.style.display = 'none';
       window.location.reload();
     });
   }
@@ -253,6 +255,11 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
     if (bubbleBtn)      bubbleBtn.style.display      = 'none';
     if (bubbleLoggedIn) bubbleLoggedIn.style.display = 'flex';
     if (bubble)         bubble.style.display         = 'block';
+
+    // Show Live Chat nav item
+    if (window.SRUK && typeof window.SRUK.syncDashboardLink === 'function') {
+      window.SRUK.syncDashboardLink();
+    }
 
     // Hide message studio bar
     const studioBar = document.querySelector('.studio-message-bar');

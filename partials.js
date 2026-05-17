@@ -177,7 +177,15 @@
   }
 
   function syncDashboardLink() {
-    // Live Chat is visible to all users — nothing to sync
+    const item = document.getElementById('navDashboardItem');
+    if (!item) return;
+    const keys = Object.keys(localStorage).filter(function (k) {
+      return k.startsWith('sb-') && k.endsWith('-auth-token');
+    });
+    const hasSession = keys.length > 0 && (function () {
+      try { return !!JSON.parse(localStorage.getItem(keys[0]))?.access_token; } catch (e) { return false; }
+    })();
+    item.style.display = hasSession ? '' : 'none';
   }
 
 })();
