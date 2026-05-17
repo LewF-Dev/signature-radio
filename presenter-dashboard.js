@@ -67,6 +67,11 @@ window.SRUK_initDashboard = async function initDashboard() {
     // History unavailable — real-time will still work
   }
 
+  // Stop any sitewide subscription before starting the dashboard's own
+  if (window.SRUK && typeof window.SRUK.stopSitewideRealtime === 'function') {
+    window.SRUK.stopSitewideRealtime();
+  }
+
   // ── Real-time subscription ─────────────────────────
   const channel = supabase
     .channel('dashboard_messages')
