@@ -1,11 +1,17 @@
 const COUNTER_KEY = 'sruk_visits';
 const SEED = 292560;
 
-const HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Content-Type': 'application/json',
-  'Cache-Control': 'no-store',
-};
+const ALLOWED_ORIGINS = ['https://signatureradio.uk', 'https://www.signatureradio.uk'];
+
+function getCorsHeaders(request) {
+  const origin = (request && request.headers.get('Origin')) || '';
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
+    'Vary': 'Origin',
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
+  };
+}
 
 async function pipeline(url, token, commands) {
   const res = await fetch(`${url}/pipeline`, {
@@ -21,11 +27,12 @@ async function pipeline(url, token, commands) {
 }
 
 export async function onRequest({ request, env }) {
+  const headers = getCorsHeaders(request);
   const url = env.UPSTASH_REDIS_REST_URL;
   const token = env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
-    return new Response(JSON.stringify({ count: SEED }), { status: 200, headers: HEADERS });
+    return new Response(JSON.stringify({ count: SEED }), { status: 200, headers });
   }
 
   try {
@@ -34,8 +41,8 @@ export async function onRequest({ request, env }) {
       ['INCR', COUNTER_KEY],
     ]);
     const count = results[1]?.result ?? SEED;
-    return new Response(JSON.stringify({ count }), { status: 200, headers: HEADERS });
+    return new Response(JSON.stringify({ count }), { status: 200, headers });
   } catch {
-    return new Response(JSON.stringify({ count: SEED }), { status: 200, headers: HEADERS });
+    return new Response(JSON.stringify({ count: SEED }), { status: 200, headers });
   }
 }

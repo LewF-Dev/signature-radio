@@ -2,13 +2,20 @@ import { getCurrentShow } from '../../schedule-data.js';
 
 const STATS_URL = 'http://centova87.shoutcastservices.com:8282/stats?sid=1&json=1';
 
-const HEADERS = {
-  'Access-Control-Allow-Origin': 'https://signatureradio.uk',
-  'Content-Type': 'application/json',
-  'Cache-Control': 'public, max-age=30, s-maxage=30',
-};
+const ALLOWED_ORIGINS = ['https://signatureradio.uk', 'https://www.signatureradio.uk'];
+
+function getCorsHeaders(request) {
+  const origin = (request && request.headers.get('Origin')) || '';
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
+    'Vary': 'Origin',
+    'Content-Type': 'application/json',
+    'Cache-Control': 'public, max-age=30, s-maxage=30',
+  };
+}
 
 export async function onRequest({ request, env }) {
+  const headers = getCorsHeaders(request);
   const show = getCurrentShow();
 
   try {
@@ -31,7 +38,7 @@ export async function onRequest({ request, env }) {
         show:      show ? show.show      : null,
         presenter: show ? show.presenter : null,
       }),
-      { status: 200, headers: HEADERS }
+      { status: 200, headers }
     );
   } catch {
     return new Response(
@@ -42,7 +49,7 @@ export async function onRequest({ request, env }) {
         show:      show ? show.show      : null,
         presenter: show ? show.presenter : null,
       }),
-      { status: 200, headers: HEADERS }
+      { status: 200, headers }
     );
   }
 }
