@@ -273,9 +273,33 @@ window.SRUK_initSlideshow();
     });
   }
 
+  // Fade out, swap text (clearing scroll state), then call onDone so the
+  // caller can immediately start showSlide on the new text.
+  function fadeSwap(text, id, onDone) {
+    if (!trackEl) return;
+    trackEl.classList.add('fading');
+    setTimeout(function () {
+      if (id !== cycleId) return;
+      trackEl.classList.remove('fading', 'scrolling');
+      trackEl.style.removeProperty('--scroll-dist');
+      trackEl.style.removeProperty('--scroll-duration');
+      trackEl.style.transform = '';
+      trackEl.textContent = text;
+      trackEl.title = text;
+      void trackEl.offsetWidth; // force reflow so opacity transition fires
+      if (onDone) onDone();
+    }, 500);
+  }
+
   function runCycle() {
-    slideIndex = (slideIndex + 1) % slides.length;
-    showSlide(slides[slideIndex], cycleId, runCycle);
+    const id = cycleId;
+    const nextIndex = (slideIndex + 1) % slides.length;
+    // Fade out current text, swap in next slide, then run showSlide on it
+    fadeSwap(slides[nextIndex], id, function () {
+      if (id !== cycleId) return;
+      slideIndex = nextIndex;
+      showSlide(slides[slideIndex], cycleId, runCycle);
+    });
   }
 
   function startCycle() {
@@ -284,32 +308,40 @@ window.SRUK_initSlideshow();
     showSlide(slides[0], cycleId, runCycle);
   }
 
+  // True if today is Sunday in UK local time
+  function isSunday() {
+    const now = new Date(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }));
+    return now.getDay() === 0;
+  }
+
   function updatePlayerDisplay(data) {
     if (!trackEl) return;
 
-    const track = data.title || 'Signature Radio UK';
-    const show  = (data.show && data.title !== data.show) ? data.show : null;
+    const track     = data.title     || 'Signature Radio UK';
+    const show      = data.show      || null;
     const presenter = data.presenter || null;
-    const showLine = show ? (presenter ? presenter + ' \u2014 ' + show : show) : null;
 
-    const newSlides = showLine ? [track, showLine] : [track];
+    let newSlides;
 
-    if (JSON.stringify(newSlides) === JSON.stringify(slides)) return;
-    slides = newSlides;
-
-    // Single unique slide — set statically, no transition needed
-    if (newSlides.length === 1) {
-      cycleId++;
-      trackEl.classList.remove('fading', 'scrolling');
-      trackEl.style.removeProperty('--scroll-dist');
-      trackEl.style.removeProperty('--scroll-duration');
-      trackEl.style.transform = '';
-      trackEl.textContent = newSlides[0];
-      trackEl.title = newSlides[0];
-      return;
+    if (isSunday() && show) {
+      // On Sundays: show name only (no track name), ticker-scroll if long
+      const showLine = (presenter && presenter !== show)
+        ? presenter + ' \u2014 ' + show
+        : show;
+      newSlides = [showLine];
+    } else {
+      // All other days: track name → fade → show/presenter line → fade → repeat
+      const showLine = (show && track !== show)
+        ? (presenter ? presenter + ' \u2014 ' + show : show)
+        : null;
+      newSlides = showLine ? [track, showLine] : [track];
     }
 
-    startCycle();
+    // Always restart the cycle when data arrives, even if slides appear unchanged,
+    // so the animation runs from the first API response onward.
+    const unchanged = JSON.stringify(newSlides) === JSON.stringify(slides);
+    slides = newSlides;
+    if (!unchanged || cycleId === 0) startCycle();
   }
 
   // Fetch now-playing metadata and update the player track display
@@ -325,11 +357,11 @@ window.SRUK_initSlideshow();
       });
   }
 
-  // Show static text immediately; API will start the cycle if there are multiple slides
-  trackEl.textContent = slides[0];
-  trackEl.title = slides[0];
+  // Start the cycle immediately with the default text so animation runs
+  // even before (or if) the API responds.
+  startCycle();
 
-  // Poll on load and every 30 seconds
+  // Poll on load and every 30 seconds — updates slides and restarts cycle when data arrives
   fetchNowPlaying();
   setInterval(fetchNowPlaying, 30000);
 

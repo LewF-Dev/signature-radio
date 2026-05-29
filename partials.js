@@ -6,7 +6,7 @@
 (function injectPartials() {
 
   /* ── Ticker ─────────────────────────────────────── */
-  const tickerText = 'Signature Radio UK - The Soundtrack Of Your Life - DAB Launching May 1st 2026 - Join The Revolution - Follow us @SignatureRadioUK';
+  const tickerText = 'Signature Radio UK - The Soundtrack Of Your Life - Now Live on DAB Digital Radio - Join The Revolution - Follow us @SignatureRadioUK';
   const sep = '\u00a0\u00a0\u00a0\u00a0\u00a0';
   // Six copies ensures the track is always wider than the viewport at any screen size.
   // JS measures one unit and animates exactly that distance for a seamless loop.
@@ -29,6 +29,7 @@
       <li><a href="newsletter.html">NEWSLETTER</a></li>
       <li><a href="presenters.html">PRESENTERS</a></li>
       <li><a href="schedule.html">SCHEDULE</a></li>
+      <li><a href="store.html">STORE</a></li>
       <li><a href="business.html">BUSINESS</a></li>
       <li><a href="contact.html">CONTACT</a></li>
       <li><a href="https://drive.google.com/drive/folders/1xrrHW_wQUVmA8ssQkFez8WtezYM5hQze" target="_blank" rel="noopener">ARCHIVE</a></li>

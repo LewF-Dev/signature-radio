@@ -135,6 +135,16 @@
       if (typeof window.SRUK_initSlideshow === 'function') window.SRUK_initSlideshow();
     }
 
+    if (page === 'store.html') {
+      if (typeof window.SRUK_initStore === 'function') {
+        window.SRUK_initStore();
+      } else {
+        var storeScript = document.createElement('script');
+        storeScript.src = 'store.js';
+        document.body.appendChild(storeScript);
+      }
+    }
+
     if (page === 'presenter-dashboard.html') {
       if (typeof window.SRUK_initDashboard === 'function') {
         window.SRUK_initDashboard();
