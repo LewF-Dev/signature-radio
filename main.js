@@ -267,7 +267,7 @@ window.SRUK_initSlideshow();
             if (id !== cycleId) return;
             trackEl.classList.add('fading');
             setTimeout(function () { if (id === cycleId) onDone(); }, 500);
-          }, 3000);
+          }, 3300);
         }
       }, 2000);
     });
@@ -330,11 +330,11 @@ window.SRUK_initSlideshow();
         : show;
       newSlides = [showLine];
     } else {
-      // All other days: track name → fade → show/presenter line → fade → repeat
+      // All other days: track name → fade → show line (or station name) → fade → repeat
       const showLine = (show && track !== show)
         ? (presenter ? presenter + ' \u2014 ' + show : show)
-        : null;
-      newSlides = showLine ? [track, showLine] : [track];
+        : 'Signature Radio UK';
+      newSlides = [track, showLine];
     }
 
     // Always restart the cycle when data arrives, even if slides appear unchanged,
