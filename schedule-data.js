@@ -99,4 +99,4 @@ function getCurrentShow() {
   }) || null;
 }
 
-module.exports = { SCHEDULE, getCurrentShow };
+export { SCHEDULE, getCurrentShow };
