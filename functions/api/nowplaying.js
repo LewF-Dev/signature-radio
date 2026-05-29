@@ -1,6 +1,6 @@
 import { getCurrentShow } from '../../schedule-data.js';
 
-const STATS_URL = 'http://centova87.shoutcastservices.com:8282/stats?sid=1&json=1';
+const STATS_URL = 'https://centova87.shoutcastservices.com/proxy/reid/stats?sid=1&json=1';
 
 const ALLOWED_ORIGINS = ['https://signatureradio.uk', 'https://www.signatureradio.uk'];
 
