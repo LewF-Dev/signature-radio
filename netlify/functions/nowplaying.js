@@ -41,13 +41,11 @@ export default async function handler(req) {
     );
 
   } catch (err) {
-    console.error('[nowplaying] fetch failed:', err.message, err.stack);
     return new Response(
       JSON.stringify({
         title:     show ? show.show : 'Signature Radio UK',
         listeners: 0,
         status:    'unknown',
-        error:     err.message,
         show:      show ? show.show      : null,
         presenter: show ? show.presenter : null,
       }),

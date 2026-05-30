@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════
    store.js — Printful product catalogue
-   Fetches products from /api/store-products (Netlify
-   function that proxies the Printful API server-side).
+   Fetches products from /api/store-products (Cloudflare
+   Pages function that proxies the Printful API server-side).
 ═══════════════════════════════════════════════════════ */
 
 window.SRUK_initStore = function initStore() {
