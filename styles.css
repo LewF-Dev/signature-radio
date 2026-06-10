@@ -327,6 +327,10 @@ img, svg { display: block; max-width: 100%; }
   .hero-web-address {
     margin-top: 0.5rem;
   }
+
+  .listen-logos {
+    top: calc(100% + 0.35rem);
+  }
 }
 
 @media (max-width: 767px) {
@@ -339,9 +343,21 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
+@media (min-width: 740px) and (max-width: 800px) {
+  .listen-logos {
+    top: calc(100% + 0.3rem);
+  }
+}
+
+@media (min-width: 400px) and (max-width: 440px) {
+  .listen-logos {
+    left: clamp(7.4rem, 43vw, 11.5rem);
+  }
+}
+
 @media (max-width: 360px) {
   .listen-logos {
-    left: clamp(7.3rem, 45vw, 9rem);
+    left: clamp(8.1rem, 49vw, 9.8rem);
   }
 }
 
