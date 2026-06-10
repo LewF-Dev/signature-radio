@@ -336,7 +336,7 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .listen-logos {
-    top: calc(100% + 0.35rem);
+    top: calc(100% + 1rem);
     right: -1.6rem;
   }
 }
