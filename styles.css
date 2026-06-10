@@ -331,6 +331,7 @@ img, svg { display: block; max-width: 100%; }
 
   .listen-logos {
     top: calc(100% + 0.35rem);
+    right: -1.6rem;
   }
 }
 
@@ -344,6 +345,7 @@ img, svg { display: block; max-width: 100%; }
     align-items: center;
     gap: 0.35rem;
     top: calc(100% + 0.05rem);
+    right: 1.1rem;
   }
 }
 
