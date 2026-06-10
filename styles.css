@@ -198,10 +198,11 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .listen-row {
+  --listen-logo-height: clamp(44px, 5.2vw, 62px);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  column-gap: clamp(1rem, 3vw, 2rem);
+  column-gap: clamp(1.3rem, 4vw, 3rem);
   row-gap: 0.6rem;
   padding-left: 20px;
 }
@@ -219,7 +220,8 @@ img, svg { display: block; max-width: 100%; }
 .listen-logos {
   display: inline-flex;
   align-items: center;
-  gap: clamp(0.75rem, 2vw, 1.3rem);
+  gap: clamp(0.8rem, 2vw, 1.25rem);
+  flex: 0 0 auto;
 }
 
 .broadcasting-label {
@@ -254,6 +256,9 @@ img, svg { display: block; max-width: 100%; }
 @media (min-width: 1024px) {
   .listen-row {
     font-size: clamp(1.5rem, 3.75vw, 2rem);
+    flex-wrap: nowrap;
+    width: max-content;
+    max-width: calc(100vw - 3rem);
     margin-top: -18%;
     padding-left: 15%;
   }
@@ -424,27 +429,33 @@ img, svg { display: block; max-width: 100%; }
 
 /* Listening platform logos */
 .alexa-badge {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0;
+  flex: 0 0 auto;
+  width: calc(var(--listen-logo-height) * 1.45);
+  height: var(--listen-logo-height);
   z-index: 3;
 }
 
 .alexa-icon {
-  width: clamp(22px, 3vw, 34px);
+  width: calc(var(--listen-logo-height) * 0.52);
   height: auto;
   display: block;
+  margin-bottom: calc(var(--listen-logo-height) * -0.22);
 }
 
 .alexa-wordmark {
-  width: clamp(66px, 8vw, 96px);
+  width: calc(var(--listen-logo-height) * 1.25);
   height: auto;
   display: block;
 }
 
 .ppl-logo {
-  width: clamp(64px, 8vw, 104px);
-  height: auto;
+  width: auto;
+  height: var(--listen-logo-height);
   display: block;
 }
 
