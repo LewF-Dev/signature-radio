@@ -303,7 +303,7 @@ img, svg { display: block; max-width: 100%; }
   .listen-logos {
     position: absolute;
     top: calc(100% + 0.1rem);
-    left: clamp(5.5rem, 21vw, 13rem);
+    left: clamp(8rem, 31vw, 18rem);
   }
 }
 
@@ -326,6 +326,22 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-web-address {
     margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .listen-logos {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    top: calc(100% + 0.05rem);
+    left: clamp(8rem, 48vw, 13rem);
+  }
+}
+
+@media (max-width: 360px) {
+  .listen-logos {
+    left: clamp(7.3rem, 45vw, 9rem);
   }
 }
 
