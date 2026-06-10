@@ -198,7 +198,7 @@ img, svg { display: block; max-width: 100%; }
 }
 
 .listen-row {
-  --listen-logo-height: clamp(44px, 5.2vw, 62px);
+  --listen-logo-height: clamp(54px, 6vw, 74px);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
