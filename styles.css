@@ -197,7 +197,15 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
-/* Listen modes + broadcasting text share the same left indent */
+.listen-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: clamp(1rem, 3vw, 2rem);
+  row-gap: 0.6rem;
+  padding-left: 20px;
+}
+
 .listen-modes {
   font-family: var(--font-cond);
   font-size: clamp(1rem, 4vw, 2rem);
@@ -206,7 +214,12 @@ img, svg { display: block; max-width: 100%; }
   color: var(--white);
   white-space: nowrap;
   margin: 0;
-  padding-left: 20px;
+}
+
+.listen-logos {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.3rem);
 }
 
 .broadcasting-label {
@@ -239,10 +252,13 @@ img, svg { display: block; max-width: 100%; }
 }
 
 @media (min-width: 1024px) {
-  .listen-modes {
+  .listen-row {
     font-size: clamp(1.5rem, 3.75vw, 2rem);
     margin-top: -18%;
     padding-left: 15%;
+  }
+  .listen-modes {
+    font-size: inherit;
   }
   .broadcasting-label {
     margin-top: 0.5rem;
@@ -406,27 +422,28 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
-/* Alexa badge — absolutely positioned in hero, far right */
+/* Listening platform logos */
 .alexa-badge {
-  position: absolute;
-  right: clamp(1rem, 4vw, 3rem);
-  bottom: 2.5rem;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: 0.3rem;
   z-index: 3;
 }
 
 .alexa-icon {
-  width: clamp(30px, 4vw, 46px);
+  width: clamp(22px, 3vw, 34px);
   height: auto;
   display: block;
-  margin-bottom: -18px;
 }
 
 .alexa-wordmark {
-  width: clamp(72px, 9.5vw, 105px);
+  width: clamp(66px, 8vw, 96px);
+  height: auto;
+  display: block;
+}
+
+.ppl-logo {
+  width: clamp(64px, 8vw, 104px);
   height: auto;
   display: block;
 }
