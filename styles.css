@@ -350,7 +350,7 @@ img, svg { display: block; max-width: 100%; }
     flex-direction: column;
     align-items: center;
     gap: 0.35rem;
-    top: calc(100% + 0.05rem);
+    top: calc(100% + 0.9rem);
     right: 1.1rem;
   }
 }
