@@ -197,6 +197,12 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
+@media (max-width: 767px) {
+  .hero-logo {
+    width: min(420px, calc(100vw - 2.5rem));
+  }
+}
+
 .listen-row {
   --listen-logo-height: clamp(54px, 6vw, 74px);
   display: flex;
@@ -352,6 +358,7 @@ img, svg { display: block; max-width: 100%; }
 @media (min-width: 740px) and (max-width: 800px) {
   .listen-logos {
     top: calc(100% + 0.3rem);
+    right: 1.4rem;
   }
 }
 
