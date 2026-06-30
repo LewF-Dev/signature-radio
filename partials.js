@@ -35,6 +35,7 @@
       <li><a href="https://drive.google.com/drive/folders/1xrrHW_wQUVmA8ssQkFez8WtezYM5hQze" target="_blank" rel="noopener">ARCHIVE</a></li>
       <li class="nav-dashboard-item" id="navDashboardItem"><a href="presenter-dashboard.html" id="navDashboardLink">LIVE CHAT</a></li>
     </ul>
+    <div class="nav-presenter-slot" id="navPresenterSlot" aria-label="Presenter access"></div>
     <div class="player-widget" id="playerWidget">
       <div class="player-meta">
         <span class="player-label">NOW PLAYING</span>
@@ -154,6 +155,9 @@
   authMount.innerHTML = authHTML;
   document.body.appendChild(authMount);
 
+  syncPresenterPlacement();
+  window.addEventListener('resize', syncPresenterPlacement);
+
   // Highlight active nav link based on current page
   syncActiveNav();
 
@@ -166,6 +170,7 @@
   window.SRUK = window.SRUK || {};
   window.SRUK.syncActiveNav    = syncActiveNav;
   window.SRUK.syncDashboardLink = syncDashboardLink;
+  window.SRUK.syncPresenterPlacement = syncPresenterPlacement;
 
   function syncActiveNav() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
@@ -187,6 +192,19 @@
       try { return !!JSON.parse(localStorage.getItem(keys[0]))?.access_token; } catch (e) { return false; }
     })();
     item.style.display = hasSession ? '' : 'none';
+  }
+
+  function syncPresenterPlacement() {
+    const bubble = document.getElementById('presenterBubble');
+    const slot = document.getElementById('navPresenterSlot');
+    if (!bubble || !slot) return;
+
+    const shouldUseNav = window.matchMedia('(max-width: 1024px)').matches;
+    if (shouldUseNav) {
+      if (bubble.parentNode !== slot) slot.appendChild(bubble);
+    } else if (bubble.parentNode !== authMount) {
+      authMount.insertBefore(bubble, authMount.firstChild);
+    }
   }
 
 })();

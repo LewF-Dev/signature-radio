@@ -189,7 +189,7 @@ img, svg { display: block; max-width: 100%; }
   display: block;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
   .hero-logo {
     width: 900px;
     margin-top: -42%;
@@ -203,9 +203,11 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1024px) {
   .hero-logo {
     width: min(546px, calc(100vw - 4rem));
+    margin-top: 0;
+    margin-bottom: -34%;
   }
 }
 
@@ -302,6 +304,26 @@ img, svg { display: block; max-width: 100%; }
 }
 
 @media (max-width: 1024px) {
+  .hero {
+    min-height: 0;
+    height: clamp(520px, 64vh, 590px);
+  }
+
+  .hero-content {
+    justify-content: center;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .hero-image {
+    width: 72%;
+    right: 0;
+  }
+
+  .hero-img {
+    object-position: right top;
+  }
+
   .listen-row {
     position: relative;
     display: block;
@@ -323,7 +345,7 @@ img, svg { display: block; max-width: 100%; }
 @media (min-width: 900px) and (max-width: 1024px) {
   .listen-row {
     font-size: clamp(1.5rem, 3.75vw, 2rem);
-    margin-top: -18%;
+    margin-top: 0;
     padding-left: 15%;
   }
 
@@ -347,7 +369,27 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
+@media (min-width: 768px) and (max-width: 1024px) {
+  .broadcasting-hours {
+    line-height: 1;
+  }
+}
+
 @media (max-width: 767px) {
+  .hero {
+    height: clamp(500px, 74vh, 560px);
+  }
+
+  .hero-image {
+    width: 100%;
+    right: 0;
+    opacity: 0.35;
+  }
+
+  .hero-img {
+    object-position: center top;
+  }
+
   .listen-row {
     --listen-logo-height: clamp(46px, 5.1vw, 63px);
   }
@@ -639,6 +681,10 @@ img, svg { display: block; max-width: 100%; }
   .nav-toggle { display: none; }
 }
 
+.nav-presenter-slot {
+  display: none;
+}
+
 /* Nav links */
 .nav-links {
   display: none;
@@ -688,6 +734,30 @@ img, svg { display: block; max-width: 100%; }
   .nav-links li a.active {
     color: var(--red);
     border-bottom-color: var(--red);
+  }
+}
+
+@media (max-width: 1024px) {
+  .nav-presenter-slot {
+    display: flex;
+    width: 100%;
+    order: 3;
+    padding: 0.5rem 0 0.6rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .nav-presenter-slot .presenter-bubble {
+    position: static;
+    z-index: auto;
+  }
+
+  .nav-presenter-slot .presenter-bubble-btn,
+  .nav-presenter-slot .presenter-bubble-loggedin {
+    box-shadow: none;
+  }
+
+  .nav-links {
+    order: 4;
   }
 }
 
