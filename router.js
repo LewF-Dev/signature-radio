@@ -75,10 +75,10 @@
       const newTitle = doc.querySelector('title');
       if (newTitle) document.title = newTitle.textContent;
 
-      // Show homepage hero only on index, hide on all other pages
-      const destPage = url.split('/').pop().split('?')[0] || 'index.html';
-      const hero = document.getElementById('siteHero');
-      if (hero) hero.style.display = (destPage === 'index.html' || destPage === '') ? '' : 'none';
+      // Sync homepage hero. It lives outside <main>, so SPA navigation must
+      // add/remove it separately when moving between inner pages and Home.
+      const destPage = getPageFromUrl(url);
+      syncHomepageHero(doc, destPage);
 
       // 2. Update active nav link (router's own + partials.js helper)
       updateActiveNav(url);
@@ -116,9 +116,33 @@
     document.body.style.overflow = '';
   }
 
+  // ── Homepage hero sync ────────────────────────────
+  function syncHomepageHero(doc, page) {
+    const shouldShowHero = page === 'index.html' || page === '';
+    const curHero = document.getElementById('siteHero');
+
+    if (!shouldShowHero) {
+      if (curHero) curHero.remove();
+      return;
+    }
+
+    const newHero = doc.getElementById('siteHero');
+    if (!newHero) return;
+
+    const nav = document.querySelector('.nav-bar');
+    const main = document.querySelector('main');
+    const anchor = nav || main;
+
+    if (curHero) {
+      curHero.replaceWith(newHero);
+    } else if (anchor && anchor.parentNode) {
+      anchor.parentNode.insertBefore(newHero, anchor);
+    }
+  }
+
   // ── Re-run initialisers after swap ─────────────────
   function reinit(url) {
-    const page = url.split('/').pop().split('?')[0] || 'index.html';
+    const page = getPageFromUrl(url);
 
     // Always re-run scroll reveal on new content
     reinitScrollReveal();
@@ -208,6 +232,14 @@
       const aPage = href.split('/').pop().split('?')[0] || 'index.html';
       a.classList.toggle('active', aPage === page);
     });
+  }
+
+  function getPageFromUrl(url) {
+    try {
+      return new URL(url, window.location.href).pathname.split('/').pop().split('?')[0] || 'index.html';
+    } catch (e) {
+      return url.split('/').pop().split('?')[0] || 'index.html';
+    }
   }
 
 })();
