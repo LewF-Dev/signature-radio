@@ -203,6 +203,12 @@ img, svg { display: block; max-width: 100%; }
   }
 }
 
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-logo {
+    width: min(546px, calc(100vw - 4rem));
+  }
+}
+
 .listen-row {
   --listen-logo-height: clamp(54px, 6vw, 74px);
   display: flex;
