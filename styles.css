@@ -740,10 +740,12 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 1024px) {
   .nav-presenter-slot {
     display: flex;
-    width: 100%;
-    order: 3;
-    padding: 0.5rem 0 0.6rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    align-items: center;
+    width: auto;
+    order: 2;
+    padding: 0;
+    margin-left: auto;
+    margin-right: 0.75rem;
   }
 
   .nav-presenter-slot .presenter-bubble {
@@ -756,8 +758,35 @@ img, svg { display: block; max-width: 100%; }
     box-shadow: none;
   }
 
+  .nav-presenter-slot .presenter-bubble-btn {
+    min-height: 2rem;
+    padding: 0.38rem 0.7rem;
+    font-size: 0.72rem;
+  }
+
   .nav-links {
     order: 4;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-presenter-slot {
+    margin-right: 0.55rem;
+  }
+
+  .nav-presenter-slot .presenter-bubble-btn {
+    gap: 0.35rem;
+    padding: 0.42rem 0.58rem;
+    font-size: 0;
+  }
+
+  .nav-presenter-slot .presenter-bubble-btn::before {
+    content: 'Presenter?';
+    font-size: 0.72rem;
+  }
+
+  .nav-presenter-slot .presenter-bubble-arrow {
+    font-size: 0.9rem;
   }
 }
 
