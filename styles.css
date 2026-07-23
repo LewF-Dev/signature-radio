@@ -396,8 +396,9 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-content {
     max-width: none;
-    padding: 1.65rem 1rem 2rem;
+    padding: 1.65rem 1rem 1rem;
     justify-content: flex-start;
+    bottom: 35px;
   }
 
   .hero-inner {
