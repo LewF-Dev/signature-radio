@@ -482,7 +482,7 @@ img, svg { display: block; max-width: 100%; }
   .hero {
     --hero-mobile-text-inset: 0;
     min-height: 0;
-    height: auto;
+    height: clamp(150px, 35vh, 190px);
   }
 
   .hero::after {
@@ -493,27 +493,33 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-content {
     max-width: none;
-    padding: 0.65rem 1rem 0.8rem;
-    justify-content: center;
+    height: 100%;
+    padding: 0;
+    justify-content: flex-start;
     bottom: auto;
   }
 
+  .hero-inner {
+    height: 100%;
+    width: 100%;
+  }
+
   .hero-brand {
-    display: grid;
-    grid-template-columns: minmax(260px, 1fr) minmax(220px, 0.72fr);
-    grid-template-areas:
-      "logo listen"
-      "logo url"
-      "logo status";
-    align-items: center;
-    column-gap: clamp(1rem, 4vw, 2rem);
+    position: relative;
+    display: block;
+    height: 100%;
     width: 100%;
   }
 
   .hero-logo {
-    grid-area: logo;
-    width: min(390px, 49vw);
-    margin: -16% 0 -28%;
+    position: absolute;
+    left: clamp(1rem, 4vw, 2.5rem);
+    top: 50%;
+    width: min(360px, 42vw);
+    margin: 0;
+    animation: none;
+    opacity: 1;
+    transform: translateY(-50%) !important;
   }
 
   .hero-image {
@@ -521,13 +527,15 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .listen-row {
-    grid-area: listen;
-    --listen-logo-height: clamp(34px, 8vh, 42px);
+    --listen-logo-height: clamp(32px, 8vh, 42px);
+    position: absolute;
+    top: clamp(0.75rem, 3vh, 1.1rem);
+    right: clamp(1rem, 4vw, 2.4rem);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     column-gap: 0.7rem;
-    width: 100%;
+    width: min(320px, 40vw);
     margin: 0;
     padding: 0;
   }
@@ -554,21 +562,29 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-web-address {
-    grid-area: url;
-    margin-top: 0.45rem;
+    position: absolute;
+    top: 46%;
+    right: clamp(1rem, 4vw, 2.4rem);
+    width: min(320px, 40vw);
+    margin-top: 0;
     font-size: 0.72rem;
   }
 
   .broadcasting-label {
-    grid-area: status;
-    margin-top: 0.5rem;
+    position: absolute;
+    right: clamp(1rem, 4vw, 2.4rem);
+    bottom: 2.05rem;
+    width: min(320px, 40vw);
+    margin-top: 0;
     font-size: 0.88rem;
   }
 
   .broadcasting-hours {
-    grid-area: status;
-    align-self: end;
-    margin-top: 2rem;
+    position: absolute;
+    right: clamp(1rem, 4vw, 2.4rem);
+    bottom: 0.75rem;
+    width: min(320px, 40vw);
+    margin-top: 0;
     font-size: clamp(1.05rem, 4.2vh, 1.35rem);
   }
 
@@ -582,21 +598,44 @@ img, svg { display: block; max-width: 100%; }
 }
 
 @media (max-width: 620px) and (max-height: 520px) and (orientation: landscape) {
-  .hero-brand {
-    grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.72fr);
-    column-gap: 0.8rem;
+  .hero {
+    height: clamp(138px, 38vh, 160px);
   }
 
   .hero-logo {
-    width: min(330px, 48vw);
+    left: 0.9rem;
+    width: min(300px, 43vw);
   }
 
   .listen-row {
-    --listen-logo-height: 34px;
+    --listen-logo-height: 30px;
+    right: 0.9rem;
+    width: min(250px, 42vw);
   }
 
   .listen-modes {
-    font-size: 0.88rem;
+    font-size: 0.78rem;
+  }
+
+  .hero-web-address,
+  .broadcasting-label,
+  .broadcasting-hours {
+    right: 0.9rem;
+    width: min(250px, 42vw);
+  }
+
+  .hero-web-address {
+    font-size: 0.64rem;
+  }
+
+  .broadcasting-label {
+    bottom: 1.85rem;
+    font-size: 0.76rem;
+  }
+
+  .broadcasting-hours {
+    bottom: 0.7rem;
+    font-size: 1rem;
   }
 }
 
