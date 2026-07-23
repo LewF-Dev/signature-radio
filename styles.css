@@ -306,13 +306,13 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 1024px) {
   .hero {
     min-height: 0;
-    height: clamp(520px, 64vh, 590px);
+    height: clamp(450px, 1vh, 590px);
   }
 
   .hero-content {
     justify-content: center;
     padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
+    padding-bottom: 12.0rem;
   }
 
   .hero-image {
