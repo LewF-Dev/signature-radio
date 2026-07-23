@@ -200,6 +200,7 @@ img, svg { display: block; max-width: 100%; }
 @media (max-width: 767px) {
   .hero-logo {
     width: min(420px, calc(100vw - 2.5rem));
+    margin-bottom: -26%;
   }
 }
 
@@ -312,7 +313,7 @@ img, svg { display: block; max-width: 100%; }
   .hero-content {
     justify-content: center;
     padding-top: 1.25rem;
-    padding-bottom: 12.0rem;
+    padding-bottom: 10.0rem;
   }
 
   .hero-image {
@@ -377,7 +378,7 @@ img, svg { display: block; max-width: 100%; }
 
 @media (max-width: 767px) {
   .hero {
-    height: clamp(500px, 74vh, 560px);
+    height: clamp(500px, 1vh, 560px);
   }
 
   .hero-image {
