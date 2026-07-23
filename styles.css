@@ -378,6 +378,7 @@ img, svg { display: block; max-width: 100%; }
 
 @media (max-width: 767px) {
   .hero {
+    --hero-mobile-text-inset: clamp(0.7rem, 3.2vw, 1rem);
     height: auto;
     min-height: 400px;
   }
@@ -388,14 +389,14 @@ img, svg { display: block; max-width: 100%; }
     inset: 0;
     z-index: 1;
     background:
-      linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.62) 48%, rgba(0,0,0,0.34) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.72) 100%);
+      radial-gradient(ellipse at 76% 18%, rgba(120,0,0,0.24) 0%, rgba(0,0,0,0) 52%),
+      linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.82) 100%);
     pointer-events: none;
   }
 
   .hero-content {
     max-width: none;
-    padding: 1.65rem 1.35rem 2rem;
+    padding: 1.65rem 1rem 2rem;
     justify-content: flex-start;
   }
 
@@ -409,36 +410,31 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-logo {
-    width: min(375px, calc(100vw - 2.4rem));
+    width: min(400px, calc(100vw - 2rem));
     margin-top: -18%;
-    margin-bottom: -28%;
+    margin-bottom: -30%;
   }
 
   .hero-image {
-    width: 100%;
-    right: 0;
-    opacity: 0.42;
-  }
-
-  .hero-img {
-    object-position: 66% top;
+    display: none;
   }
 
   .listen-row {
-    --listen-logo-height: clamp(38px, 11vw, 48px);
+    --listen-logo-height: clamp(42px, 12vw, 54px);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
     column-gap: 0.8rem;
     row-gap: 0.35rem;
-    width: min(100%, 390px);
+    width: min(calc(100% - var(--hero-mobile-text-inset)), 410px);
     max-width: 100%;
     padding-left: 0;
+    margin-left: var(--hero-mobile-text-inset);
     margin-top: 0.2rem;
   }
 
   .listen-modes {
-    font-size: clamp(0.98rem, 4vw, 1.12rem);
+    font-size: clamp(1.08rem, 4.6vw, 1.25rem);
     line-height: 1.08;
     letter-spacing: 0.1em;
     white-space: normal;
@@ -456,25 +452,26 @@ img, svg { display: block; max-width: 100%; }
   .broadcasting-label,
   .broadcasting-hours {
     padding-left: 0;
+    margin-left: var(--hero-mobile-text-inset);
   }
 
   .hero-web-address {
     margin-top: 0.9rem;
-    font-size: 0.78rem;
+    font-size: 0.84rem;
     letter-spacing: 0.18em;
     color: rgba(255,255,255,0.48);
   }
 
   .broadcasting-label {
     margin-top: 0.8rem;
-    font-size: 0.98rem;
+    font-size: 1.05rem;
     letter-spacing: 0.18em;
     color: rgba(255,255,255,0.54);
   }
 
   .broadcasting-hours {
     margin-top: 0.1rem;
-    font-size: clamp(1.25rem, 5vw, 1.55rem);
+    font-size: clamp(1.38rem, 5.7vw, 1.72rem);
     line-height: 1;
     letter-spacing: 0.08em;
   }
