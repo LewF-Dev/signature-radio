@@ -78,7 +78,7 @@
       <div class="footer-col footer-right">
         <p class="footer-tagline"><em>The Soundtrack Of Your Life</em></p>
         <p>Registered in England &amp; Wales</p>
-        <p>Company Registration Number: 15051646</p>
+        <p>Company Registration Number: 15051546</p>
         <p><em>Licensed via PRS and PPL</em></p>
         <p class="footer-copy">&copy; 2026 Signature Radio UK</p>
       </div>
