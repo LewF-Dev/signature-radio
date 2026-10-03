@@ -25,35 +25,38 @@
 
 html {
   scroll-behavior: smooth;
-  scrollbar-color: #a20d0d #080808;
-  scrollbar-width: thin;
 }
 
-/* Custom viewport scrollbar — Chromium, Safari and Edge */
-html::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* Custom viewport scrollbar for desktop pointer devices only */
+@media (min-width: 1025px) {
+  html {
+    scrollbar-color: #a20d0d #080808;
+    scrollbar-width: thin;
+  }
+
+  html::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  html::-webkit-scrollbar-track {
+    background: #080808;
+  }
+
+  html::-webkit-scrollbar-thumb {
+    min-height: 54px;
+    background: #a20d0d;
+    border: 2px solid #080808;
+    border-block-width: 8px;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
 }
 
-html::-webkit-scrollbar-track {
-  background: #080808;
-}
-
-html::-webkit-scrollbar-thumb {
-  min-height: 54px;
-  background: #981010;
-  border: 2px solid #080808;
-  border-block-width: 8px;
-  border-radius: 999px;
-  background-clip: padding-box;
-}
-
-html::-webkit-scrollbar-thumb:hover {
-  background: #c90000;
-}
-
-html::-webkit-scrollbar-thumb:active {
-  background: #ff2020;
+/* Touch devices scroll normally without persistent scrollbar chrome */
+@media (max-width: 1024px) {
+  html { scrollbar-width: none; }
+  html::-webkit-scrollbar { display: none; }
 }
 
 body {
