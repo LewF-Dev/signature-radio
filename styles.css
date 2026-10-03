@@ -1766,6 +1766,17 @@ img, svg { display: block; max-width: 100%; }
 .issue-brief--next { background: radial-gradient(circle at 100% 0, rgba(240,197,69,0.15), transparent 48%), #111; }
 .issue-signoff { margin-top: 2rem; color: var(--issue-gold); font-family: var(--font-cond); font-size: 2.2rem; font-style: italic; }
 
+@media (min-width: 1025px) {
+  .issue-briefs-grid {
+    max-width: none;
+    padding-inline: 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .issue-briefs-grid { border-bottom: 0; }
+}
+
 .issue-subscribe { padding: clamp(3rem, 7vw, 5.5rem) 0; background: var(--issue-gold); color: #090909; }
 .issue-subscribe-inner { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 3rem; align-items: center; }
 .issue-subscribe .issue-eyebrow { color: rgba(0,0,0,0.58); }
