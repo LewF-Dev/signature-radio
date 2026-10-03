@@ -25,6 +25,44 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-color: #4a4a4a #080808;
+  scrollbar-width: thin;
+}
+
+/* Custom viewport scrollbar — Chromium, Safari and Edge */
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: #080808;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: #3b3b3b;
+  border: 2px solid #080808;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(204,0,0,0.35);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: #565656;
+  box-shadow: inset 0 0 0 1px rgba(204,0,0,0.8);
+}
+
+html.newsletter-page {
+  scrollbar-color: #6e5920 #080808;
+}
+
+html.newsletter-page::-webkit-scrollbar-thumb {
+  background: #4a431f;
+  box-shadow: inset 0 0 0 1px rgba(240,197,69,0.5);
+}
+
+html.newsletter-page::-webkit-scrollbar-thumb:hover {
+  background: #6e5920;
+  box-shadow: inset 0 0 0 1px rgba(240,197,69,0.9);
 }
 
 body {
