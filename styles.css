@@ -43,13 +43,17 @@ html {
     background: #080808;
   }
 
+  html::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   html::-webkit-scrollbar-thumb {
     min-height: 54px;
     background: #a20d0d;
-    border: 2px solid #080808;
-    border-block-width: 8px;
     border-radius: 999px;
-    background-clip: padding-box;
+    clip-path: inset(25% 2px round 999px);
   }
 }
 
