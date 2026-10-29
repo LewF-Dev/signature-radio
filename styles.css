@@ -3183,9 +3183,12 @@ img, svg { display: block; max-width: 100%; }
 /* ── Phone hero composition ───────────────────────── */
 @media (max-width: 767px) and (orientation: portrait) {
   .hero {
-    min-height: clamp(280px, 36vh, 330px);
-    min-height: clamp(280px, 36svh, 330px);
+    --hero-phone-content-inset: clamp(1.25rem, 4vh, 1.75rem);
+    --hero-phone-content-inset: clamp(1.25rem, 4svh, 1.75rem);
+    --hero-phone-image-bleed: clamp(2rem, 10vw, 3rem);
+    min-height: 0;
     height: auto;
+    overflow: visible;
     background: #000;
   }
 
@@ -3200,7 +3203,7 @@ img, svg { display: block; max-width: 100%; }
     display: block;
     top: 0;
     right: 0;
-    bottom: 0;
+    bottom: calc(-1 * var(--hero-phone-image-bleed));
     left: 0;
     width: 100%;
     height: auto;
@@ -3215,9 +3218,12 @@ img, svg { display: block; max-width: 100%; }
   .hero-content {
     width: 100%;
     max-width: none;
-    padding: clamp(1.25rem, 4vh, 1.75rem) clamp(1rem, 4vw, 1.5rem) clamp(1.5rem, 6vh, 2.75rem);
-    padding-bottom: clamp(1.5rem, 6svh, 2.75rem);
+    padding: var(--hero-phone-content-inset) clamp(1rem, 4vw, 1.5rem);
     justify-content: flex-start;
+  }
+
+  .nav-bar {
+    background: linear-gradient(180deg, rgba(13,13,13,0.9), var(--off-black) 85%);
   }
 
   .hero-inner { width: 100%; }
