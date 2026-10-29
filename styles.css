@@ -3229,46 +3229,48 @@ img, svg { display: block; max-width: 100%; }
   .hero-inner { width: 100%; }
 
   .hero-brand {
-    --hero-logo-text-inset: var(--hero-mobile-text-inset);
+    --hero-logo-text-inset: 0;
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
-    column-gap: clamp(0.55rem, 2vw, 0.85rem);
-    row-gap: clamp(0.45rem, 1.5vw, 0.7rem);
+    justify-items: center;
+    column-gap: 0;
+    row-gap: clamp(0.35rem, 1.3vw, 0.55rem);
     width: 100%;
+    text-align: center;
   }
 
   .hero-logo-frame {
-    grid-column: 1 / -1;
-    width: min(calc(100vw - 2rem), 90vw);
+    grid-column: 1;
+    width: min(calc(100vw - 2rem), 88vw);
     justify-self: center;
     margin: 0 auto;
   }
 
   .listen-row {
-    grid-column: 1 / -1;
-    --listen-logo-height: clamp(36px, 11vw, 46px);
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-column: 1;
+    --listen-logo-height: clamp(32px, 9vw, 38px);
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    column-gap: 0.65rem;
-    row-gap: 0.35rem;
-    width: min(calc(100% - var(--hero-logo-text-inset)), 430px);
+    gap: 0.3rem;
+    width: 100%;
     max-width: 100%;
-    margin: 0 auto;
-    padding: 0.45rem 0;
+    margin: 0;
+    padding: 0.15rem 0;
   }
 
   .listen-modes {
-    font-size: clamp(0.9rem, 3.8vw, 1.15rem);
+    font-size: clamp(0.82rem, 3.5vw, 0.98rem);
     line-height: 1.12;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     white-space: normal;
+    text-align: center;
   }
 
   .listen-logos {
-    justify-self: end;
-    gap: 0.45rem;
+    justify-content: center;
+    gap: 0.7rem;
   }
 
   .hero-brand > .hero-web-address {
@@ -3280,14 +3282,16 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-brand > .broadcasting-hours {
-    grid-column: 1 / -1;
+    grid-column: 1;
     justify-self: center;
     margin: 0;
     padding: 0;
-    font-size: clamp(1rem, 4.3vw, 1.25rem);
+    font-size: clamp(0.88rem, 3.7vw, 1rem);
     line-height: 1;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
     white-space: nowrap;
     text-align: center;
+    color: rgba(255,255,255,0.88);
+    text-shadow: 0 1px 8px rgba(0,0,0,0.7);
   }
 }
