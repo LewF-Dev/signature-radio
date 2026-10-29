@@ -3195,7 +3195,6 @@ img, svg { display: block; max-width: 100%; }
   .hero {
     --hero-phone-content-inset: clamp(1.25rem, 4vh, 1.75rem);
     --hero-phone-content-inset: clamp(1.25rem, 4svh, 1.75rem);
-    --hero-phone-image-bleed: clamp(2rem, 10vw, 3rem);
     min-height: clamp(460px, 62vh, 560px);
     min-height: clamp(460px, 62svh, 560px);
     height: auto;
@@ -3205,16 +3204,16 @@ img, svg { display: block; max-width: 100%; }
 
   .hero::after {
     background:
-      linear-gradient(90deg, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.5) 48%, rgba(0,0,0,0.24) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.18) 52%, rgba(0,0,0,0.52) 100%),
-      radial-gradient(ellipse at 78% 20%, rgba(120,0,0,0.14) 0%, transparent 58%);
+      linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.46) 48%, rgba(0,0,0,0.18) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.14) 52%, rgba(0,0,0,0.4) 100%),
+      radial-gradient(ellipse at 78% 20%, rgba(120,0,0,0.12) 0%, transparent 58%);
   }
 
   .hero-image {
     display: block;
     top: 0;
     right: 0;
-    bottom: calc(-1 * var(--hero-phone-image-bleed));
+    bottom: 0;
     left: 0;
     width: 100%;
     height: auto;
@@ -3223,7 +3222,7 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-img {
     object-position: 78% center;
-    filter: brightness(0.84) saturate(0.92);
+    filter: brightness(0.9) saturate(0.96);
   }
 
   .hero-content {
@@ -3284,7 +3283,7 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-phone-menu-slot { width: 44px; flex: 0 0 44px; }
-  .hero-phone-player-slot { width: 76px; flex: 0 0 76px; }
+  .hero-phone-player-slot { width: 88px; flex: 0 0 88px; }
 
   .hero-phone-logo-slot {
     position: absolute;
@@ -3293,7 +3292,7 @@ img, svg { display: block; max-width: 100%; }
     display: flex;
     align-items: center;
     justify-content: center;
-    width: min(48vw, calc(100% - 7.5rem), 190px);
+    width: min(48vw, calc(100% - 8.25rem), 190px);
     transform: translate(-50%, -50%);
   }
 
@@ -3312,22 +3311,22 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-phone-player-slot .player-widget {
-    width: 76px;
+    width: 88px;
     margin: 0;
     padding: 0;
   }
 
   .hero-phone-player-slot .player-btn {
-    width: 76px;
+    width: 88px;
     height: 44px;
     min-height: 44px;
-    padding: 0 0.45rem;
-    gap: 0.25rem;
+    padding: 0 0.6rem;
+    gap: 0.4rem;
     border-radius: 3px;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
   }
 
-  .hero-phone-player-slot .player-btn svg { width: 13px; height: 13px; }
+  .hero-phone-player-slot .player-btn svg { width: 15px; height: 15px; }
 
   .hero-phone-menu-panel {
     position: absolute;
