@@ -242,6 +242,8 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-content {
     justify-content: center;
+    padding-block: clamp(2rem, 6vh, 4rem);
+    padding-block: clamp(2rem, 6svh, 4rem);
   }
 }
 
@@ -331,6 +333,8 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-content {
     justify-content: center;
+    padding-block: clamp(1.5rem, 5vh, 3rem);
+    padding-block: clamp(1.5rem, 5svh, 3rem);
   }
 
   .hero-image {
@@ -383,7 +387,7 @@ img, svg { display: block; max-width: 100%; }
   .hero {
     --hero-mobile-text-inset: clamp(14px, calc(2.97vw + 4.5px), 27.3px);
     height: auto;
-    min-height: 400px;
+    min-height: 0;
   }
 
   .hero::after {
@@ -399,8 +403,10 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-content {
     max-width: none;
-    padding: 1.5rem 1rem;
-    justify-content: center;
+    padding-block: clamp(1.5rem, 6vh, 2.75rem);
+    padding-block: clamp(1.5rem, 6svh, 2.75rem);
+    padding-inline: clamp(1rem, 4vw, 1.5rem);
+    justify-content: flex-start;
   }
 
   .hero-inner {
@@ -410,7 +416,7 @@ img, svg { display: block; max-width: 100%; }
   .hero-brand {
     --hero-logo-text-inset: var(--hero-mobile-text-inset);
     width: 100%;
-    gap: 0.45rem;
+    gap: clamp(0.5rem, 1.2vw, 0.85rem);
   }
 
   .hero-image {
@@ -422,8 +428,8 @@ img, svg { display: block; max-width: 100%; }
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
-    column-gap: 0.8rem;
-    row-gap: 0.35rem;
+    column-gap: clamp(0.65rem, 2vw, 0.95rem);
+    row-gap: clamp(0.3rem, 0.8vw, 0.5rem);
     width: min(calc(100% - var(--hero-mobile-text-inset)), 410px);
     max-width: 100%;
     padding-left: 0;
