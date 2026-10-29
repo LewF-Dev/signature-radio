@@ -177,6 +177,23 @@ window.SRUK_initSlideshow();
   els.forEach(function (el) { observer.observe(el); });
 })();
 
+/* ── Phone Hero About Disclosure ──────────────────── */
+(function initHeroIntro() {
+  const toggle = document.getElementById('heroIntroToggle');
+  const panel = document.getElementById('heroIntroPanel');
+  const intro = toggle && toggle.closest('.hero-intro');
+
+  if (!toggle || !panel || !intro) return;
+
+  toggle.addEventListener('click', function () {
+    const isOpen = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    panel.inert = !isOpen;
+    intro.classList.toggle('is-open', isOpen);
+  });
+})();
+
 /* ── Mobile Nav Toggle ────────────────────────────── */
 (function initNav() {
   const toggle = document.getElementById('navToggle');

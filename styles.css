@@ -3403,32 +3403,87 @@ img, svg { display: block; max-width: 100%; }
     width: min(100%, 34rem);
     margin: 0;
     display: block;
-    text-align: left;
+    text-align: center;
   }
 
-  .hero-intro-kicker {
-    margin: 0 0 0.55rem;
+  .hero-intro-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.35rem 0;
+    border: 0;
+    background: transparent;
     color: var(--red);
     font-family: var(--font-cond);
-    font-size: 0.76rem;
+    font-size: clamp(0.78rem, 3.5vw, 0.95rem);
     font-weight: 700;
     letter-spacing: 0.16em;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .hero-intro-toggle::before {
+    content: '';
+    width: 1rem;
+    flex: 0 0 auto;
+  }
+
+  .hero-intro-toggle:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 3px;
+  }
+
+  .hero-intro-arrow {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.28s ease;
+  }
+
+  .hero-intro-toggle[aria-expanded="true"] .hero-intro-arrow {
+    transform: rotate(90deg);
+  }
+
+  .hero-intro-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.32s ease, opacity 0.24s ease;
+  }
+
+  .hero-intro.is-open .hero-intro-panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .hero-intro-panel-inner {
+    min-height: 0;
+    overflow: hidden;
   }
 
   .hero-intro-copy {
-    max-width: 42rem;
-    margin: 0;
+    max-width: 38rem;
+    margin: 0 auto;
     color: rgba(255,255,255,0.96);
-    font-size: clamp(0.98rem, 4vw, 1.12rem);
+    font-size: clamp(0.96rem, 3.9vw, 1.08rem);
     line-height: 1.48;
     text-shadow: 0 2px 16px rgba(0,0,0,0.85);
+    text-align: center;
   }
 
-  .hero-intro-shape {
-    float: right;
-    width: 27%;
-    height: 8.2em;
-    shape-outside: polygon(0 0, 100% 0, 100% 100%);
+  @media (prefers-reduced-motion: reduce) {
+    .hero-intro-arrow,
+    .hero-intro-panel {
+      transition: none;
+    }
   }
 
   .about-body > p:first-child {
