@@ -3183,42 +3183,39 @@ img, svg { display: block; max-width: 100%; }
 /* ── Phone hero composition ───────────────────────── */
 @media (max-width: 767px) and (orientation: portrait) {
   .hero {
-    --hero-phone-photo-height: clamp(270px, 78vw, 430px);
-    --hero-phone-photo-overlap: clamp(3.5rem, 16vw, 6rem);
-    min-height: 0;
+    min-height: clamp(360px, 54vh, 480px);
+    min-height: clamp(360px, 54svh, 480px);
     height: auto;
     background: #000;
   }
 
   .hero::after {
-    background: linear-gradient(
-      180deg,
-      rgba(0,0,0,0.02) 0,
-      rgba(0,0,0,0.08) calc(var(--hero-phone-photo-height) - 9rem),
-      rgba(0,0,0,0.82) calc(var(--hero-phone-photo-height) - 2.5rem),
-      #000 var(--hero-phone-photo-height),
-      #000 100%
-    );
+    background:
+      linear-gradient(90deg, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.64) 48%, rgba(0,0,0,0.38) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.34) 52%, rgba(0,0,0,0.9) 100%),
+      radial-gradient(ellipse at 78% 20%, rgba(120,0,0,0.2) 0%, transparent 58%);
   }
 
   .hero-image {
     display: block;
     top: 0;
     right: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
-    height: var(--hero-phone-photo-height);
+    height: auto;
     opacity: 1;
   }
 
   .hero-img {
-    object-position: 78% center;
+    object-position: 70% center;
+    filter: brightness(0.68) saturate(0.88);
   }
 
   .hero-content {
     width: 100%;
     max-width: none;
-    padding: calc(var(--hero-phone-photo-height) - var(--hero-phone-photo-overlap)) clamp(1rem, 4vw, 1.5rem) clamp(1.5rem, 6vh, 2.75rem);
+    padding: clamp(1.25rem, 4vh, 1.75rem) clamp(1rem, 4vw, 1.5rem) clamp(1.5rem, 6vh, 2.75rem);
     padding-bottom: clamp(1.5rem, 6svh, 2.75rem);
     justify-content: flex-start;
   }
