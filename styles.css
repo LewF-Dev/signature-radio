@@ -3195,14 +3195,17 @@ img, svg { display: block; max-width: 100%; }
   .hero {
     --hero-phone-content-inset: clamp(1.25rem, 4vh, 1.75rem);
     --hero-phone-content-inset: clamp(1.25rem, 4svh, 1.75rem);
+    --hero-phone-image-bleed: clamp(2rem, 10vw, 3rem);
     min-height: clamp(460px, 62vh, 560px);
     min-height: clamp(460px, 62svh, 560px);
     height: auto;
+    margin-bottom: var(--hero-phone-image-bleed);
     overflow: visible;
     background: #000;
   }
 
   .hero::after {
+    bottom: calc(-1 * var(--hero-phone-image-bleed));
     background:
       linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.46) 48%, rgba(0,0,0,0.18) 100%),
       linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.14) 52%, rgba(0,0,0,0.4) 100%),
@@ -3213,7 +3216,7 @@ img, svg { display: block; max-width: 100%; }
     display: block;
     top: 0;
     right: 0;
-    bottom: 0;
+    bottom: calc(-1 * var(--hero-phone-image-bleed));
     left: 0;
     width: 100%;
     height: auto;
