@@ -119,6 +119,7 @@
   // ── Homepage hero sync ────────────────────────────
   function syncHomepageHero(doc, page) {
     const shouldShowHero = page === 'index.html' || page === '';
+    document.body.classList.toggle('home-page', shouldShowHero);
     const curHero = document.getElementById('siteHero');
 
     if (!shouldShowHero) {

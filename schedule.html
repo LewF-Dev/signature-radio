@@ -192,8 +192,13 @@
       clearInterval(timer);
     }
 
-    if (nextBtn) nextBtn.addEventListener('click', function () { stopTimer(); next(); startTimer(); });
-    if (prevBtn) prevBtn.addEventListener('click', function () { stopTimer(); prev(); startTimer(); });
+    if (total < 2) {
+      if (nextBtn) nextBtn.hidden = true;
+      if (prevBtn) prevBtn.hidden = true;
+    } else {
+      if (nextBtn) nextBtn.addEventListener('click', function () { stopTimer(); next(); startTimer(); });
+      if (prevBtn) prevBtn.addEventListener('click', function () { stopTimer(); prev(); startTimer(); });
+    }
 
     // Click a side card to bring it to centre
     stage.addEventListener('click', function (e) {
