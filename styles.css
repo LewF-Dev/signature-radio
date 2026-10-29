@@ -208,6 +208,10 @@ img, svg { display: block; max-width: 100%; }
   gap: clamp(0.4rem, 1vw, 0.75rem);
 }
 
+.hero-intro {
+  display: none;
+}
+
 .hero-logo-frame {
   /* The source PNG's visible mark is a centered 3.6:1 shape with large transparent margins. */
   width: min(calc(100vw - 2rem), clamp(280px, calc(59.4vw + 89.8px), 546px));
@@ -3186,8 +3190,8 @@ img, svg { display: block; max-width: 100%; }
     --hero-phone-content-inset: clamp(1.25rem, 4vh, 1.75rem);
     --hero-phone-content-inset: clamp(1.25rem, 4svh, 1.75rem);
     --hero-phone-image-bleed: clamp(2rem, 10vw, 3rem);
-    min-height: clamp(250px, 31vh, 280px);
-    min-height: clamp(250px, 31svh, 280px);
+    min-height: clamp(460px, 62vh, 560px);
+    min-height: clamp(460px, 62svh, 560px);
     height: auto;
     overflow: visible;
     background: #000;
@@ -3212,7 +3216,7 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-img {
-    object-position: 70% center;
+    object-position: 78% center;
     filter: brightness(0.84) saturate(0.92);
   }
 
@@ -3227,12 +3231,18 @@ img, svg { display: block; max-width: 100%; }
     background: linear-gradient(180deg, rgba(13,13,13,0.9), var(--off-black) 85%);
   }
 
-  .hero-inner { width: 100%; }
+  .hero-inner {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 
   .hero-brand {
     --hero-logo-text-inset: 0;
+    height: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
     align-items: center;
     justify-items: center;
     column-gap: 0;
@@ -3284,6 +3294,39 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-brand > .broadcasting-hours {
+    display: none;
+  }
+
+  .hero-intro {
+    grid-column: 1;
+    grid-row: 4;
+    justify-self: stretch;
+    align-self: end;
+    width: min(100%, 34rem);
+    margin: 0;
+    display: block;
+    text-align: left;
+  }
+
+  .hero-intro-kicker {
+    margin: 0 0 0.55rem;
+    color: var(--red);
+    font-family: var(--font-cond);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+
+  .hero-intro-copy {
+    max-width: 34ch;
+    margin: 0;
+    color: rgba(255,255,255,0.96);
+    font-size: clamp(1rem, 4vw, 1.12rem);
+    line-height: 1.48;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.85);
+  }
+
+  .about-copy-hero {
     display: none;
   }
 }
