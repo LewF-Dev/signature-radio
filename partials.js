@@ -105,7 +105,7 @@
         <div class="hero-logo-frame"><img src="signature-radio-logo-2-white_transparent_background.png" alt="Signature Radio UK" class="hero-logo" /></div>
       </div>
       <div class="hero-phone-player-slot" id="pagePhonePlayerSlot"></div>
-      <div class="hero-phone-menu-panel" id="pagePhoneMenuPanel" role="navigation" aria-label="Main navigation" hidden></div>
+      <div class="hero-phone-menu-panel" id="pagePhoneMenuPanel" role="navigation" aria-label="Main navigation" aria-hidden="true" inert></div>
     </div>`;
   const ticker = document.querySelector('.ticker-wrap');
   if (ticker && ticker.parentNode) ticker.parentNode.insertBefore(phoneMasthead, ticker.nextSibling);
@@ -251,7 +251,10 @@
       if (toggle.parentNode !== menuSlot) menuSlot.appendChild(toggle);
       if (player.parentNode !== playerSlot) playerSlot.appendChild(player);
       if (links.parentNode !== menuPanel) menuPanel.appendChild(links);
-      menuPanel.hidden = !links.classList.contains('open');
+      const menuOpen = links.classList.contains('open');
+      menuPanel.classList.toggle('is-open', menuOpen);
+      menuPanel.setAttribute('aria-hidden', menuOpen ? 'false' : 'true');
+      menuPanel.inert = !menuOpen;
       return;
     }
 
@@ -259,9 +262,12 @@
     if (links.parentNode !== nav) nav.appendChild(links);
     if (presenterSlot.parentNode !== nav) nav.appendChild(presenterSlot);
     if (player.parentNode !== nav) nav.appendChild(player);
-    menuPanel.hidden = true;
+    menuPanel.classList.remove('is-open');
+    menuPanel.setAttribute('aria-hidden', 'true');
+    menuPanel.inert = true;
     links.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('mobile-nav-open');
   }
 
 })();

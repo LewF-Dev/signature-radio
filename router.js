@@ -115,6 +115,18 @@
 
   // ── Cleanup before page swap ───────────────────────
   function cleanup() {
+    const phoneMenuPanel = document.getElementById('pagePhoneMenuPanel');
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (phoneMenuPanel) {
+      phoneMenuPanel.classList.remove('is-open');
+      phoneMenuPanel.setAttribute('aria-hidden', 'true');
+      phoneMenuPanel.inert = true;
+    }
+    if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+    if (navLinks) navLinks.classList.remove('open');
+    document.body.classList.remove('mobile-nav-open');
+
     if (window.SRUK) {
       if (typeof window.SRUK.cleanupSlideshow    === 'function') window.SRUK.cleanupSlideshow();
       if (typeof window.SRUK.cleanupDashboard    === 'function') window.SRUK.cleanupDashboard();

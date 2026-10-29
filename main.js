@@ -203,26 +203,35 @@ window.SRUK_initSlideshow();
 
   if (!toggle || !links) return;
 
-  toggle.addEventListener('click', function () {
-    const isOpen = links.classList.toggle('open');
+  function setNavOpen(isOpen) {
+    links.classList.toggle('open', isOpen);
     toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    if (phoneMenuPanel && links.parentNode === phoneMenuPanel) phoneMenuPanel.hidden = !isOpen;
+
+    if (phoneMenuPanel && links.parentNode === phoneMenuPanel) {
+      phoneMenuPanel.classList.toggle('is-open', isOpen);
+      phoneMenuPanel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+      phoneMenuPanel.inert = !isOpen;
+      document.body.classList.toggle('mobile-nav-open', isOpen);
+    }
+  }
+
+  toggle.addEventListener('click', function () {
+    setNavOpen(!links.classList.contains('open'));
   });
 
-  // Close nav when a link is tapped on mobile
-  links.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('click', function () {
-      links.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      if (phoneMenuPanel) phoneMenuPanel.hidden = true;
-    });
-  });
-
+  // Close the overlay after a destination or presenter action is selected.
   links.addEventListener('click', function (event) {
-    if (!event.target.closest('#heroPhonePresenterSlot button')) return;
-    links.classList.remove('open');
-    toggle.setAttribute('aria-expanded', 'false');
-    if (phoneMenuPanel) phoneMenuPanel.hidden = true;
+    if (event.target.closest('a, #heroPhonePresenterSlot button')) setNavOpen(false);
+  });
+
+  if (phoneMenuPanel) {
+    phoneMenuPanel.addEventListener('click', function (event) {
+      if (event.target === phoneMenuPanel) setNavOpen(false);
+    });
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && links.classList.contains('open')) setNavOpen(false);
   });
 })();
 
