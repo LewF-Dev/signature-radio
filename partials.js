@@ -32,6 +32,7 @@
       <li><a href="store.html">STORE</a></li>
       <li><a href="business.html">BUSINESS</a></li>
       <li><a href="contact.html">CONTACT</a></li>
+      <li class="nav-phone-presenter-item" id="navPhonePresenterItem"><div class="hero-phone-presenter-slot" id="heroPhonePresenterSlot"></div></li>
       <li><a href="https://drive.google.com/drive/folders/1xrrHW_wQUVmA8ssQkFez8WtezYM5hQze" target="_blank" rel="noopener">ARCHIVE</a></li>
       <li class="nav-dashboard-item" id="navDashboardItem"><a href="presenter-dashboard.html" id="navDashboardLink">LIVE CHAT</a></li>
     </ul>
@@ -155,8 +156,12 @@
   authMount.innerHTML = authHTML;
   document.body.appendChild(authMount);
 
+  syncPhoneHeroNav();
   syncPresenterPlacement();
-  window.addEventListener('resize', syncPresenterPlacement);
+  window.addEventListener('resize', function () {
+    syncPhoneHeroNav();
+    syncPresenterPlacement();
+  });
 
   // Highlight active nav link based on current page
   syncActiveNav();
@@ -199,12 +204,54 @@
     const slot = document.getElementById('navPresenterSlot');
     if (!bubble || !slot) return;
 
+    const phoneMenuSlot = document.getElementById('heroPhonePresenterSlot');
+    const usePhoneHero = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
     const shouldUseNav = window.matchMedia('(max-width: 1024px)').matches;
-    if (shouldUseNav) {
+    if (usePhoneHero && phoneMenuSlot) {
+      if (bubble.parentNode !== phoneMenuSlot) phoneMenuSlot.appendChild(bubble);
+    } else if (shouldUseNav) {
       if (bubble.parentNode !== slot) slot.appendChild(bubble);
     } else if (bubble.parentNode !== authMount) {
       authMount.insertBefore(bubble, authMount.firstChild);
     }
+  }
+
+  function syncPhoneHeroNav() {
+    const nav = document.querySelector('.nav-bar');
+    const toggle = document.getElementById('navToggle');
+    const links = document.getElementById('navLinks');
+    const presenterSlot = document.getElementById('navPresenterSlot');
+    const player = document.getElementById('playerWidget');
+    const heroBrand = document.querySelector('.hero-brand');
+    const controlRow = document.getElementById('heroPhoneControlRow');
+    const menuSlot = document.getElementById('heroPhoneMenuSlot');
+    const logoSlot = document.getElementById('heroPhoneLogoSlot');
+    const playerSlot = document.getElementById('heroPhonePlayerSlot');
+    const menuPanel = document.getElementById('heroPhoneMenuPanel');
+    const logo = document.querySelector('.hero-logo-frame');
+    const listenRow = document.querySelector('.hero-brand .listen-row');
+
+    if (!nav || !toggle || !links || !presenterSlot || !player || !heroBrand ||
+        !controlRow || !menuSlot || !logoSlot || !playerSlot || !menuPanel || !logo || !listenRow) return;
+
+    const usePhoneHero = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
+    if (usePhoneHero) {
+      if (toggle.parentNode !== menuSlot) menuSlot.appendChild(toggle);
+      if (logo.parentNode !== logoSlot) logoSlot.appendChild(logo);
+      if (player.parentNode !== playerSlot) playerSlot.appendChild(player);
+      if (links.parentNode !== menuPanel) menuPanel.appendChild(links);
+      menuPanel.hidden = !links.classList.contains('open');
+      return;
+    }
+
+    if (toggle.parentNode !== nav) nav.appendChild(toggle);
+    if (links.parentNode !== nav) nav.appendChild(links);
+    if (presenterSlot.parentNode !== nav) nav.appendChild(presenterSlot);
+    if (player.parentNode !== nav) nav.appendChild(player);
+    if (logo.parentNode !== heroBrand) heroBrand.insertBefore(logo, listenRow);
+    menuPanel.hidden = true;
+    links.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
   }
 
 })();

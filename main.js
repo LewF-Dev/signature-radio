@@ -181,12 +181,14 @@ window.SRUK_initSlideshow();
 (function initNav() {
   const toggle = document.getElementById('navToggle');
   const links  = document.getElementById('navLinks');
+  const phoneMenuPanel = document.getElementById('heroPhoneMenuPanel');
 
   if (!toggle || !links) return;
 
   toggle.addEventListener('click', function () {
     const isOpen = links.classList.toggle('open');
     toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (phoneMenuPanel && links.parentNode === phoneMenuPanel) phoneMenuPanel.hidden = !isOpen;
   });
 
   // Close nav when a link is tapped on mobile
@@ -194,7 +196,15 @@ window.SRUK_initSlideshow();
     a.addEventListener('click', function () {
       links.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
+      if (phoneMenuPanel) phoneMenuPanel.hidden = true;
     });
+  });
+
+  links.addEventListener('click', function (event) {
+    if (!event.target.closest('#heroPhonePresenterSlot button')) return;
+    links.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    if (phoneMenuPanel) phoneMenuPanel.hidden = true;
   });
 })();
 
