@@ -3390,7 +3390,8 @@ img, svg { display: block; max-width: 100%; }
     max-width: 100%;
     padding: 0.45rem 0;
     border: 0;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 14px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 2px #000, 0 0 6px #000, 0 0 14px rgba(0,0,0,0.98), 0 0 24px rgba(0,0,0,0.82);
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.85));
   }
 
   .hero-phone-menu-panel .nav-links .nav-phone-presenter-item {
@@ -3424,6 +3425,8 @@ img, svg { display: block; max-width: 100%; }
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    text-shadow: 0 1px 2px #000, 0 0 6px #000, 0 0 14px rgba(0,0,0,0.98), 0 0 24px rgba(0,0,0,0.82);
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.85));
     box-shadow: none;
   }
 
@@ -3434,6 +3437,7 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-phone-presenter-slot .presenter-bubble-arrow {
     color: var(--red);
+    text-shadow: 0 1px 2px #000, 0 0 8px rgba(0,0,0,0.95);
   }
 
   .hero-brand > .listen-row { display: none; }
