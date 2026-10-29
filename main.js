@@ -198,7 +198,7 @@ window.SRUK_initSlideshow();
 (function initNav() {
   const toggle = document.getElementById('navToggle');
   const links  = document.getElementById('navLinks');
-  const phoneMenuPanel = document.getElementById('heroPhoneMenuPanel');
+  const phoneMenuPanel = document.getElementById('pagePhoneMenuPanel');
 
   if (!toggle || !links) return;
 

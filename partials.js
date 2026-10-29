@@ -94,6 +94,22 @@
   const navTarget = document.getElementById('nav-mount');
   if (navTarget) navTarget.outerHTML = navHTML;
 
+  // Persistent phone controls sit after the ticker. On the homepage the
+  // masthead overlaps the hero image; on inner pages it becomes a compact bar.
+  const phoneMasthead = document.createElement('div');
+  phoneMasthead.className = 'page-phone-masthead';
+  phoneMasthead.innerHTML = `
+    <div class="hero-phone-control-row" id="pagePhoneControlRow">
+      <div class="hero-phone-menu-slot" id="pagePhoneMenuSlot"></div>
+      <div class="hero-phone-logo-slot" id="pagePhoneLogoSlot">
+        <div class="hero-logo-frame"><img src="signature-radio-logo-2-white_transparent_background.png" alt="Signature Radio UK" class="hero-logo" /></div>
+      </div>
+      <div class="hero-phone-player-slot" id="pagePhonePlayerSlot"></div>
+      <div class="hero-phone-menu-panel" id="pagePhoneMenuPanel" role="navigation" aria-label="Main navigation" hidden></div>
+    </div>`;
+  const ticker = document.querySelector('.ticker-wrap');
+  if (ticker && ticker.parentNode) ticker.parentNode.insertBefore(phoneMasthead, ticker.nextSibling);
+
   // Inject footer
   const footerTarget = document.getElementById('footer-mount');
   if (footerTarget) footerTarget.outerHTML = footerHTML;
@@ -222,22 +238,17 @@
     const links = document.getElementById('navLinks');
     const presenterSlot = document.getElementById('navPresenterSlot');
     const player = document.getElementById('playerWidget');
-    const heroBrand = document.querySelector('.hero-brand');
-    const controlRow = document.getElementById('heroPhoneControlRow');
-    const menuSlot = document.getElementById('heroPhoneMenuSlot');
-    const logoSlot = document.getElementById('heroPhoneLogoSlot');
-    const playerSlot = document.getElementById('heroPhonePlayerSlot');
-    const menuPanel = document.getElementById('heroPhoneMenuPanel');
-    const logo = document.querySelector('.hero-logo-frame');
-    const listenRow = document.querySelector('.hero-brand .listen-row');
+    const controlRow = document.getElementById('pagePhoneControlRow');
+    const menuSlot = document.getElementById('pagePhoneMenuSlot');
+    const playerSlot = document.getElementById('pagePhonePlayerSlot');
+    const menuPanel = document.getElementById('pagePhoneMenuPanel');
 
-    if (!nav || !toggle || !links || !presenterSlot || !player || !heroBrand ||
-        !controlRow || !menuSlot || !logoSlot || !playerSlot || !menuPanel || !logo || !listenRow) return;
+    if (!nav || !toggle || !links || !presenterSlot || !player ||
+        !controlRow || !menuSlot || !playerSlot || !menuPanel) return;
 
     const usePhoneHero = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
     if (usePhoneHero) {
       if (toggle.parentNode !== menuSlot) menuSlot.appendChild(toggle);
-      if (logo.parentNode !== logoSlot) logoSlot.appendChild(logo);
       if (player.parentNode !== playerSlot) playerSlot.appendChild(player);
       if (links.parentNode !== menuPanel) menuPanel.appendChild(links);
       menuPanel.hidden = !links.classList.contains('open');
@@ -248,7 +259,6 @@
     if (links.parentNode !== nav) nav.appendChild(links);
     if (presenterSlot.parentNode !== nav) nav.appendChild(presenterSlot);
     if (player.parentNode !== nav) nav.appendChild(player);
-    if (logo.parentNode !== heroBrand) heroBrand.insertBefore(logo, listenRow);
     menuPanel.hidden = true;
     links.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');

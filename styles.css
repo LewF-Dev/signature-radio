@@ -218,6 +218,8 @@ img, svg { display: block; max-width: 100%; }
   display: none;
 }
 
+.page-phone-masthead { display: none; }
+
 .hero-logo-frame {
   /* The source PNG's visible mark is a centered 3.6:1 shape with large transparent margins. */
   width: min(calc(100vw - 2rem), clamp(280px, calc(59.4vw + 89.8px), 546px));
@@ -3304,6 +3306,30 @@ img, svg { display: block; max-width: 100%; }
     margin: 0;
   }
 
+  .page-phone-masthead {
+    display: block;
+    position: relative;
+    z-index: 30;
+    padding: 0 clamp(1rem, 4vw, 1.5rem);
+    background: var(--off-black);
+    border-bottom: 1px solid #242424;
+  }
+
+  .page-phone-masthead .hero-phone-control-row {
+    min-height: 56px;
+    height: 56px;
+  }
+
+  .home-page .page-phone-masthead {
+    margin-bottom: -56px;
+    background: transparent;
+    border-bottom: 0;
+  }
+
+  .hero-brand > .hero-logo-frame {
+    display: none;
+  }
+
   .hero-phone-control-row .nav-toggle {
     display: flex;
     width: 48px;
@@ -3319,6 +3345,8 @@ img, svg { display: block; max-width: 100%; }
     padding: 0;
   }
 
+  .hero-phone-player-slot .player-meta { display: none; }
+
   .hero-phone-player-slot .player-btn {
     width: 48px;
     height: 48px;
@@ -3333,9 +3361,11 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-phone-menu-panel {
     position: absolute;
-    top: calc(48px + 0.6rem);
-    left: 0;
-    right: 0;
+    top: calc(100% + 0.45rem);
+    left: 11px;
+    right: auto;
+    width: max-content;
+    max-width: calc(100vw - 2rem);
     z-index: 20;
     display: block;
   }
@@ -3343,26 +3373,30 @@ img, svg { display: block; max-width: 100%; }
   .hero-phone-menu-panel[hidden] { display: none; }
 
   .hero-phone-menu-panel .nav-links {
-    width: 100%;
+    width: max-content;
+    max-width: calc(100vw - 2rem);
     max-height: min(60vh, 460px);
     max-height: min(60svh, 460px);
     overflow-y: auto;
     margin: 0;
-    padding: 0.35rem 0;
-    background: rgba(13,13,13,0.98);
-    border-top: 2px solid var(--red);
-    box-shadow: 0 14px 30px rgba(0,0,0,0.6);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
   }
 
   .hero-phone-menu-panel .nav-links li a {
-    padding: 0.7rem 1rem;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    width: max-content;
+    max-width: 100%;
+    padding: 0.45rem 0;
+    border: 0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 14px rgba(0,0,0,0.8);
   }
 
   .hero-phone-menu-panel .nav-links .nav-phone-presenter-item {
     display: block;
-    padding: 0.6rem 1rem;
-    border-top: 1px solid rgba(255,255,255,0.18);
+    padding: 0.35rem 0;
+    border: 0;
   }
 
   .hero-phone-presenter-slot .presenter-bubble {
