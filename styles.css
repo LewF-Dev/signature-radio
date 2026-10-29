@@ -3416,12 +3416,23 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-intro-copy {
-    max-width: 34ch;
+    max-width: 42rem;
     margin: 0;
     color: rgba(255,255,255,0.96);
-    font-size: clamp(1rem, 4vw, 1.12rem);
+    font-size: clamp(0.98rem, 4vw, 1.12rem);
     line-height: 1.48;
     text-shadow: 0 2px 16px rgba(0,0,0,0.85);
+  }
+
+  .hero-intro-shape {
+    float: right;
+    width: 27%;
+    height: 8.2em;
+    shape-outside: polygon(0 0, 100% 0, 100% 100%);
+  }
+
+  .about-body > p:first-child {
+    display: none;
   }
 
   .about-copy-hero {
