@@ -3194,9 +3194,9 @@ img, svg { display: block; max-width: 100%; }
 
   .hero::after {
     background:
-      linear-gradient(90deg, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.64) 48%, rgba(0,0,0,0.38) 100%),
-      linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.34) 52%, rgba(0,0,0,0.9) 100%),
-      radial-gradient(ellipse at 78% 20%, rgba(120,0,0,0.2) 0%, transparent 58%);
+      linear-gradient(90deg, rgba(0,0,0,0.76) 0%, rgba(0,0,0,0.5) 48%, rgba(0,0,0,0.24) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.18) 52%, rgba(0,0,0,0.52) 100%),
+      radial-gradient(ellipse at 78% 20%, rgba(120,0,0,0.14) 0%, transparent 58%);
   }
 
   .hero-image {
@@ -3212,7 +3212,7 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-img {
     object-position: 70% center;
-    filter: brightness(0.68) saturate(0.88);
+    filter: brightness(0.84) saturate(0.92);
   }
 
   .hero-content {
@@ -3241,7 +3241,8 @@ img, svg { display: block; max-width: 100%; }
   .hero-logo-frame {
     grid-column: 1 / -1;
     width: min(calc(100vw - 2rem), 90vw);
-    margin: 0;
+    justify-self: center;
+    margin: 0 auto;
   }
 
   .listen-row {
@@ -3254,9 +3255,8 @@ img, svg { display: block; max-width: 100%; }
     row-gap: 0.35rem;
     width: min(calc(100% - var(--hero-logo-text-inset)), 430px);
     max-width: 100%;
-    margin: 0 0 0 var(--hero-logo-text-inset);
-    padding: 0.7rem 0;
-    border-block: 1px solid rgba(255,255,255,0.18);
+    margin: 0 auto;
+    padding: 0.45rem 0;
   }
 
   .listen-modes {
@@ -3272,35 +3272,22 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-brand > .hero-web-address {
-    grid-column: 1 / -1;
-    margin: 0 0 0 var(--hero-logo-text-inset);
-    padding: 0;
-    font-size: 0.72rem;
-    letter-spacing: 0.15em;
-    color: rgba(255,255,255,0.58);
+    display: none;
   }
 
   .hero-brand > .broadcasting-label {
-    grid-column: 1;
-    align-self: baseline;
-    margin: 0 0 0 var(--hero-logo-text-inset);
-    padding: 0;
-    font-size: clamp(0.76rem, 2.8vw, 0.92rem);
-    line-height: 1;
-    letter-spacing: 0.14em;
-    color: rgba(255,255,255,0.62);
+    display: none;
   }
 
   .hero-brand > .broadcasting-hours {
-    grid-column: 2;
-    justify-self: end;
-    align-self: baseline;
+    grid-column: 1 / -1;
+    justify-self: center;
     margin: 0;
     padding: 0;
     font-size: clamp(1rem, 4.3vw, 1.25rem);
     line-height: 1;
     letter-spacing: 0.06em;
     white-space: nowrap;
-    text-align: right;
+    text-align: center;
   }
 }
