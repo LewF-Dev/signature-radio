@@ -3311,8 +3311,8 @@ img, svg { display: block; max-width: 100%; }
     position: relative;
     z-index: 30;
     padding: 0 clamp(1rem, 4vw, 1.5rem);
-    background: var(--off-black);
-    border-bottom: 1px solid #242424;
+    background: transparent;
+    border: 0;
   }
 
   .page-phone-masthead .hero-phone-control-row {
@@ -3408,11 +3408,32 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-phone-presenter-slot .presenter-bubble-btn {
-    width: 100%;
-    min-height: 44px;
+    display: flex;
+    width: max-content;
+    max-width: 100%;
+    min-height: 0;
     justify-content: flex-start;
-    padding: 0.6rem 0.8rem;
+    gap: 0.5rem;
+    padding: 0.45rem 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    color: var(--white);
+    font-family: var(--font-cond);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     box-shadow: none;
+  }
+
+  .hero-phone-presenter-slot .presenter-bubble-btn:hover {
+    background: transparent;
+    color: var(--red);
+  }
+
+  .hero-phone-presenter-slot .presenter-bubble-arrow {
+    color: var(--red);
   }
 
   .hero-brand > .listen-row { display: none; }

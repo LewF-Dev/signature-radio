@@ -9,6 +9,7 @@
 (function initRouter() {
 
   const SAME_ORIGIN = window.location.origin;
+  let activeNavigationId = 0;
 
   // Pages that require a full reload (auth token in hash, etc.)
   const FULL_RELOAD_PAGES = [];
@@ -42,9 +43,7 @@
 
   // ── Handle browser back/forward ────────────────────
   window.addEventListener('popstate', function (e) {
-    if (e.state && e.state.url) {
-      navigate(e.state.url, false);
-    }
+    navigate((e.state && e.state.url) || window.location.href, false);
   });
 
   // Record initial state
@@ -52,24 +51,35 @@
 
   // ── Navigate ───────────────────────────────────────
   async function navigate(url, pushState) {
-    if (pushState !== false) {
-      history.pushState({ url }, '', url);
+    const target = new URL(url, window.location.href);
+    if (target.origin !== SAME_ORIGIN) {
+      window.location.href = target.href;
+      return;
     }
 
-    // Run any cleanup before swapping
-    cleanup();
+    const targetUrl = target.href;
+    const navigationId = ++activeNavigationId;
+
+    if (pushState !== false) {
+      history.pushState({ url: targetUrl }, '', targetUrl);
+    }
 
     try {
-      const res  = await fetch(url);
+      const res  = await fetch(targetUrl);
+      if (!res.ok) throw new Error('Page request failed: ' + res.status);
       const html = await res.text();
+      if (navigationId !== activeNavigationId) return;
+
       const doc  = new DOMParser().parseFromString(html, 'text/html');
 
       // Swap <main>
       const newMain = doc.querySelector('main');
       const curMain = document.querySelector('main');
-      if (newMain && curMain) {
-        curMain.replaceWith(newMain);
-      }
+      if (!newMain || !curMain) throw new Error('Page is missing its main content.');
+
+      // Only clean up and mutate the page once the latest navigation is ready.
+      cleanup();
+      curMain.replaceWith(newMain);
 
       // 1. Update <title> — read from parsed <title> element directly
       const newTitle = doc.querySelector('title');
@@ -77,11 +87,11 @@
 
       // Sync homepage hero. It lives outside <main>, so SPA navigation must
       // add/remove it separately when moving between inner pages and Home.
-      const destPage = getPageFromUrl(url);
+      const destPage = getPageFromUrl(targetUrl);
       syncHomepageHero(doc, destPage);
 
       // 2. Update active nav link (router's own + partials.js helper)
-      updateActiveNav(url);
+      updateActiveNav(targetUrl);
       if (window.SRUK && typeof window.SRUK.syncActiveNav === 'function') {
         window.SRUK.syncActiveNav();
       }
@@ -94,11 +104,12 @@
       document.body.scrollTop = 0;
 
       // 4. Re-run per-page initialisers (includes presenter bubble sync)
-      reinit(url);
+      reinit(targetUrl);
 
     } catch (err) {
+      if (navigationId !== activeNavigationId) return;
       // On fetch failure fall back to full navigation
-      window.location.href = url;
+      window.location.href = targetUrl;
     }
   }
 

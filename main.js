@@ -179,13 +179,14 @@ window.SRUK_initSlideshow();
 
 /* ── Phone Hero About Disclosure ──────────────────── */
 (function initHeroIntro() {
-  const toggle = document.getElementById('heroIntroToggle');
-  const panel = document.getElementById('heroIntroPanel');
-  const intro = toggle && toggle.closest('.hero-intro');
+  document.addEventListener('click', function (event) {
+    const toggle = event.target.closest('#heroIntroToggle');
+    if (!toggle) return;
 
-  if (!toggle || !panel || !intro) return;
+    const panel = document.getElementById('heroIntroPanel');
+    const intro = toggle.closest('.hero-intro');
+    if (!panel || !intro) return;
 
-  toggle.addEventListener('click', function () {
     const isOpen = toggle.getAttribute('aria-expanded') !== 'true';
     toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
