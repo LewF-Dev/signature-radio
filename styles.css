@@ -3186,7 +3186,8 @@ img, svg { display: block; max-width: 100%; }
     --hero-phone-content-inset: clamp(1.25rem, 4vh, 1.75rem);
     --hero-phone-content-inset: clamp(1.25rem, 4svh, 1.75rem);
     --hero-phone-image-bleed: clamp(2rem, 10vw, 3rem);
-    min-height: 0;
+    min-height: clamp(250px, 31vh, 280px);
+    min-height: clamp(250px, 31svh, 280px);
     height: auto;
     overflow: visible;
     background: #000;
@@ -3219,7 +3220,7 @@ img, svg { display: block; max-width: 100%; }
     width: 100%;
     max-width: none;
     padding: var(--hero-phone-content-inset) clamp(1rem, 4vw, 1.5rem);
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .nav-bar {
