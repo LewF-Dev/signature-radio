@@ -3183,8 +3183,8 @@ img, svg { display: block; max-width: 100%; }
 /* ── Phone hero composition ───────────────────────── */
 @media (max-width: 767px) and (orientation: portrait) {
   .hero {
-    min-height: clamp(360px, 54vh, 480px);
-    min-height: clamp(360px, 54svh, 480px);
+    min-height: clamp(280px, 36vh, 330px);
+    min-height: clamp(280px, 36svh, 330px);
     height: auto;
     background: #000;
   }
