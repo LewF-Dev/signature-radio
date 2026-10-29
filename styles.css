@@ -3242,7 +3242,7 @@ img, svg { display: block; max-width: 100%; }
 
   .hero-logo-frame {
     grid-column: 1;
-    width: min(calc(100vw - 2rem), 88vw);
+    width: min(calc(100vw - 2rem), 92vw);
     justify-self: center;
     margin: 0 auto;
   }
@@ -3269,6 +3269,7 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .listen-logos {
+    display: none;
     justify-content: center;
     gap: 0.7rem;
   }
@@ -3282,16 +3283,6 @@ img, svg { display: block; max-width: 100%; }
   }
 
   .hero-brand > .broadcasting-hours {
-    grid-column: 1;
-    justify-self: center;
-    margin: 0;
-    padding: 0;
-    font-size: clamp(0.88rem, 3.7vw, 1rem);
-    line-height: 1;
-    letter-spacing: 0.14em;
-    white-space: nowrap;
-    text-align: center;
-    color: rgba(255,255,255,0.88);
-    text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+    display: none;
   }
 }
