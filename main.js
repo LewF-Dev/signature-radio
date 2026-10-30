@@ -438,6 +438,12 @@ window.SRUK_initSlideshow();
   const analysisBandCount = Math.max(visualizerBars.length, ambientBars.length);
   const smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
   const peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
+  // Phone preset mode stays enabled until iOS Safari exposes the live SHOUTcast
+  // samples to Web Audio. The diagnostic on 2026-10-30 showed a running context
+  // and advancing playback time, but analyser max/average levels of 0/0.
+  // The reactive analyser functions below are intentionally retained for later;
+  // set this true to restore reactive analysis on phones. Other displays keep it.
+  const USE_REACTIVE_PHONE_ANALYSER = false;
   const audioDebugEnabled = new URLSearchParams(window.location.search).get('audioDebug') === '1';
   let audioDebugPanel = null;
   let lastAudioDebugUpdate = 0;
@@ -446,7 +452,9 @@ window.SRUK_initSlideshow();
     audioDebugPanel = document.createElement('output');
     audioDebugPanel.setAttribute('aria-live', 'polite');
     audioDebugPanel.style.cssText = 'position:fixed;z-index:99999;top:8px;left:8px;right:8px;padding:8px 10px;background:rgba(0,0,0,.92);border:1px solid #c00;color:#fff;font:12px/1.45 monospace;white-space:pre-wrap;pointer-events:none';
-    audioDebugPanel.textContent = 'Audio diagnostic: waiting for play';
+    audioDebugPanel.textContent = (!phoneLightQuery.matches || USE_REACTIVE_PHONE_ANALYSER)
+      ? 'Audio diagnostic: waiting for play'
+      : 'Phone preset visualiser active\nReactive analyser preserved and disabled';
     document.body.appendChild(audioDebugPanel);
   }
 
@@ -466,7 +474,9 @@ window.SRUK_initSlideshow();
     audioDebugPanel.textContent = [
       'AudioContext: ' + (audioContext ? audioContext.state : 'not created'),
       'Audio: ' + (audio.paused ? 'paused' : 'playing') + ' | readyState ' + audio.readyState + ' | time ' + audio.currentTime.toFixed(1) + 's',
-      levels ? 'Analyser max/avg: ' + peak + '/' + (total / Math.max(1, levels.length)).toFixed(1) + ' of 255' : 'Analyser: waiting for samples'
+      (!phoneLightQuery.matches || USE_REACTIVE_PHONE_ANALYSER)
+        ? (levels ? 'Analyser max/avg: ' + peak + '/' + (total / Math.max(1, levels.length)).toFixed(1) + ' of 255' : 'Analyser: waiting for samples')
+        : 'Analyser: disabled; phone preset is active'
     ].join('\n');
   }
 
@@ -700,7 +710,70 @@ window.SRUK_initSlideshow();
   fetchNowPlaying();
   setInterval(fetchNowPlaying, 30000);
 
-  let playing = false;
+  let playing = !audio.paused;
+  const heroArtistName = document.getElementById('heroArtistName');
+  const featuredArtists = [
+    'Sanchez',
+    'Angie Stone',
+    'Stevie Wonder',
+    'Michael Jackson',
+    'Shaun Escoffery',
+    'Whitney Houston',
+    'Jocelyn Brown',
+    'Cornell CC Carter',
+    'A Tribe Called Quest'
+  ];
+  let featuredArtistIndex = 0;
+
+  function setPhoneWavePreset() {
+    if (!phoneLightQuery.matches || !visualizerBars.length) return;
+    visualizerBars.forEach(function (bar, index) {
+      const broad = (Math.sin(index * 0.173 + 0.41) + 1) / 2;
+      const cluster = (Math.sin(index * 0.437 + 1.83) + 1) / 2;
+      const grain = (Math.sin(index * 1.117 + 0.92) + 1) / 2;
+      const transient = Math.pow(Math.max(0, Math.sin(index * 0.293 + 0.67)), 9) * 0.18;
+      const floor = 0.12 + grain * 0.16;
+      const peak = Math.min(0.96, 0.22 + broad * 0.28 + cluster * 0.24 + grain * 0.18 + transient);
+      const middle = floor + (peak - floor) * (0.56 + grain * 0.22);
+      const speed = 1.18 + ((Math.sin(index * 0.337 + 2.1) + 1) / 2) * 1.12;
+      const delay = -((Math.sin(index * 0.719 + 0.5) + 1) * 1.6);
+      bar.style.setProperty('--wave-preset-floor', floor.toFixed(3));
+      bar.style.setProperty('--wave-preset-middle', middle.toFixed(3));
+      bar.style.setProperty('--wave-preset-peak', peak.toFixed(3));
+      bar.style.setProperty('--wave-preset-speed', speed.toFixed(2) + 's');
+      bar.style.setProperty('--wave-preset-delay', delay.toFixed(2) + 's');
+    });
+  }
+
+  setPhoneWavePreset();
+  if (phoneLightQuery.addEventListener) phoneLightQuery.addEventListener('change', setPhoneWavePreset);
+  else phoneLightQuery.addListener(setPhoneWavePreset);
+
+  function rotateFeaturedArtist() {
+    if (!heroArtistName || !phoneLightQuery.matches || playing || document.visibilityState === 'hidden') return;
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      featuredArtistIndex = (featuredArtistIndex + 1) % featuredArtists.length;
+      heroArtistName.textContent = featuredArtists[featuredArtistIndex];
+      return;
+    }
+
+    heroArtistName.classList.add('is-changing');
+    window.setTimeout(function () {
+      if (playing) {
+        heroArtistName.classList.remove('is-changing');
+        return;
+      }
+      featuredArtistIndex = (featuredArtistIndex + 1) % featuredArtists.length;
+      heroArtistName.textContent = featuredArtists[featuredArtistIndex];
+      window.requestAnimationFrame(function () {
+        heroArtistName.classList.remove('is-changing');
+      });
+    }, 420);
+  }
+
+  if (heroArtistName) window.setInterval(rotateFeaturedArtist, 3600);
+
   let preferredVolume = audio.volume;
   let volumeFadeFrame = 0;
   let volumeFadeToken = 0;
@@ -735,12 +808,34 @@ window.SRUK_initSlideshow();
     volumeFadeFrame = window.requestAnimationFrame(step);
   }
 
+  let artistReturnTimer = 0;
+  function clearArtistReturn() {
+    if (artistReturnTimer) window.clearTimeout(artistReturnTimer);
+    artistReturnTimer = 0;
+    if (heroDisplay) heroDisplay.classList.remove('is-returning');
+  }
+
+  function returnArtistPanel() {
+    if (!heroDisplay) return;
+    if (artistReturnTimer) window.clearTimeout(artistReturnTimer);
+    artistReturnTimer = 0;
+    if (!phoneLightQuery.matches) {
+      heroDisplay.classList.remove('is-playing', 'is-returning');
+      return;
+    }
+    // Change states together so CSS never paints the panel at its resting point
+    // between the exit and entrance animations.
+    heroDisplay.classList.remove('is-playing');
+    heroDisplay.classList.add('is-returning');
+    artistReturnTimer = window.setTimeout(clearArtistReturn, 1050);
+  }
+
   btn.addEventListener('click', function () {
     if (!playing) {
       const wasPaused = audio.paused;
       preferredVolume = slider ? parseFloat(slider.value) : preferredVolume;
       if (wasPaused) audio.volume = 0;
-      const canAnalyze = initAudioAnalyser();
+      const canAnalyze = (!phoneLightQuery.matches || USE_REACTIVE_PHONE_ANALYSER) && initAudioAnalyser();
       const contextReady = canAnalyze
         ? (audioContext.state === 'running'
           ? Promise.resolve(true)
@@ -750,7 +845,10 @@ window.SRUK_initSlideshow();
       Promise.all([audio.play(), contextReady]).then(function (results) {
         playing = true;
         fadeAudioTo(preferredVolume, 420);
-        if (heroDisplay) heroDisplay.classList.add('is-playing');
+        if (heroDisplay) {
+          clearArtistReturn();
+          heroDisplay.classList.add('is-playing');
+        }
         if (heroAmbient) heroAmbient.classList.add('is-playing');
         if (canAnalyze && results[1]) startAudioSpectrum();
         updateAudioDebug();
@@ -767,7 +865,7 @@ window.SRUK_initSlideshow();
     } else {
       playing = false;
       stopAudioSpectrum();
-      if (heroDisplay) heroDisplay.classList.remove('is-playing');
+      if (heroDisplay) returnArtistPanel();
       if (heroAmbient) heroAmbient.classList.remove('is-playing');
       label.textContent = 'LISTEN';
       btn.setAttribute('aria-label', 'Play live stream');
@@ -785,7 +883,7 @@ window.SRUK_initSlideshow();
     audio.volume = preferredVolume;
     playing = false;
     stopAudioSpectrum();
-    if (heroDisplay) heroDisplay.classList.remove('is-playing');
+    if (heroDisplay) returnArtistPanel();
     if (heroAmbient) heroAmbient.classList.remove('is-playing');
     label.textContent = 'LISTEN';
     setPlayIcon();

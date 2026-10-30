@@ -3793,7 +3793,7 @@ body:not(.home-page) #siteHero { display: none; }
     clip-path: none;
     color: #fff;
     font-family: var(--font-cond);
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: clamp(2.4rem, 10vw, 3.55rem);
     font-weight: 800;
     letter-spacing: 0.015em;
     line-height: 0.86;
@@ -3813,6 +3813,7 @@ body:not(.home-page) #siteHero { display: none; }
 
   .hero-intro-toggle {
     position: relative;
+    top: 3px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -3825,7 +3826,7 @@ body:not(.home-page) #siteHero { display: none; }
     border-bottom-color: rgba(105,105,105,0.48);
     border-radius: 9px;
     background: linear-gradient(155deg, #222 0%, #151515 48%, #0b0b0b 100%);
-    color: #f0c545;
+    color: #d3a51e;
     cursor: pointer;
     animation: hero-toggle-nudge 4.5s ease-in-out infinite;
     box-shadow:
@@ -3841,7 +3842,7 @@ body:not(.home-page) #siteHero { display: none; }
   .hero-intro-toggle:focus-visible {
     border-color: rgba(240,197,69,0.62);
     background: linear-gradient(155deg, #2a2a2a 0%, #191919 48%, #0e0e0e 100%);
-    color: #ffe186;
+    color: #e5bd50;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.18),
       inset 0 -1px 0 rgba(255,255,255,0.07),
@@ -3976,6 +3977,108 @@ body:not(.home-page) #siteHero { display: none; }
     text-align: left;
   }
 
+  .hero-artist-idle {
+    grid-area: 1 / 1;
+    align-self: end;
+    justify-self: stretch;
+    display: grid;
+    justify-items: start;
+    gap: 0.52rem;
+    min-width: 0;
+    margin-bottom: 0.2rem;
+    transform: translate(0, var(--hero-phone-image-bleed));
+    transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.22, 0.72, 0.22, 1), visibility 0s linear 0.85s;
+  }
+
+  .hero-playing-content {
+    grid-area: 1 / 1;
+    align-self: end;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+    min-width: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(110%);
+    transition: opacity 0.36s ease, transform 0.52s cubic-bezier(0.22, 0.72, 0.22, 1), visibility 0s linear 0.52s;
+  }
+
+  .hero-now-playing.is-playing .hero-artist-idle {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-115%, var(--hero-phone-image-bleed));
+    animation: hero-artist-slingshot 0.85s cubic-bezier(0.26, 0.72, 0.3, 1) both;
+  }
+
+  .hero-now-playing.is-returning .hero-artist-idle {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, var(--hero-phone-image-bleed));
+    transition: none;
+    animation: hero-artist-return 0.9s cubic-bezier(0.3, 0.72, 0.24, 1) both;
+  }
+
+  .hero-now-playing.is-playing .hero-playing-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    transition: opacity 0.52s ease 0.16s, transform 0.72s cubic-bezier(0.22, 0.72, 0.22, 1) 0.16s, visibility 0s;
+  }
+
+  .hero-artist-idle-statement {
+    display: grid;
+    gap: 0.02em;
+    color: #fff;
+    font-family: var(--font-cond);
+    font-size: clamp(1.66rem, 7.8vw, 2.28rem);
+    font-weight: 800;
+    letter-spacing: 0.015em;
+    line-height: 0.88;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.9);
+  }
+
+  .hero-artist-idle-name {
+    display: block;
+    max-width: 100%;
+    color: #f0c545;
+    font-size: clamp(1.26rem, 7.15vw, 2.28rem);
+    text-transform: uppercase;
+    transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+  }
+
+  .hero-artist-idle-name.is-changing {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(5px);
+  }
+
+  @keyframes hero-artist-slingshot {
+    0% {
+      opacity: 1;
+      transform: translate(0, var(--hero-phone-image-bleed));
+    }
+    12% {
+      opacity: 1;
+      transform: translate(6%, var(--hero-phone-image-bleed));
+      animation-timing-function: cubic-bezier(0.22, 0.22, 0.55, 0.95);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-125%, var(--hero-phone-image-bleed));
+    }
+  }
+
+  @keyframes hero-artist-return {
+    0% {
+      opacity: 0;
+      transform: translate(-125%, var(--hero-phone-image-bleed));
+    }
+    100% {
+      opacity: 1;
+      transform: translate(0, var(--hero-phone-image-bleed));
+    }
+  }
+
   .hero-now-playing-space {
     height: clamp(6rem, 26vw, 7rem);
     transition: height 0.78s cubic-bezier(0.65, 0, 0.35, 1);
@@ -4094,9 +4197,22 @@ body:not(.home-page) #siteHero { display: none; }
     50% { transform: scaleY(calc(var(--wave-rest, 0.2) + var(--wave-idle-rise, 0.16))); opacity: var(--wave-idle-opacity, 0.78); }
   }
 
+  @keyframes hero-wave-preset {
+    0%, 100% { transform: scaleY(var(--wave-preset-floor, 0.18)); opacity: 0.7; }
+    38% { transform: scaleY(var(--wave-preset-peak, 0.62)); opacity: 1; }
+    68% { transform: scaleY(var(--wave-preset-middle, 0.38)); opacity: 0.88; }
+  }
+
   .hero-now-playing:not(.is-playing):not(.is-analysis-active) .hero-waveform span::before {
     animation: hero-wave-idle var(--wave-idle-speed, 2.8s) ease-in-out infinite;
     animation-delay: inherit;
+  }
+
+  /* Phone playback uses a preset asymmetric pattern while live stream analysis
+     is disabled; the preserved analyser can take over when its flag is enabled. */
+  .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span::before {
+    animation: hero-wave-preset var(--wave-preset-speed, 1.8s) ease-in-out infinite;
+    animation-delay: var(--wave-preset-delay, 0s);
   }
 
   .hero-now-playing.is-analysis-active .hero-waveform span {
@@ -4211,6 +4327,28 @@ body:not(.home-page) #siteHero { display: none; }
     .hero-waveform span::before {
       transition: none;
       animation: none;
+    }
+
+    .hero-artist-idle,
+    .hero-playing-content,
+    .hero-artist-idle-name {
+      transition: none;
+    }
+
+    .hero-now-playing.is-playing .hero-artist-idle {
+      animation: none;
+    }
+
+    .hero-now-playing.is-returning .hero-artist-idle {
+      animation: none;
+      opacity: 1;
+      visibility: visible;
+      transform: translate(0, var(--hero-phone-image-bleed));
+    }
+
+    .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span::before {
+      transform: scaleY(var(--wave-preset-middle, 0.38));
+      opacity: 0.9;
     }
 
   }
