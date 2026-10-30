@@ -435,6 +435,7 @@ window.SRUK_initSlideshow();
   let mediaSource = null;
   let frequencyData = null;
   let animationFrame = 0;
+  let analyserSilentSince = 0;
   const analysisBandCount = Math.max(visualizerBars.length, ambientBars.length);
   const smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
   const peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
@@ -483,6 +484,7 @@ window.SRUK_initSlideshow();
     analyser.getByteFrequencyData(frequencyData);
     const binCount = frequencyData.length;
     const barCount = smoothedLevels.length;
+    let totalBandEnergy = 0;
 
     smoothedLevels.forEach(function (_, index) {
       const bar = visualizerBars[index];
@@ -504,6 +506,7 @@ window.SRUK_initSlideshow();
       const average = count ? sum / count : 0;
       const frequencyPosition = Math.pow(centerDistance, 1.45);
       const bandEnergy = Math.min(1, (peak * 0.4 + average * 1.15) * (1 + frequencyPosition * 0.5));
+      totalBandEnergy += bandEnergy;
       const target = 0.13 + Math.pow(bandEnergy, 1.1) * 0.75;
       const response = target > smoothedLevels[index] ? 0.68 : 0.2;
       smoothedLevels[index] += (target - smoothedLevels[index]) * response;
@@ -515,6 +518,18 @@ window.SRUK_initSlideshow();
         bar.style.setProperty('--wave-cap-bottom', (100 - Number(capTop)).toFixed(1) + '%');
       }
     });
+
+    if (totalBandEnergy / barCount < 0.012) {
+      if (!analyserSilentSince) analyserSilentSince = performance.now();
+      else if (performance.now() - analyserSilentSince >= 1800) {
+        // Some mobile browsers play the stream but return silence to Web Audio.
+        // Drop back to the CSS playback animation instead of leaving flat bars.
+        stopAudioSpectrum();
+        return;
+      }
+    } else {
+      analyserSilentSince = 0;
+    }
 
     ambientBars.forEach(function (bar, index) {
       const position = (index / Math.max(1, ambientBars.length - 1)) * (smoothedLevels.length - 1);
@@ -532,6 +547,7 @@ window.SRUK_initSlideshow();
   function startAudioSpectrum() {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!analyser || audioContext.state !== 'running') return;
+    analyserSilentSince = 0;
     if (heroDisplay) heroDisplay.classList.add('is-analysis-active');
     if (heroAmbient) heroAmbient.classList.add('is-analysis-active');
     if (!animationFrame) animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
@@ -540,6 +556,7 @@ window.SRUK_initSlideshow();
   function stopAudioSpectrum() {
     if (animationFrame) window.cancelAnimationFrame(animationFrame);
     animationFrame = 0;
+    analyserSilentSince = 0;
     if (heroDisplay) heroDisplay.classList.remove('is-analysis-active');
     if (heroAmbient) {
       heroAmbient.classList.remove('is-analysis-active');

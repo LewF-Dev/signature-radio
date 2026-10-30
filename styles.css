@@ -4226,6 +4226,16 @@ body:not(.home-page) #siteHero { display: none; }
       transition: none;
       animation: none;
     }
+
+    .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span::before {
+      animation: hero-wave-reduced-motion 1.8s ease-in-out infinite;
+      animation-delay: inherit;
+    }
+  }
+
+  @keyframes hero-wave-reduced-motion {
+    0%, 100% { transform: scaleY(var(--wave-rest, 0.2)); opacity: 0.58; }
+    50% { transform: scaleY(calc(var(--wave-rest, 0.2) + 0.08)); opacity: 0.76; }
   }
 
   .about-body > p:first-child {
