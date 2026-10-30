@@ -23,7 +23,7 @@
   <meta name="twitter:image" content="https://signatureradio.uk/logo.jpg" />
 
   <title>Signature Radio UK — The Soundtrack Of Your Life</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=logo-home-link-20261030" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Barlow:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
@@ -73,7 +73,9 @@
       <div class="hero-inner">
         <div class="hero-brand">
           <div class="hero-logo-frame">
-            <img src="signature-radio-logo-2-white_transparent_background.png" alt="Signature Radio UK" class="hero-logo" />
+            <a class="hero-home-link" href="index.html" aria-label="Signature Radio UK home">
+              <img src="signature-radio-logo-2-white_transparent_background.png" alt="" class="hero-logo" />
+            </a>
           </div>
           <div class="listen-row">
             <p class="listen-modes">DAB &nbsp;|&nbsp; ONLINE &nbsp;|&nbsp; SMART DEVICES</p>
@@ -89,14 +91,40 @@
           <p class="broadcasting-label">BROADCASTING</p>
           <p class="broadcasting-hours">24 HOURS A DAY</p>
           <div class="hero-intro">
-            <button class="hero-intro-toggle" id="heroIntroToggle" type="button" aria-expanded="false" aria-controls="heroIntroPanel">
-              <span>SIGNATURE RADIO UK</span>
-              <svg class="hero-intro-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 4l4 4-4 4" /></svg>
-            </button>
+            <h1 class="hero-landscape-title">
+              <span>THE SOUNDTRACK</span>
+              <span class="hero-title-last-line">
+                OF YOUR LIFE
+                <button class="hero-intro-toggle" id="heroIntroToggle" type="button" aria-label="Toggle Signature Radio UK information" aria-expanded="false" aria-controls="heroIntroPanel">
+                  <svg class="hero-intro-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path class="hero-intro-icon-horizontal" d="M3 8h10" />
+                    <path class="hero-intro-icon-vertical" d="M8 3v10" />
+                  </svg>
+                </button>
+              </span>
+            </h1>
+            <div class="hero-now-playing-space" aria-hidden="true"></div>
             <div class="hero-intro-panel" id="heroIntroPanel" aria-hidden="true" inert>
               <div class="hero-intro-panel-inner">
                 <p class="hero-intro-copy">Welcome to the evolution of broadcasting. Signature Radio UK isn't just a station; it's a meticulously designed audio ecosystem. Our philosophy is rooted in precision, quality, and a commitment to the listener experience. By focusing on high-fidelity streams and a curated soundtrack that resonates with a sophisticated audience, we have built more than a platform — we have built a standard.</p>
               </div>
+            </div>
+          </div>
+          <div class="hero-now-playing" id="heroNowPlayingSlot" aria-label="Now playing">
+            <div class="hero-now-playing-meta" id="heroNowPlayingMeta"></div>
+            <div class="hero-waveform" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
           </div>
         </div>
@@ -105,6 +133,7 @@
     <div class="hero-image" aria-hidden="true">
       <img src="Signature-radio-custom-hero-1.jpeg" alt="" class="hero-img" />
     </div>
+    <div class="hero-ambient-visualizer" id="heroAmbientVisualizer" aria-hidden="true"></div>
   </header>
 
   <div id="nav-mount"></div>
@@ -236,10 +265,10 @@
 
   <div id="footer-mount"></div>
 
-  <script src="partials.js"></script>
-  <script src="main.js"></script>
+  <script src="partials.js?v=logo-home-link-20261030"></script>
+  <script src="main.js?v=music-rain-light-constant-speed-20261030"></script>
   <script src="supabase-config.js"></script>
   <script src="presenter-auth.js"></script>
-  <script src="router.js"></script>
+  <script src="router.js?v=file-preview-navigation"></script>
 </body>
 </html>

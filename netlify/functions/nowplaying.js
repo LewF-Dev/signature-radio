@@ -5,6 +5,7 @@
 ═══════════════════════════════════════════════════════ */
 
 import { getCurrentShow } from '../../schedule-data.js';
+import { extractTrackTitle } from '../../nowplaying-utils.js';
 
 const STATS_URL = 'https://centova87.shoutcastservices.com/proxy/reid/stats?sid=1&json=1';
 
@@ -23,15 +24,13 @@ export default async function handler(req) {
 
     const data = await res.json();
 
-    let title = (data.songtitle || '').trim();
-    const prefixMatch = title.match(/^\d+\s+(.+)/);
-    if (prefixMatch) title = prefixMatch[1].trim();
-
-    const displayTitle = title || (show ? show.show : 'Signature Radio UK');
+    const track = extractTrackTitle(data);
+    const displayTitle = track || (show ? show.show : 'Signature Radio UK');
 
     return new Response(
       JSON.stringify({
         title:     displayTitle,
+        track,
         listeners: data.currentlisteners ?? 0,
         status:    data.streamstatus === 1 ? 'live' : 'autodj',
         show:      show ? show.show      : null,
@@ -44,6 +43,7 @@ export default async function handler(req) {
     return new Response(
       JSON.stringify({
         title:     show ? show.show : 'Signature Radio UK',
+        track:     null,
         listeners: 0,
         status:    'unknown',
         show:      show ? show.show      : null,

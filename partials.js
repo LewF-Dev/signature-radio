@@ -43,6 +43,7 @@
         <div class="player-track-wrap">
           <span class="player-track" id="playerTrackA">Signature Radio UK</span>
         </div>
+        <span class="player-show" id="playerShowA" hidden></span>
       </div>
       <button class="player-btn" id="playerBtn" aria-label="Play live stream">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -56,7 +57,7 @@
         </svg>
         <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1" aria-label="Volume" />
       </div>
-      <audio id="liveAudio" preload="none">
+      <audio id="liveAudio" preload="none" crossorigin="anonymous">
         <source src="https://centova87.shoutcastservices.com/proxy/reid/stream" type="audio/mpeg" />
       </audio>
     </div>
@@ -102,7 +103,9 @@
     <div class="hero-phone-control-row" id="pagePhoneControlRow">
       <div class="hero-phone-menu-slot" id="pagePhoneMenuSlot"></div>
       <div class="hero-phone-logo-slot" id="pagePhoneLogoSlot">
-        <div class="hero-logo-frame"><img src="signature-radio-logo-2-white_transparent_background.png" alt="Signature Radio UK" class="hero-logo" /></div>
+        <a class="hero-phone-home-link" href="index.html" aria-label="Signature Radio UK home">
+          <div class="hero-logo-frame"><img src="signature-radio-logo-2-white_transparent_background.png" alt="" class="hero-logo" /></div>
+        </a>
       </div>
       <div class="hero-phone-player-slot" id="pagePhonePlayerSlot"></div>
       <div class="hero-phone-menu-panel" id="pagePhoneMenuPanel" role="navigation" aria-label="Main navigation" aria-hidden="true" inert></div>
@@ -238,6 +241,9 @@
     const links = document.getElementById('navLinks');
     const presenterSlot = document.getElementById('navPresenterSlot');
     const player = document.getElementById('playerWidget');
+    const playerMeta = player ? player.querySelector('.player-meta') : null;
+    const heroNowPlayingMeta = document.getElementById('heroNowPlayingMeta');
+    const heroNowPlaying = document.getElementById('heroNowPlayingSlot');
     const controlRow = document.getElementById('pagePhoneControlRow');
     const menuSlot = document.getElementById('pagePhoneMenuSlot');
     const playerSlot = document.getElementById('pagePhonePlayerSlot');
@@ -250,6 +256,11 @@
     if (usePhoneHero) {
       if (toggle.parentNode !== menuSlot) menuSlot.appendChild(toggle);
       if (player.parentNode !== playerSlot) playerSlot.appendChild(player);
+      if (playerMeta && heroNowPlayingMeta && playerMeta.parentNode !== heroNowPlayingMeta) {
+        heroNowPlayingMeta.appendChild(playerMeta);
+      }
+      const audio = player.querySelector('audio');
+      if (heroNowPlaying && audio) heroNowPlaying.classList.toggle('is-playing', !audio.paused);
       if (links.parentNode !== menuPanel) menuPanel.appendChild(links);
       const menuOpen = links.classList.contains('open');
       menuPanel.classList.toggle('is-open', menuOpen);
@@ -262,6 +273,7 @@
     if (links.parentNode !== nav) nav.appendChild(links);
     if (presenterSlot.parentNode !== nav) nav.appendChild(presenterSlot);
     if (player.parentNode !== nav) nav.appendChild(player);
+    if (playerMeta && playerMeta.parentNode !== player) player.insertBefore(playerMeta, player.firstChild);
     menuPanel.classList.remove('is-open');
     menuPanel.setAttribute('aria-hidden', 'true');
     menuPanel.inert = true;

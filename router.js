@@ -19,6 +19,10 @@
     const a = e.target.closest('a');
     if (!a) return;
 
+    // Local file previews cannot fetch sibling pages with the SPA router.
+    // Let the browser perform normal file-to-file navigation instead.
+    if (window.location.protocol === 'file:') return;
+
     const href = a.getAttribute('href');
     if (!href) return;
 

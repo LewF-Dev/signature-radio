@@ -192,6 +192,7 @@ window.SRUK_initSlideshow();
     panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
     panel.inert = !isOpen;
     intro.classList.toggle('is-open', isOpen);
+    intro.closest('.hero')?.classList.toggle('about-open', isOpen);
   });
 })();
 
@@ -248,6 +249,259 @@ window.SRUK_initSlideshow();
 
   if (!btn || !audio) return;
 
+  const heroDisplay = document.getElementById('heroNowPlayingSlot');
+  const visualizerBars = heroDisplay
+    ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
+    : [];
+  const heroAmbient = document.getElementById('heroAmbientVisualizer');
+  const ambientBars = [];
+  if (heroAmbient) {
+    const rainColumnCount = 54;
+    const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
+    const isPortraitPhone = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
+    for (let index = 0; index < rainColumnCount; index++) {
+      const column = document.createElement('div');
+      const height = 0.56 + ((Math.sin(index * 1.17 + 0.6) + 1) / 2) * 0.44;
+      const density = 0.15 + ((Math.sin(index * 0.81 + 1.4) + 1) / 2) * 0.24;
+      const fadeStart = 0.74 + ((Math.sin(index * 1.31 + 0.7) + 1) / 2) * 0.22;
+      const duration = 7.5 + ((index * 7) % 17) * 0.42;
+      const liveDuration = duration * (0.66 + ((index * 3) % 5) * 0.035);
+      const delay = -(((index * 13) % 49) / 3.2);
+      let content = '';
+
+      for (let row = 0; row < 22; row++) {
+        const gate = (index * 11 + row * 7 + index * row) % 13;
+        const glyphIndex = (index * 5 + row * 3 + (row * index) % 7) % musicGlyphs.length;
+        const glyph = musicGlyphs[glyphIndex];
+        const secondGlyph = musicGlyphs[(glyphIndex + index + row + 3) % musicGlyphs.length];
+        content += row > 0 && gate < (isPortraitPhone ? 1 : 3) ? '  ' : glyph + (gate % 4 === 0 ? ' ' : secondGlyph);
+        content += row === 21 ? '' : '\n';
+      }
+
+      column.className = 'hero-rain-column';
+      function makeRainPlane(plane, speedScale, delayOffset) {
+        const track = document.createElement('div');
+        const sequence = document.createElement('div');
+        const repeat = document.createElement('div');
+        track.className = 'hero-rain-track hero-rain-plane--' + plane;
+        sequence.className = 'hero-rain-run';
+        repeat.className = 'hero-rain-run';
+        sequence.textContent = content;
+        repeat.textContent = content;
+        track.style.setProperty('--rain-plane-speed', (duration * speedScale).toFixed(2) + 's');
+        track.style.setProperty('--rain-plane-live-speed', (liveDuration * speedScale).toFixed(2) + 's');
+        track.style.setProperty('--rain-plane-delay', (delay + delayOffset).toFixed(2) + 's');
+        track.append(sequence, repeat);
+        return track;
+      }
+
+      column.style.setProperty('--rain-height', height.toFixed(3));
+      column.style.setProperty('--rain-opacity', density.toFixed(3));
+      column.style.setProperty('--rain-fade-start', (fadeStart * 100).toFixed(1) + '%');
+      column.appendChild(makeRainPlane('far', 1.28, -2.7));
+      if (index % 3 === 0) column.appendChild(makeRainPlane('mid', 1.12, -1.6));
+      column.appendChild(makeRainPlane('main', 1, 0));
+      if (index % 3 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
+      heroAmbient.appendChild(column);
+      ambientBars.push(column);
+    }
+
+    const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let lightMoveTimer = 0;
+    let previousLightX = 0;
+    let previousLightY = 0;
+    function movePhoneLight() {
+      lightMoveTimer = 0;
+      if (!phoneLightQuery.matches || reducedMotionQuery.matches || document.visibilityState === 'hidden') {
+        heroAmbient.style.setProperty('--hero-light-opacity', '0');
+        return;
+      }
+
+      const x = -20 + Math.random() * 190;
+      const y = -80 + Math.random() * 115;
+      const lightWidth = heroAmbient.clientWidth * 0.19;
+      const lightHeight = heroAmbient.clientHeight * 0.28;
+      const travelDistance = Math.hypot(
+        (x - previousLightX) * lightWidth / 100,
+        (y - previousLightY) * lightHeight / 100
+      );
+      const duration = Math.max(1.8, travelDistance / 22);
+      const opacity = Math.random() < 0.2 ? 0 : 0.38 + Math.random() * 0.52;
+      const pause = 250 + Math.random() * 850;
+      previousLightX = x;
+      previousLightY = y;
+      heroAmbient.style.setProperty('--hero-light-duration', duration.toFixed(2) + 's');
+      heroAmbient.style.setProperty('--hero-light-x', x.toFixed(1) + '%');
+      heroAmbient.style.setProperty('--hero-light-y', y.toFixed(1) + '%');
+      heroAmbient.style.setProperty('--hero-light-opacity', opacity.toFixed(2));
+      lightMoveTimer = window.setTimeout(movePhoneLight, duration * 1000 + pause);
+    }
+
+    function syncPhoneLight() {
+      window.clearTimeout(lightMoveTimer);
+      lightMoveTimer = 0;
+      if (!phoneLightQuery.matches || reducedMotionQuery.matches || document.visibilityState === 'hidden') {
+        heroAmbient.style.setProperty('--hero-light-opacity', '0');
+        return;
+      }
+      lightMoveTimer = window.setTimeout(movePhoneLight, 180 + Math.random() * 240);
+    }
+
+    if (phoneLightQuery.addEventListener) phoneLightQuery.addEventListener('change', syncPhoneLight);
+    else phoneLightQuery.addListener(syncPhoneLight);
+    if (reducedMotionQuery.addEventListener) reducedMotionQuery.addEventListener('change', syncPhoneLight);
+    else reducedMotionQuery.addListener(syncPhoneLight);
+    document.addEventListener('visibilitychange', syncPhoneLight);
+    syncPhoneLight();
+
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      window.setInterval(function () {
+        if (document.visibilityState === 'hidden') return;
+
+        const columnsToShift = Math.max(5, Math.ceil(ambientBars.length * 0.14));
+        const shuffledColumns = ambientBars.slice();
+        for (let index = shuffledColumns.length - 1; index > 0; index--) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [shuffledColumns[index], shuffledColumns[swapIndex]] = [shuffledColumns[swapIndex], shuffledColumns[index]];
+        }
+
+        shuffledColumns.slice(0, columnsToShift).forEach(function (column) {
+          const nextFadeStart = 0.68 + Math.random() * 0.3;
+          column.style.setProperty('--rain-fade-start', (nextFadeStart * 100).toFixed(1) + '%');
+        });
+      }, 1800);
+    }
+  }
+  let audioContext = null;
+  let analyser = null;
+  let mediaSource = null;
+  let frequencyData = null;
+  let animationFrame = 0;
+  const analysisBandCount = Math.max(visualizerBars.length, ambientBars.length);
+  const smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
+  const peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
+
+  function initAudioAnalyser() {
+    if (!analysisBandCount) return false;
+    if (analyser) return true;
+
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return false;
+
+    try {
+      audioContext = new AudioContextClass();
+      const nextAnalyser = audioContext.createAnalyser();
+      nextAnalyser.fftSize = 1024;
+      nextAnalyser.minDecibels = -76;
+      nextAnalyser.maxDecibels = -22;
+      nextAnalyser.smoothingTimeConstant = 0.52;
+      const nextSource = audioContext.createMediaElementSource(audio);
+      mediaSource = nextSource;
+      nextSource.connect(nextAnalyser);
+      nextAnalyser.connect(audioContext.destination);
+      analyser = nextAnalyser;
+      frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      return true;
+    } catch (error) {
+      // If analysis setup fails after the media source is created, keep audio audible.
+      try {
+        if (mediaSource && audioContext) {
+          mediaSource.disconnect();
+          mediaSource.connect(audioContext.destination);
+        }
+      } catch (disconnectError) {}
+      if (audioContext && audioContext.state === 'suspended') audioContext.resume().catch(function () {});
+      analyser = null;
+      return false;
+    }
+  }
+
+  function drawAudioSpectrum() {
+    if (!analyser || audio.paused || audio.ended) {
+      animationFrame = 0;
+      return;
+    }
+
+    analyser.getByteFrequencyData(frequencyData);
+    const binCount = frequencyData.length;
+    const barCount = smoothedLevels.length;
+
+    smoothedLevels.forEach(function (_, index) {
+      const bar = visualizerBars[index];
+      const centerDistance = Math.abs(index - (barCount - 1) / 2) / ((barCount - 1) / 2);
+      const nextDistance = Math.min(1, centerDistance + 1 / (barCount - 1));
+      const availableBins = Math.max(2, Math.floor(binCount * 0.62));
+      const start = 1 + Math.floor(Math.pow(centerDistance, 1.45) * (availableBins - 2));
+      const end = Math.max(start + 1, 1 + Math.floor(Math.pow(nextDistance, 1.45) * (availableBins - 1)));
+      let peak = 0;
+      let sum = 0;
+      let count = 0;
+      for (let bin = start; bin < Math.min(end, binCount); bin++) {
+        const magnitude = frequencyData[bin] / 255;
+        peak = Math.max(peak, magnitude);
+        sum += magnitude;
+        count++;
+      }
+
+      const average = count ? sum / count : 0;
+      const frequencyPosition = Math.pow(centerDistance, 1.45);
+      const bandEnergy = Math.min(1, (peak * 0.4 + average * 1.15) * (1 + frequencyPosition * 0.5));
+      const target = 0.13 + Math.pow(bandEnergy, 1.1) * 0.75;
+      const response = target > smoothedLevels[index] ? 0.68 : 0.2;
+      smoothedLevels[index] += (target - smoothedLevels[index]) * response;
+      peakLevels[index] = Math.max(smoothedLevels[index], peakLevels[index] - 0.012);
+      if (bar) {
+        bar.style.setProperty('--wave-level', smoothedLevels[index].toFixed(3));
+        const capTop = ((1 - peakLevels[index]) * 50).toFixed(1);
+        bar.style.setProperty('--wave-cap-top', capTop + '%');
+        bar.style.setProperty('--wave-cap-bottom', (100 - Number(capTop)).toFixed(1) + '%');
+      }
+    });
+
+    ambientBars.forEach(function (bar, index) {
+      const position = (index / Math.max(1, ambientBars.length - 1)) * (smoothedLevels.length - 1);
+      const lowerIndex = Math.floor(position);
+      const upperIndex = Math.min(smoothedLevels.length - 1, lowerIndex + 1);
+      const blend = position - lowerIndex;
+      const level = smoothedLevels[lowerIndex] * (1 - blend) + smoothedLevels[upperIndex] * blend;
+      bar.style.setProperty('--rain-height', (0.48 + level * 0.78).toFixed(3));
+      bar.style.setProperty('--rain-opacity', (0.07 + level * 0.38).toFixed(3));
+    });
+
+    animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
+  }
+
+  function startAudioSpectrum() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!analyser || audioContext.state !== 'running') return;
+    if (heroDisplay) heroDisplay.classList.add('is-analysis-active');
+    if (heroAmbient) heroAmbient.classList.add('is-analysis-active');
+    if (!animationFrame) animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
+  }
+
+  function stopAudioSpectrum() {
+    if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    if (heroDisplay) heroDisplay.classList.remove('is-analysis-active');
+    if (heroAmbient) {
+      heroAmbient.classList.remove('is-analysis-active');
+      ambientBars.forEach(function (bar) {
+        bar.style.removeProperty('--rain-height');
+        bar.style.removeProperty('--rain-opacity');
+      });
+    }
+    visualizerBars.forEach(function (bar) {
+      bar.style.removeProperty('--wave-level');
+      bar.style.removeProperty('--wave-cap-top');
+      bar.style.removeProperty('--wave-cap-bottom');
+    });
+    for (let index = 0; index < smoothedLevels.length; index++) {
+      smoothedLevels[index] = 0.12;
+      peakLevels[index] = 0.12;
+    }
+  }
+
   function setPlayIcon() {
     const svg = btn.querySelector('svg');
     if (!svg) return;
@@ -261,124 +515,34 @@ window.SRUK_initSlideshow();
   }
 
   const trackEl = document.getElementById('playerTrackA');
+  const showEl = document.getElementById('playerShowA');
+  let displayedTrack = trackEl ? trackEl.textContent.trim() : '';
 
-  let slides = ['Signature Radio UK'];
-  let slideIndex = 0;
-  let cycleId = 0; // incremented on every startCycle to cancel stale callbacks
-
-  // Show a slide: static pause → scroll if needed → fade out → call onDone
-  function showSlide(text, id, onDone) {
+  function setTrackText(text) {
     if (!trackEl) return;
+    const nextText = text || 'Signature Radio UK';
+    if (nextText === displayedTrack) return;
 
-    // Reset state
-    trackEl.classList.remove('fading', 'scrolling');
-    trackEl.style.removeProperty('--scroll-dist');
-    trackEl.style.removeProperty('--scroll-duration');
-    trackEl.style.transform = '';
-    trackEl.textContent = text;
-    trackEl.title = text;
-
-    // Defer measurement by one frame so the browser has reflowed
-    requestAnimationFrame(function () {
-      if (id !== cycleId) return; // stale — a new cycle started
-
-      const wrapWidth = trackEl.parentElement ? trackEl.parentElement.offsetWidth : 160;
-      const overflow  = trackEl.scrollWidth - wrapWidth;
-
-      setTimeout(function () {
-        if (id !== cycleId) return;
-
-        if (overflow > 0) {
-          const duration = Math.max(2, overflow / 40);
-          trackEl.style.setProperty('--scroll-dist', '-' + overflow + 'px');
-          trackEl.style.setProperty('--scroll-duration', duration + 's');
-          trackEl.classList.add('scrolling');
-
-          setTimeout(function () {
-            if (id !== cycleId) return;
-            trackEl.classList.add('fading');
-            setTimeout(function () { if (id === cycleId) onDone(); }, 500);
-          }, (duration * 1000) + 800);
-        } else {
-          setTimeout(function () {
-            if (id !== cycleId) return;
-            trackEl.classList.add('fading');
-            setTimeout(function () { if (id === cycleId) onDone(); }, 500);
-          }, 3300);
-        }
-      }, 2000);
-    });
-  }
-
-  // Fade out, swap text (clearing scroll state), then call onDone so the
-  // caller can immediately start showSlide on the new text.
-  function fadeSwap(text, id, onDone) {
-    if (!trackEl) return;
-    trackEl.classList.add('fading');
-    setTimeout(function () {
-      if (id !== cycleId) return;
-      trackEl.classList.remove('fading', 'scrolling');
-      trackEl.style.removeProperty('--scroll-dist');
-      trackEl.style.removeProperty('--scroll-duration');
-      trackEl.style.transform = '';
-      trackEl.textContent = text;
-      trackEl.title = text;
-      void trackEl.offsetWidth; // force reflow so opacity transition fires
-      if (onDone) onDone();
-    }, 500);
-  }
-
-  function runCycle() {
-    const id = cycleId;
-    const nextIndex = (slideIndex + 1) % slides.length;
-    // Fade out current text, swap in next slide, then run showSlide on it
-    fadeSwap(slides[nextIndex], id, function () {
-      if (id !== cycleId) return;
-      slideIndex = nextIndex;
-      showSlide(slides[slideIndex], cycleId, runCycle);
-    });
-  }
-
-  function startCycle() {
-    cycleId++; // invalidates all in-flight callbacks
-    slideIndex = 0;
-    showSlide(slides[0], cycleId, runCycle);
-  }
-
-  // True if today is Sunday in UK local time
-  function isSunday() {
-    const now = new Date(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }));
-    return now.getDay() === 0;
+    displayedTrack = nextText;
+    trackEl.textContent = nextText;
+    trackEl.title = nextText;
   }
 
   function updatePlayerDisplay(data) {
     if (!trackEl) return;
 
-    const track     = data.title     || 'Signature Radio UK';
+    const track     = data.track || (data.track === null ? 'Live stream' : data.title) || 'Signature Radio UK';
     const show      = data.show      || null;
     const presenter = data.presenter || null;
+    const showLine = show
+      ? (presenter && presenter !== show ? presenter + ' \u2014 ' + show : show)
+      : '';
 
-    let newSlides;
-
-    if (isSunday() && show) {
-      // On Sundays: show name only (no track name), ticker-scroll if long
-      const showLine = (presenter && presenter !== show)
-        ? presenter + ' \u2014 ' + show
-        : show;
-      newSlides = [showLine];
-    } else {
-      // All other days: track name → fade → show line (or station name) → fade → repeat
-      const showLine = (show && track !== show)
-        ? (presenter ? presenter + ' \u2014 ' + show : show)
-        : 'Signature Radio UK';
-      newSlides = [track, showLine];
+    setTrackText(track);
+    if (showEl) {
+      showEl.textContent = showLine;
+      showEl.hidden = !showLine;
     }
-
-    // Always restart the cycle when data arrives, even if slides appear unchanged,
-    // so the animation runs from the first API response onward.
-    const unchanged = JSON.stringify(newSlides) === JSON.stringify(slides);
-    slides = newSlides;
-    if (!unchanged || cycleId === 0) startCycle();
   }
 
   // Fetch now-playing metadata and update the player track display
@@ -394,38 +558,94 @@ window.SRUK_initSlideshow();
       });
   }
 
-  // Start the cycle immediately with the default text so animation runs
-  // even before (or if) the API responds.
-  startCycle();
-
-  // Poll on load and every 30 seconds — updates slides and restarts cycle when data arrives
+  // Poll on load and every 30 seconds; track titles stay visible while show info has its own line.
   fetchNowPlaying();
   setInterval(fetchNowPlaying, 30000);
 
   let playing = false;
+  let preferredVolume = audio.volume;
+  let volumeFadeFrame = 0;
+  let volumeFadeToken = 0;
+
+  function cancelVolumeFade() {
+    volumeFadeToken++;
+    if (volumeFadeFrame) window.cancelAnimationFrame(volumeFadeFrame);
+    volumeFadeFrame = 0;
+  }
+
+  function fadeAudioTo(targetVolume, duration, onComplete) {
+    cancelVolumeFade();
+    const token = volumeFadeToken;
+    const startVolume = audio.volume;
+    const startedAt = performance.now();
+    const target = Math.max(0, Math.min(1, targetVolume));
+
+    function step(now) {
+      if (token !== volumeFadeToken) return;
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const easedProgress = progress * progress * (3 - 2 * progress);
+      audio.volume = startVolume + (target - startVolume) * easedProgress;
+
+      if (progress < 1) {
+        volumeFadeFrame = window.requestAnimationFrame(step);
+      } else {
+        volumeFadeFrame = 0;
+        if (onComplete) onComplete();
+      }
+    }
+
+    volumeFadeFrame = window.requestAnimationFrame(step);
+  }
 
   btn.addEventListener('click', function () {
     if (!playing) {
-      audio.play().then(function () {
+      const wasPaused = audio.paused;
+      preferredVolume = slider ? parseFloat(slider.value) : preferredVolume;
+      if (wasPaused) audio.volume = 0;
+      const canAnalyze = initAudioAnalyser();
+      const contextReady = canAnalyze
+        ? (audioContext.state === 'running'
+          ? Promise.resolve(true)
+          : audioContext.resume().then(function () { return true; }).catch(function () { return false; }))
+        : Promise.resolve(false);
+      Promise.all([audio.play(), contextReady]).then(function (results) {
         playing = true;
+        fadeAudioTo(preferredVolume, 420);
+        if (heroDisplay) heroDisplay.classList.add('is-playing');
+        if (heroAmbient) heroAmbient.classList.add('is-playing');
+        if (canAnalyze && results[1]) startAudioSpectrum();
         label.textContent = 'PAUSE';
         btn.setAttribute('aria-label', 'Pause live stream');
         setPauseIcon();
       }).catch(function () {
+        cancelVolumeFade();
+        audio.volume = preferredVolume;
+        stopAudioSpectrum();
         label.textContent = 'ERROR';
       });
     } else {
-      audio.pause();
       playing = false;
+      stopAudioSpectrum();
+      if (heroDisplay) heroDisplay.classList.remove('is-playing');
+      if (heroAmbient) heroAmbient.classList.remove('is-playing');
       label.textContent = 'LISTEN';
       btn.setAttribute('aria-label', 'Play live stream');
       setPlayIcon();
+      fadeAudioTo(0, 360, function () {
+        audio.pause();
+        audio.volume = preferredVolume;
+      });
     }
   });
 
   // If the stream stalls or errors, reset the button state
   audio.addEventListener('error', function () {
+    cancelVolumeFade();
+    audio.volume = preferredVolume;
     playing = false;
+    stopAudioSpectrum();
+    if (heroDisplay) heroDisplay.classList.remove('is-playing');
+    if (heroAmbient) heroAmbient.classList.remove('is-playing');
     label.textContent = 'LISTEN';
     setPlayIcon();
   });
@@ -435,12 +655,14 @@ window.SRUK_initSlideshow();
     // Restore last saved volume
     const saved = parseFloat(localStorage.getItem('sruk_volume'));
     if (!isNaN(saved)) {
+      preferredVolume = saved;
       audio.volume = saved;
       slider.value = saved;
     }
 
     slider.addEventListener('input', function () {
-      audio.volume = parseFloat(slider.value);
+      preferredVolume = parseFloat(slider.value);
+      audio.volume = preferredVolume;
       localStorage.setItem('sruk_volume', slider.value);
     });
   }
