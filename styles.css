@@ -889,7 +889,7 @@ body:not(.home-page) #siteHero { display: none; }
   left: 0;
   bottom: 0;
   height: auto;
-  display: flex;
+  display: none;
   align-items: stretch;
   justify-content: space-evenly;
   gap: clamp(2px, 0.5vw, 7px);
@@ -1089,6 +1089,7 @@ body:not(.home-page) #siteHero { display: none; }
 
 @media (max-width: 767px) and (orientation: portrait) {
   .hero-ambient-visualizer {
+    display: flex;
     top: 0;
     right: 0;
     bottom: calc(-1 * var(--hero-phone-image-bleed));
