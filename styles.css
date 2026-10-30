@@ -186,6 +186,10 @@ body:not(.home-page) #siteHero { display: none; }
   pointer-events: none;
 }
 
+@media (min-width: 768px) {
+  .hero::before { display: none; }
+}
+
 .hero-content {
   position: relative;
   z-index: 3;
