@@ -3971,6 +3971,10 @@ body:not(.home-page) #siteHero { display: none; }
 
   .hero.about-open .hero-now-playing {
     position: relative;
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: stretch;
+    align-self: start;
     bottom: auto;
     left: auto;
     width: min(100%, 28rem);
