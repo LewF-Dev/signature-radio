@@ -3468,15 +3468,6 @@ body:not(.home-page) #siteHero { display: none; }
     background: #000;
   }
 
-  .hero.about-open {
-    min-height: clamp(600px, calc(62svh + 7.5rem), 760px);
-  }
-
-  .hero.about-open .hero-image {
-    bottom: auto;
-    height: calc(var(--hero-phone-base-height) + var(--hero-phone-image-bleed));
-  }
-
   .hero::after {
     bottom: calc(-1 * var(--hero-phone-image-bleed));
     background:
@@ -3514,12 +3505,21 @@ body:not(.home-page) #siteHero { display: none; }
   }
 
   .hero.about-open .hero-content {
-    padding-top: calc(var(--hero-phone-content-inset) + 3.5rem);
+    padding-bottom: 0.75rem;
   }
 
-  .hero.about-open .hero-inner,
-  .hero.about-open .hero-brand {
-    height: auto;
+  .hero.about-open {
+    height: var(--hero-phone-open-height, var(--hero-phone-base-height));
+    min-height: var(--hero-phone-open-height, var(--hero-phone-base-height));
+  }
+
+  /* Keep the heading's closed-state anchor while its copy expands below it. */
+  .hero.about-open .hero-intro {
+    position: absolute;
+    top: var(--hero-phone-intro-top, 0px);
+    right: 0;
+    left: 0;
+    align-self: start;
   }
 
   .nav-bar {
@@ -3779,7 +3779,7 @@ body:not(.home-page) #siteHero { display: none; }
   }
 
   .hero-intro.is-open {
-    transform: translateY(calc(var(--hero-phone-image-bleed) / 2 - 1rem));
+    transform: translateY(calc(var(--hero-phone-image-bleed) / 2 - 3.25rem));
   }
 
   .hero-landscape-title {
@@ -3962,30 +3962,18 @@ body:not(.home-page) #siteHero { display: none; }
 
   .hero-now-playing {
     position: absolute;
-    z-index: 2;
-    left: 0;
-    bottom: calc(-1 * var(--hero-phone-image-bleed) + 0.5rem);
+    z-index: 4;
+    right: clamp(1rem, 4vw, 1.5rem);
+    bottom: 1.5rem;
+    left: clamp(1rem, 4vw, 1.5rem);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 0.55rem;
-    width: min(100%, 28rem);
+    width: auto;
     margin: 0;
     padding: 0.35rem 0 0.5rem;
-    transform: translateY(1rem);
-    text-align: left;
-  }
-
-  .hero.about-open .hero-now-playing {
-    position: relative;
-    grid-column: 1;
-    grid-row: 3;
-    justify-self: stretch;
-    align-self: start;
-    bottom: auto;
-    left: auto;
-    width: min(100%, 28rem);
-    margin-top: clamp(1rem, 4vw, 1.5rem);
     transform: none;
+    text-align: left;
   }
 
   .hero-now-playing-space {
@@ -4201,7 +4189,7 @@ body:not(.home-page) #siteHero { display: none; }
   }
 
   .hero-intro-panel-inner {
-    padding: 0.65rem 0.35rem 1rem 0.8rem;
+    padding: 0.3rem 0.25rem 0.75rem 0.45rem;
     opacity: 0;
     transition: opacity 0.32s ease;
   }
@@ -4212,12 +4200,12 @@ body:not(.home-page) #siteHero { display: none; }
   }
 
   .hero-intro-copy {
-    width: min(76%, 24rem);
-    max-width: 24rem;
+    width: min(100%, 28rem);
+    max-width: 28rem;
     margin: 0;
     color: rgba(255,255,255,0.96);
-    font-size: clamp(0.98rem, 3.9vw, 1.08rem);
-    line-height: 1.48;
+    font-size: clamp(0.78rem, 3vw, 0.9rem);
+    line-height: 1.24;
     text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 4px rgba(0,0,0,0.75);
     text-align: left;
   }
