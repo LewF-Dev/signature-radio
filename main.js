@@ -438,6 +438,37 @@ window.SRUK_initSlideshow();
   const analysisBandCount = Math.max(visualizerBars.length, ambientBars.length);
   const smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
   const peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
+  const audioDebugEnabled = new URLSearchParams(window.location.search).get('audioDebug') === '1';
+  let audioDebugPanel = null;
+  let lastAudioDebugUpdate = 0;
+
+  if (audioDebugEnabled) {
+    audioDebugPanel = document.createElement('output');
+    audioDebugPanel.setAttribute('aria-live', 'polite');
+    audioDebugPanel.style.cssText = 'position:fixed;z-index:99999;top:8px;left:8px;right:8px;padding:8px 10px;background:rgba(0,0,0,.92);border:1px solid #c00;color:#fff;font:12px/1.45 monospace;white-space:pre-wrap;pointer-events:none';
+    audioDebugPanel.textContent = 'Audio diagnostic: waiting for play';
+    document.body.appendChild(audioDebugPanel);
+  }
+
+  function updateAudioDebug(levels) {
+    if (!audioDebugPanel) return;
+    const now = performance.now();
+    if (levels && now - lastAudioDebugUpdate < 500) return;
+    lastAudioDebugUpdate = now;
+    let peak = 0;
+    let total = 0;
+    if (levels) {
+      levels.forEach(function (value) {
+        peak = Math.max(peak, value);
+        total += value;
+      });
+    }
+    audioDebugPanel.textContent = [
+      'AudioContext: ' + (audioContext ? audioContext.state : 'not created'),
+      'Audio: ' + (audio.paused ? 'paused' : 'playing') + ' | readyState ' + audio.readyState + ' | time ' + audio.currentTime.toFixed(1) + 's',
+      levels ? 'Analyser max/avg: ' + peak + '/' + (total / Math.max(1, levels.length)).toFixed(1) + ' of 255' : 'Analyser: waiting for samples'
+    ].join('\n');
+  }
 
   function initAudioAnalyser() {
     if (!analysisBandCount) return false;
@@ -462,6 +493,7 @@ window.SRUK_initSlideshow();
       analyser = nextAnalyser;
       frequencyData = new Uint8Array(analyser.frequencyBinCount);
       audioContext.addEventListener('statechange', function () {
+        updateAudioDebug();
         if (audioContext.state === 'running' && !audio.paused) {
           startAudioSpectrum();
         } else if (audioContext.state !== 'running' && animationFrame) {
@@ -490,6 +522,7 @@ window.SRUK_initSlideshow();
     }
 
     analyser.getByteFrequencyData(frequencyData);
+    updateAudioDebug(frequencyData);
     const binCount = frequencyData.length;
     const barCount = smoothedLevels.length;
 
@@ -713,12 +746,14 @@ window.SRUK_initSlideshow();
           ? Promise.resolve(true)
           : audioContext.resume().then(function () { return true; }).catch(function () { return false; }))
         : Promise.resolve(false);
+      updateAudioDebug();
       Promise.all([audio.play(), contextReady]).then(function (results) {
         playing = true;
         fadeAudioTo(preferredVolume, 420);
         if (heroDisplay) heroDisplay.classList.add('is-playing');
         if (heroAmbient) heroAmbient.classList.add('is-playing');
         if (canAnalyze && results[1]) startAudioSpectrum();
+        updateAudioDebug();
         label.textContent = 'PAUSE';
         btn.setAttribute('aria-label', 'Pause live stream');
         setPauseIcon();
@@ -727,6 +762,7 @@ window.SRUK_initSlideshow();
         audio.volume = preferredVolume;
         stopAudioSpectrum();
         label.textContent = 'ERROR';
+        updateAudioDebug();
       });
     } else {
       playing = false;
