@@ -3467,6 +3467,10 @@ body:not(.home-page) #siteHero { display: none; }
     background: #000;
   }
 
+  .hero.about-open {
+    min-height: clamp(600px, calc(62svh + 7.5rem), 760px);
+  }
+
   .hero::after {
     bottom: calc(-1 * var(--hero-phone-image-bleed));
     background:
@@ -3501,6 +3505,15 @@ body:not(.home-page) #siteHero { display: none; }
     max-width: none;
     padding: var(--hero-phone-content-inset) clamp(1rem, 4vw, 1.5rem);
     justify-content: center;
+  }
+
+  .hero.about-open .hero-content {
+    padding-top: calc(var(--hero-phone-content-inset) + 3.5rem);
+  }
+
+  .hero.about-open .hero-inner,
+  .hero.about-open .hero-brand {
+    height: auto;
   }
 
   .nav-bar {
@@ -3760,7 +3773,7 @@ body:not(.home-page) #siteHero { display: none; }
   }
 
   .hero-intro.is-open {
-    transform: translateY(calc(var(--hero-phone-image-bleed) / 2 - 1.8rem));
+    transform: translateY(calc(var(--hero-phone-image-bleed) / 2 - 1rem));
   }
 
   .hero-landscape-title {
