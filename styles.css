@@ -1101,10 +1101,14 @@ body:not(.home-page) #siteHero { display: none; }
     mask-image: linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.82) 30%, rgba(0,0,0,0.45) 44%, transparent 66%);
   }
 
+  .hero-ambient-visualizer::before { filter: none; }
+
   .hero-rain-plane--mid { display: block; }
   .hero-ambient-visualizer::after { display: block; animation: hero-light-idle-float 4.8s ease-in-out infinite alternate; }
 
   .hero-rain-column { display: block; max-width: 14px; }
+  .hero-rain-plane--far,
+  .hero-rain-plane--near { filter: none; }
 
   .hero-rain-run {
     font-size: clamp(0.68rem, 2.1vw, 0.82rem);

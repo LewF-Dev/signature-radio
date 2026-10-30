@@ -282,17 +282,20 @@ window.SRUK_initSlideshow();
 
   if (!btn || !audio) return;
 
+  const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
   const heroDisplay = document.getElementById('heroNowPlayingSlot');
-  const visualizerBars = heroDisplay
+  const visualizerBars = heroDisplay && phoneLightQuery.matches
     ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
     : [];
   const heroAmbient = document.getElementById('heroAmbientVisualizer');
   const ambientBars = [];
   if (heroAmbient) {
-    const rainColumnCount = 54;
-    const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
-    const isPortraitPhone = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
-    for (let index = 0; index < rainColumnCount; index++) {
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function createPhoneRain() {
+      if (!phoneLightQuery.matches || ambientBars.length) return;
+      const rainColumnCount = 32;
+      const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
+      for (let index = 0; index < rainColumnCount; index++) {
       const column = document.createElement('div');
       const height = 0.56 + ((Math.sin(index * 1.17 + 0.6) + 1) / 2) * 0.44;
       const density = 0.15 + ((Math.sin(index * 0.81 + 1.4) + 1) / 2) * 0.24;
@@ -307,7 +310,7 @@ window.SRUK_initSlideshow();
         const glyphIndex = (index * 5 + row * 3 + (row * index) % 7) % musicGlyphs.length;
         const glyph = musicGlyphs[glyphIndex];
         const secondGlyph = musicGlyphs[(glyphIndex + index + row + 3) % musicGlyphs.length];
-        content += row > 0 && gate < (isPortraitPhone ? 1 : 3) ? '  ' : glyph + (gate % 4 === 0 ? ' ' : secondGlyph);
+        content += row > 0 && gate < 1 ? '  ' : glyph + (gate % 4 === 0 ? ' ' : secondGlyph);
         content += row === 21 ? '' : '\n';
       }
 
@@ -332,18 +335,45 @@ window.SRUK_initSlideshow();
       column.style.setProperty('--rain-opacity', density.toFixed(3));
       column.style.setProperty('--rain-fade-start', (fadeStart * 100).toFixed(1) + '%');
       column.appendChild(makeRainPlane('far', 1.28, -2.7));
-      if (index % 3 === 0) column.appendChild(makeRainPlane('mid', 1.12, -1.6));
       column.appendChild(makeRainPlane('main', 1, 0));
-      if (index % 3 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
+      if (index % 4 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
       heroAmbient.appendChild(column);
       ambientBars.push(column);
+      }
     }
 
-    const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    createPhoneRain();
+
     let lightMoveTimer = 0;
+    let rainFadeTimer = 0;
     let previousLightX = 0;
     let previousLightY = 0;
+
+    function startRainFadeShifts() {
+      if (rainFadeTimer || !ambientBars.length || reducedMotionQuery.matches) return;
+      rainFadeTimer = window.setInterval(function () {
+        if (!phoneLightQuery.matches || document.visibilityState === 'hidden') return;
+
+        const columnsToShift = Math.max(5, Math.ceil(ambientBars.length * 0.14));
+        const shuffledColumns = ambientBars.slice();
+        for (let index = shuffledColumns.length - 1; index > 0; index--) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [shuffledColumns[index], shuffledColumns[swapIndex]] = [shuffledColumns[swapIndex], shuffledColumns[index]];
+        }
+
+        shuffledColumns.slice(0, columnsToShift).forEach(function (column) {
+          const nextFadeStart = 0.68 + Math.random() * 0.3;
+          column.style.setProperty('--rain-fade-start', (nextFadeStart * 100).toFixed(1) + '%');
+        });
+      }, 1800);
+    }
+
+    function stopRainFadeShifts() {
+      if (!rainFadeTimer) return;
+      window.clearInterval(rainFadeTimer);
+      rainFadeTimer = 0;
+    }
+
     function movePhoneLight() {
       lightMoveTimer = 0;
       if (!phoneLightQuery.matches || reducedMotionQuery.matches || document.visibilityState === 'hidden') {
@@ -375,9 +405,12 @@ window.SRUK_initSlideshow();
       window.clearTimeout(lightMoveTimer);
       lightMoveTimer = 0;
       if (!phoneLightQuery.matches || reducedMotionQuery.matches || document.visibilityState === 'hidden') {
+        stopRainFadeShifts();
         heroAmbient.style.setProperty('--hero-light-opacity', '0');
         return;
       }
+      createPhoneRain();
+      startRainFadeShifts();
       lightMoveTimer = window.setTimeout(movePhoneLight, 180 + Math.random() * 240);
     }
 
@@ -387,24 +420,6 @@ window.SRUK_initSlideshow();
     else reducedMotionQuery.addListener(syncPhoneLight);
     document.addEventListener('visibilitychange', syncPhoneLight);
     syncPhoneLight();
-
-    if (ambientBars.length && phoneLightQuery.matches && !reducedMotionQuery.matches) {
-      window.setInterval(function () {
-        if (document.visibilityState === 'hidden') return;
-
-        const columnsToShift = Math.max(5, Math.ceil(ambientBars.length * 0.14));
-        const shuffledColumns = ambientBars.slice();
-        for (let index = shuffledColumns.length - 1; index > 0; index--) {
-          const swapIndex = Math.floor(Math.random() * (index + 1));
-          [shuffledColumns[index], shuffledColumns[swapIndex]] = [shuffledColumns[swapIndex], shuffledColumns[index]];
-        }
-
-        shuffledColumns.slice(0, columnsToShift).forEach(function (column) {
-          const nextFadeStart = 0.68 + Math.random() * 0.3;
-          column.style.setProperty('--rain-fade-start', (nextFadeStart * 100).toFixed(1) + '%');
-        });
-      }, 1800);
-    }
   }
   let audioContext = null;
   let analyser = null;
