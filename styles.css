@@ -932,6 +932,7 @@ body:not(.home-page) #siteHero { display: none; }
 }
 
 .hero-rain-column {
+  display: none;
   position: relative;
   z-index: 1;
   flex: 1 1 0;
@@ -1097,7 +1098,7 @@ body:not(.home-page) #siteHero { display: none; }
   .hero-rain-plane--mid { display: block; }
   .hero-ambient-visualizer::after { display: block; animation: hero-light-idle-float 4.8s ease-in-out infinite alternate; }
 
-  .hero-rain-column { max-width: 14px; }
+  .hero-rain-column { display: block; max-width: 14px; }
 
   .hero-rain-run {
     font-size: clamp(0.68rem, 2.1vw, 0.82rem);
@@ -1321,15 +1322,35 @@ body:not(.home-page) #siteHero { display: none; }
 }
 
 .player-track {
-  max-width: 100%;
-  overflow: hidden;
+  display: inline-flex;
+  width: max-content;
+  max-width: none;
+  gap: var(--player-track-gap, 2rem);
+  overflow: visible;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--white);
   white-space: nowrap;
-  text-overflow: ellipsis;
-  display: inline-block;
   transition: opacity 0.5s ease;
+}
+
+.player-track-copy {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.player-track-copy--duplicate { display: none; }
+
+.player-track.is-overflowing {
+  display: flex;
+  animation: player-track-scroll var(--player-track-duration, 12s) linear infinite;
+  will-change: transform;
+}
+
+.player-track.is-overflowing .player-track-copy--duplicate { display: block; }
+
+@keyframes player-track-scroll {
+  to { transform: translateX(var(--player-track-offset, -100%)); }
 }
 
 .player-show {
@@ -3976,7 +3997,6 @@ body:not(.home-page) #siteHero { display: none; }
   }
 
   .hero-now-playing-meta .player-track {
-    max-width: 100%;
     color: #fff;
     font-family: var(--font-cond);
     font-size: clamp(1.12rem, 5vw, 1.38rem);

@@ -44,7 +44,28 @@
 
   if (!container || !video) return;
 
+  let videoLoadStarted = false;
+  function prepareVideo() {
+    if (videoLoadStarted) return;
+    videoLoadStarted = true;
+    video.preload = 'metadata';
+    video.load();
+  }
+
+  if ('IntersectionObserver' in window) {
+    const videoObserver = new IntersectionObserver(function (entries) {
+      if (entries.some(function (entry) { return entry.isIntersecting; })) {
+        prepareVideo();
+        videoObserver.disconnect();
+      }
+    }, { rootMargin: '500px 0px' });
+    videoObserver.observe(container);
+  } else {
+    prepareVideo();
+  }
+
   function play() {
+    prepareVideo();
     video.play();
     container.classList.add('playing');
   }
@@ -94,6 +115,17 @@ window.SRUK_initSlideshow = function initSlideshow() {
   let timer;
   let touchStartX = 0;
 
+  function loadSlide(index) {
+    const slide = slides[(index + slides.length) % slides.length];
+    if (slide && slide.dataset.src && !slide.hasAttribute('src')) {
+      slide.src = slide.dataset.src;
+      slide.removeAttribute('data-src');
+    }
+  }
+
+  loadSlide(0);
+  loadSlide(1);
+
   // Build dot indicators
   const dots = slides.map(function (_, i) {
     const dot = document.createElement('button');
@@ -110,6 +142,7 @@ window.SRUK_initSlideshow = function initSlideshow() {
     current = (index + slides.length) % slides.length;
     slides[current].classList.add('active');
     dots[current].classList.add('active');
+    loadSlide(current + 1);
   }
 
   function next() { goTo(current + 1); }
@@ -355,7 +388,7 @@ window.SRUK_initSlideshow();
     document.addEventListener('visibilitychange', syncPhoneLight);
     syncPhoneLight();
 
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (ambientBars.length && phoneLightQuery.matches && !reducedMotionQuery.matches) {
       window.setInterval(function () {
         if (document.visibilityState === 'hidden') return;
 
@@ -516,7 +549,44 @@ window.SRUK_initSlideshow();
 
   const trackEl = document.getElementById('playerTrackA');
   const showEl = document.getElementById('playerShowA');
-  let displayedTrack = trackEl ? trackEl.textContent.trim() : '';
+  const trackWrap = trackEl ? trackEl.closest('.player-track-wrap') : null;
+  let displayedTrack = trackEl ? (trackEl.getAttribute('aria-label') || trackEl.textContent.trim()) : '';
+
+  function renderTrackTicker(text) {
+    if (!trackEl || !trackWrap) return;
+
+    const firstCopy = document.createElement('span');
+    const duplicateCopy = document.createElement('span');
+    firstCopy.className = 'player-track-copy';
+    duplicateCopy.className = 'player-track-copy player-track-copy--duplicate';
+    duplicateCopy.setAttribute('aria-hidden', 'true');
+    firstCopy.textContent = text;
+    duplicateCopy.textContent = text;
+    trackEl.classList.remove('is-overflowing');
+    trackEl.style.removeProperty('--player-track-offset');
+    trackEl.style.removeProperty('--player-track-duration');
+    trackEl.replaceChildren(firstCopy, duplicateCopy);
+    trackEl.setAttribute('aria-label', text);
+
+    const copyWidth = firstCopy.getBoundingClientRect().width;
+    if (copyWidth <= trackWrap.clientWidth + 1) return;
+
+    const gap = parseFloat(window.getComputedStyle(trackEl).columnGap) || 32;
+    const distance = copyWidth + gap;
+    trackEl.style.setProperty('--player-track-offset', (-distance).toFixed(1) + 'px');
+    trackEl.style.setProperty('--player-track-duration', Math.max(8, distance / 34).toFixed(1) + 's');
+    trackEl.classList.add('is-overflowing');
+  }
+
+  if (trackEl && displayedTrack) renderTrackTicker(displayedTrack);
+
+  if (trackWrap && 'ResizeObserver' in window) {
+    const trackResizeObserver = new ResizeObserver(function () { renderTrackTicker(displayedTrack); });
+    trackResizeObserver.observe(trackWrap);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { renderTrackTicker(displayedTrack); });
+  } else if (trackWrap) {
+    window.addEventListener('resize', function () { renderTrackTicker(displayedTrack); });
+  }
 
   function setTrackText(text) {
     if (!trackEl) return;
@@ -524,8 +594,8 @@ window.SRUK_initSlideshow();
     if (nextText === displayedTrack) return;
 
     displayedTrack = nextText;
-    trackEl.textContent = nextText;
     trackEl.title = nextText;
+    renderTrackTicker(nextText);
   }
 
   function updatePlayerDisplay(data) {
