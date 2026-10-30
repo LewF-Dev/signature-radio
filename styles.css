@@ -3969,6 +3969,15 @@ body:not(.home-page) #siteHero { display: none; }
     text-align: left;
   }
 
+  .hero.about-open .hero-now-playing {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    width: min(100%, 28rem);
+    margin-top: clamp(1rem, 4vw, 1.5rem);
+    transform: none;
+  }
+
   .hero-now-playing-space {
     height: clamp(6rem, 26vw, 7rem);
     transition: height 0.78s cubic-bezier(0.65, 0, 0.35, 1);
