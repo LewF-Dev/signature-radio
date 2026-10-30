@@ -3459,8 +3459,9 @@ body:not(.home-page) #siteHero { display: none; }
     --hero-phone-content-inset: clamp(1.25rem, 4vh, 1.75rem);
     --hero-phone-content-inset: clamp(1.25rem, 4svh, 1.75rem);
     --hero-phone-image-bleed: clamp(2rem, 10vw, 3rem);
-    min-height: clamp(460px, 62vh, 560px);
-    min-height: clamp(460px, 62svh, 560px);
+    --hero-phone-base-height: clamp(460px, 62vh, 560px);
+    --hero-phone-base-height: clamp(460px, 62svh, 560px);
+    min-height: var(--hero-phone-base-height);
     height: auto;
     margin-bottom: var(--hero-phone-image-bleed);
     overflow: visible;
@@ -3469,6 +3470,11 @@ body:not(.home-page) #siteHero { display: none; }
 
   .hero.about-open {
     min-height: clamp(600px, calc(62svh + 7.5rem), 760px);
+  }
+
+  .hero.about-open .hero-image {
+    bottom: auto;
+    height: calc(var(--hero-phone-base-height) + var(--hero-phone-image-bleed));
   }
 
   .hero::after {
