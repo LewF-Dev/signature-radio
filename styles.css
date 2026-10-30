@@ -187,7 +187,8 @@ body:not(.home-page) #siteHero { display: none; }
 }
 
 @media (min-width: 768px) {
-  .hero::before { display: none; }
+  .hero::before,
+  .hero-ambient-visualizer::before { display: none; }
 }
 
 .hero-content {
