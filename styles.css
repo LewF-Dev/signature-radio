@@ -4089,11 +4089,6 @@ body:not(.home-page) #siteHero { display: none; }
     opacity: 0;
   }
 
-  @keyframes hero-wave-bounce {
-    0%, 100% { transform: scaleY(var(--wave-rest, 0.2)); opacity: 0.58; }
-    50% { transform: scaleY(var(--wave-peak, 0.82)); opacity: 1; }
-  }
-
   @keyframes hero-wave-idle {
     0%, 100% { transform: scaleY(var(--wave-rest, 0.2)); opacity: 0.54; }
     50% { transform: scaleY(calc(var(--wave-rest, 0.2) + var(--wave-idle-rise, 0.16))); opacity: var(--wave-idle-opacity, 0.78); }
@@ -4101,15 +4096,6 @@ body:not(.home-page) #siteHero { display: none; }
 
   .hero-now-playing:not(.is-playing):not(.is-analysis-active) .hero-waveform span::before {
     animation: hero-wave-idle var(--wave-idle-speed, 2.8s) ease-in-out infinite;
-    animation-delay: inherit;
-  }
-
-  .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span {
-    animation: none;
-  }
-
-  .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span::before {
-    animation: hero-wave-bounce var(--wave-speed, 0.7s) ease-in-out infinite;
     animation-delay: inherit;
   }
 
@@ -4227,15 +4213,6 @@ body:not(.home-page) #siteHero { display: none; }
       animation: none;
     }
 
-    .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span::before {
-      animation: hero-wave-reduced-motion 1.8s ease-in-out infinite;
-      animation-delay: inherit;
-    }
-  }
-
-  @keyframes hero-wave-reduced-motion {
-    0%, 100% { transform: scaleY(var(--wave-rest, 0.2)); opacity: 0.58; }
-    50% { transform: scaleY(calc(var(--wave-rest, 0.2) + 0.08)); opacity: 0.76; }
   }
 
   .about-body > p:first-child {

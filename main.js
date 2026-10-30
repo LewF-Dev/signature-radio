@@ -435,7 +435,6 @@ window.SRUK_initSlideshow();
   let mediaSource = null;
   let frequencyData = null;
   let animationFrame = 0;
-  let analyserSilentSince = 0;
   const analysisBandCount = Math.max(visualizerBars.length, ambientBars.length);
   const smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
   const peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
@@ -450,16 +449,25 @@ window.SRUK_initSlideshow();
     try {
       audioContext = new AudioContextClass();
       const nextAnalyser = audioContext.createAnalyser();
-      nextAnalyser.fftSize = 1024;
-      nextAnalyser.minDecibels = -76;
-      nextAnalyser.maxDecibels = -22;
-      nextAnalyser.smoothingTimeConstant = 0.52;
+      // Lower the noise floor for quieter phone playback and keep the analyser
+      // responsive enough to follow the stream's real dynamics.
+      nextAnalyser.fftSize = 2048;
+      nextAnalyser.minDecibels = -90;
+      nextAnalyser.maxDecibels = -12;
+      nextAnalyser.smoothingTimeConstant = 0.32;
       const nextSource = audioContext.createMediaElementSource(audio);
       mediaSource = nextSource;
       nextSource.connect(nextAnalyser);
       nextAnalyser.connect(audioContext.destination);
       analyser = nextAnalyser;
       frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      audioContext.addEventListener('statechange', function () {
+        if (audioContext.state === 'running' && !audio.paused) {
+          startAudioSpectrum();
+        } else if (audioContext.state !== 'running' && animationFrame) {
+          stopAudioSpectrum();
+        }
+      });
       return true;
     } catch (error) {
       // If analysis setup fails after the media source is created, keep audio audible.
@@ -484,15 +492,17 @@ window.SRUK_initSlideshow();
     analyser.getByteFrequencyData(frequencyData);
     const binCount = frequencyData.length;
     const barCount = smoothedLevels.length;
-    let totalBandEnergy = 0;
 
     smoothedLevels.forEach(function (_, index) {
       const bar = visualizerBars[index];
-      const centerDistance = Math.abs(index - (barCount - 1) / 2) / ((barCount - 1) / 2);
-      const nextDistance = Math.min(1, centerDistance + 1 / (barCount - 1));
-      const availableBins = Math.max(2, Math.floor(binCount * 0.62));
-      const start = 1 + Math.floor(Math.pow(centerDistance, 1.45) * (availableBins - 2));
-      const end = Math.max(start + 1, 1 + Math.floor(Math.pow(nextDistance, 1.45) * (availableBins - 1)));
+      // Assign successive logarithmic frequency bands from left to right.
+      // Mapping by distance from the centre made opposite bars identical.
+      const minBin = 2;
+      const maxBin = Math.max(minBin + 1, Math.floor(binCount * 0.86));
+      const bandStart = index / barCount;
+      const bandEnd = (index + 1) / barCount;
+      const start = Math.floor(minBin * Math.pow(maxBin / minBin, bandStart));
+      const end = Math.max(start + 1, Math.ceil(minBin * Math.pow(maxBin / minBin, bandEnd)));
       let peak = 0;
       let sum = 0;
       let count = 0;
@@ -504,13 +514,11 @@ window.SRUK_initSlideshow();
       }
 
       const average = count ? sum / count : 0;
-      const frequencyPosition = Math.pow(centerDistance, 1.45);
-      const bandEnergy = Math.min(1, (peak * 0.4 + average * 1.15) * (1 + frequencyPosition * 0.5));
-      totalBandEnergy += bandEnergy;
-      const target = 0.13 + Math.pow(bandEnergy, 1.1) * 0.75;
-      const response = target > smoothedLevels[index] ? 0.68 : 0.2;
+      const bandEnergy = Math.min(1, peak * 0.72 + average * 0.72);
+      const target = 0.1 + Math.pow(bandEnergy, 0.82) * 0.82;
+      const response = target > smoothedLevels[index] ? 0.62 : 0.24;
       smoothedLevels[index] += (target - smoothedLevels[index]) * response;
-      peakLevels[index] = Math.max(smoothedLevels[index], peakLevels[index] - 0.012);
+      peakLevels[index] = Math.max(smoothedLevels[index], peakLevels[index] - 0.018);
       if (bar) {
         bar.style.setProperty('--wave-level', smoothedLevels[index].toFixed(3));
         const capTop = ((1 - peakLevels[index]) * 50).toFixed(1);
@@ -518,18 +526,6 @@ window.SRUK_initSlideshow();
         bar.style.setProperty('--wave-cap-bottom', (100 - Number(capTop)).toFixed(1) + '%');
       }
     });
-
-    if (totalBandEnergy / barCount < 0.012) {
-      if (!analyserSilentSince) analyserSilentSince = performance.now();
-      else if (performance.now() - analyserSilentSince >= 1800) {
-        // Some mobile browsers play the stream but return silence to Web Audio.
-        // Drop back to the CSS playback animation instead of leaving flat bars.
-        stopAudioSpectrum();
-        return;
-      }
-    } else {
-      analyserSilentSince = 0;
-    }
 
     ambientBars.forEach(function (bar, index) {
       const position = (index / Math.max(1, ambientBars.length - 1)) * (smoothedLevels.length - 1);
@@ -547,7 +543,6 @@ window.SRUK_initSlideshow();
   function startAudioSpectrum() {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!analyser || audioContext.state !== 'running') return;
-    analyserSilentSince = 0;
     if (heroDisplay) heroDisplay.classList.add('is-analysis-active');
     if (heroAmbient) heroAmbient.classList.add('is-analysis-active');
     if (!animationFrame) animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
@@ -556,7 +551,6 @@ window.SRUK_initSlideshow();
   function stopAudioSpectrum() {
     if (animationFrame) window.cancelAnimationFrame(animationFrame);
     animationFrame = 0;
-    analyserSilentSince = 0;
     if (heroDisplay) heroDisplay.classList.remove('is-analysis-active');
     if (heroAmbient) {
       heroAmbient.classList.remove('is-analysis-active');
