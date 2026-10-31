@@ -23,7 +23,7 @@
   <meta name="twitter:image" content="https://signatureradio.uk/logo.jpg" />
 
   <title>Signature Radio UK — The Soundtrack Of Your Life</title>
-  <link rel="stylesheet" href="styles.css?v=desktop-we-play-fade-20261031" />
+  <link rel="stylesheet" href="styles.css?v=phone-hero-control-single-plus-20261031" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Barlow:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
@@ -99,6 +99,12 @@
               <span class="hero-title-last-line">
                 OF YOUR LIFE
                 <span class="hero-discovery-control">
+                  <button class="hero-intro-toggle hero-phone-disclosure-toggle" id="heroIntroToggle" type="button" aria-label="Toggle Signature Radio UK information" aria-expanded="false" aria-controls="heroIntroPanel">
+                    <svg class="hero-intro-icon" viewBox="0 0 16 16" aria-hidden="true">
+                      <path class="hero-intro-icon-horizontal" d="M3 8h10" />
+                      <path class="hero-intro-icon-vertical" d="M8 3v10" />
+                    </svg>
+                  </button>
                   <a class="hero-intro-toggle" id="heroAboutLink" href="#about" aria-label="Open information about Signature Radio UK">
                     <svg class="hero-intro-icon" viewBox="0 0 16 16" aria-hidden="true">
                       <path class="hero-intro-icon-horizontal" d="M3 8h10" />
@@ -115,6 +121,11 @@
               </span>
             </h1>
             <div class="hero-now-playing-space" aria-hidden="true"></div>
+            <div class="hero-intro-panel" id="heroIntroPanel" aria-hidden="true" inert>
+              <div class="hero-intro-panel-inner">
+                <p class="hero-intro-copy">Welcome to the evolution of broadcasting. Signature Radio UK isn't just a station; it's a meticulously designed audio ecosystem. Our philosophy is rooted in precision, quality, and a commitment to the listener experience. By focusing on high-fidelity streams and a curated soundtrack that resonates with a sophisticated audience, we have built more than a platform — we have built a standard.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -282,7 +293,7 @@
   <div id="footer-mount"></div>
 
   <script src="partials.js?v=desktop-hero-news-cta-20261031"></script>
-  <script src="main.js?v=desktop-hero-news-cta-20261031"></script>
+  <script src="main.js?v=phone-hero-disclosure-restore-20261031"></script>
   <script src="supabase-config.js"></script>
   <script src="presenter-auth.js"></script>
   <script src="router.js?v=desktop-hero-news-cta-20261031"></script>

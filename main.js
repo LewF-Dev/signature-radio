@@ -210,9 +210,33 @@ window.SRUK_initSlideshow();
   els.forEach(function (el) { observer.observe(el); });
 })();
 
-/* ── Hero About Link ───────────────────────────────── */
-(function initHeroAboutLink() {
+/* ── Hero About Controls ───────────────────────────── */
+(function initHeroAboutControls() {
   document.addEventListener('click', function (event) {
+    const toggle = event.target.closest('#heroIntroToggle');
+    if (toggle) {
+      const panel = document.getElementById('heroIntroPanel');
+      const intro = toggle.closest('.hero-intro');
+      if (!panel || !intro) return;
+
+      const isOpen = toggle.getAttribute('aria-expanded') !== 'true';
+      const hero = intro.closest('.hero');
+      const brand = intro.closest('.hero-brand');
+      if (hero && isOpen && window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches) {
+        hero.style.setProperty('--hero-phone-open-height', `${hero.getBoundingClientRect().height}px`);
+        if (brand) brand.style.setProperty('--hero-phone-intro-top', `${intro.offsetTop}px`);
+      } else if (hero && !isOpen) {
+        hero.style.removeProperty('--hero-phone-open-height');
+        brand?.style.removeProperty('--hero-phone-intro-top');
+      }
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+      panel.inert = !isOpen;
+      intro.classList.toggle('is-open', isOpen);
+      hero?.classList.toggle('about-open', isOpen);
+      return;
+    }
+
     const link = event.target.closest('#heroAboutLink');
     if (!link) return;
     if (link.getAttribute('href') !== '#about') return;

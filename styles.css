@@ -233,6 +233,7 @@ body:not(.home-page) #siteHero { display: none; }
 
 .hero-discovery-control { display: contents; }
 .hero-whats-new-arrow { display: none; }
+.hero-phone-disclosure-toggle { display: none; }
 
 .hero-now-playing { display: none; }
 .desktop-waveform-extra { display: none; }
@@ -3852,6 +3853,9 @@ body:not(.home-page) #siteHero { display: none; }
     transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   }
 
+  .hero-phone-disclosure-toggle { display: inline-flex; }
+  #heroAboutLink { display: none; }
+
   .hero-intro-toggle:hover,
   .hero-intro-toggle:focus-visible {
     border-color: rgba(240,197,69,0.62);
@@ -4964,6 +4968,10 @@ body:not(.home-page) #siteHero { display: none; }
   .home-page .hero-logo-frame {
     width: clamp(525px, 55.5vw, 900px);
   }
+
+  /* The phone disclosure toggle shares the plus styling but must not sit
+     alongside the separate desktop newsletter control. */
+  .home-page .hero-discovery-control .hero-phone-disclosure-toggle { display: none; }
 
   .home-page .hero-landscape-title {
     position: absolute;
