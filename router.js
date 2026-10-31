@@ -93,6 +93,9 @@
       // add/remove it separately when moving between inner pages and Home.
       const destPage = getPageFromUrl(targetUrl);
       syncHomepageHero(doc, destPage);
+      if (window.SRUK && typeof window.SRUK.syncPhoneHeroNav === 'function') {
+        window.SRUK.syncPhoneHeroNav();
+      }
 
       // 2. Update active nav link (router's own + partials.js helper)
       updateActiveNav(targetUrl);

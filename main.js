@@ -210,31 +210,19 @@ window.SRUK_initSlideshow();
   els.forEach(function (el) { observer.observe(el); });
 })();
 
-/* ── Phone Hero About Disclosure ──────────────────── */
-(function initHeroIntro() {
+/* ── Hero About Link ───────────────────────────────── */
+(function initHeroAboutLink() {
   document.addEventListener('click', function (event) {
-    const toggle = event.target.closest('#heroIntroToggle');
-    if (!toggle) return;
+    const link = event.target.closest('#heroAboutLink');
+    if (!link) return;
+    if (link.getAttribute('href') !== '#about') return;
 
-    const panel = document.getElementById('heroIntroPanel');
-    const intro = toggle.closest('.hero-intro');
-    if (!panel || !intro) return;
+    const aboutSection = document.getElementById('about');
+    if (!aboutSection) return;
 
-    const isOpen = toggle.getAttribute('aria-expanded') !== 'true';
-    const hero = intro.closest('.hero');
-    const brand = intro.closest('.hero-brand');
-    if (hero && isOpen && window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches) {
-      hero.style.setProperty('--hero-phone-open-height', `${hero.getBoundingClientRect().height}px`);
-      if (brand) brand.style.setProperty('--hero-phone-intro-top', `${intro.offsetTop}px`);
-    } else if (hero && !isOpen) {
-      hero.style.removeProperty('--hero-phone-open-height');
-      brand?.style.removeProperty('--hero-phone-intro-top');
-    }
-    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-    panel.inert = !isOpen;
-    intro.classList.toggle('is-open', isOpen);
-    hero?.classList.toggle('about-open', isOpen);
+    event.preventDefault();
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    aboutSection.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
   });
 })();
 
@@ -292,17 +280,23 @@ window.SRUK_initSlideshow();
   if (!btn || !audio) return;
 
   const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
+  const desktopRainQuery = window.matchMedia('(min-width: 1025px)');
+  const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
+  const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
   const heroDisplay = document.getElementById('heroNowPlayingSlot');
-  const visualizerBars = heroDisplay && phoneLightQuery.matches
+  const visualizerBars = heroDisplay
     ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
     : [];
   const heroAmbient = document.getElementById('heroAmbientVisualizer');
   const ambientBars = [];
+  const heroRainColumns = [];
   if (heroAmbient) {
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    function createPhoneRain() {
-      if (!phoneLightQuery.matches || ambientBars.length) return;
-      const rainColumnCount = 32;
+    function createHeroRain() {
+      const isPhoneRain = phoneLightQuery.matches;
+      const isDesktopRain = desktopRainQuery.matches;
+      if ((!isPhoneRain && !isDesktopRain) || heroRainColumns.length) return;
+      const rainColumnCount = isDesktopRain ? 50 : 32;
       const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
       for (let index = 0; index < rainColumnCount; index++) {
       const column = document.createElement('div');
@@ -347,11 +341,23 @@ window.SRUK_initSlideshow();
       column.appendChild(makeRainPlane('main', 1, 0));
       if (index % 4 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
       heroAmbient.appendChild(column);
-      ambientBars.push(column);
+      heroRainColumns.push(column);
+      // Keep analyser-driven column updates on phones only. Desktop rain is
+      // ambient texture, so it adds no per-frame DOM work to the visualiser.
+      if (isPhoneRain) ambientBars.push(column);
       }
     }
 
-    createPhoneRain();
+    function syncHeroRainMode() {
+      heroRainColumns.forEach(function (column) { column.remove(); });
+      heroRainColumns.length = 0;
+      ambientBars.length = 0;
+      createHeroRain();
+    }
+
+    createHeroRain();
+    if (desktopRainQuery.addEventListener) desktopRainQuery.addEventListener('change', syncHeroRainMode);
+    else desktopRainQuery.addListener(syncHeroRainMode);
 
     let lightMoveTimer = 0;
     let rainFadeTimer = 0;
@@ -418,7 +424,7 @@ window.SRUK_initSlideshow();
         heroAmbient.style.setProperty('--hero-light-opacity', '0');
         return;
       }
-      createPhoneRain();
+      createHeroRain();
       startRainFadeShifts();
       lightMoveTimer = window.setTimeout(movePhoneLight, 180 + Math.random() * 240);
     }
@@ -535,15 +541,20 @@ window.SRUK_initSlideshow();
     updateAudioDebug(frequencyData);
     const binCount = frequencyData.length;
     const barCount = smoothedLevels.length;
+    const peakDecay = desktopVisualizerQuery.matches ? 0.0065 : 0.018;
+    const capPush = desktopVisualizerQuery.matches ? 0.12 : 0;
+    const useSoftCompression = computerVisualizerQuery.matches;
 
     smoothedLevels.forEach(function (_, index) {
       const bar = visualizerBars[index];
-      // Assign successive logarithmic frequency bands from left to right.
-      // Mapping by distance from the centre made opposite bars identical.
+      // Map low frequencies near the centre and higher frequencies outward,
+      // so bass energy is not concentrated on the left side of the display.
       const minBin = 2;
       const maxBin = Math.max(minBin + 1, Math.floor(binCount * 0.86));
-      const bandStart = index / barCount;
-      const bandEnd = (index + 1) / barCount;
+      const leftEdgeRadius = Math.abs((index / barCount) * 2 - 1);
+      const rightEdgeRadius = Math.abs(((index + 1) / barCount) * 2 - 1);
+      const bandStart = Math.min(leftEdgeRadius, rightEdgeRadius);
+      const bandEnd = Math.max(leftEdgeRadius, rightEdgeRadius);
       const start = Math.floor(minBin * Math.pow(maxBin / minBin, bandStart));
       const end = Math.max(start + 1, Math.ceil(minBin * Math.pow(maxBin / minBin, bandEnd)));
       let peak = 0;
@@ -557,11 +568,25 @@ window.SRUK_initSlideshow();
       }
 
       const average = count ? sum / count : 0;
-      const bandEnergy = Math.min(1, peak * 0.72 + average * 0.72);
-      const target = 0.1 + Math.pow(bandEnergy, 0.82) * 0.82;
+      // On computer-sized displays, avoid clipping one loud frequency bin to
+      // full scale. Weight the band mean more heavily, then use a soft curve
+      // so quieter playback still produces visible movement.
+      const bandEnergy = useSoftCompression
+        ? peak * 0.48 + average * 0.52
+        : Math.min(1, peak * 0.72 + average * 0.72);
+      // A subtle per-bar gain keeps corresponding positions from becoming
+      // identical while preserving the centre-out frequency layout.
+      const barGain = 0.92 + ((Math.sin(index * 1.618 + 0.83) + 1) / 2) * 0.16;
+      const target = useSoftCompression
+        ? (0.08 + Math.pow(bandEnergy, 0.72) * 0.72) * barGain
+        : (0.1 + Math.pow(bandEnergy, 0.82) * 0.82) * barGain;
       const response = target > smoothedLevels[index] ? 0.62 : 0.24;
       smoothedLevels[index] += (target - smoothedLevels[index]) * response;
-      peakLevels[index] = Math.max(smoothedLevels[index], peakLevels[index] - 0.018);
+      if (smoothedLevels[index] > peakLevels[index]) {
+        peakLevels[index] = Math.min(0.98, smoothedLevels[index] + capPush);
+      } else {
+        peakLevels[index] = Math.max(smoothedLevels[index], peakLevels[index] - peakDecay);
+      }
       if (bar) {
         bar.style.setProperty('--wave-level', smoothedLevels[index].toFixed(3));
         const capTop = ((1 - peakLevels[index]) * 50).toFixed(1);
@@ -750,7 +775,7 @@ window.SRUK_initSlideshow();
   else phoneLightQuery.addListener(setPhoneWavePreset);
 
   function rotateFeaturedArtist() {
-    if (!heroArtistName || !phoneLightQuery.matches || playing || document.visibilityState === 'hidden') return;
+    if (!heroArtistName || playing || document.visibilityState === 'hidden') return;
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) {
       featuredArtistIndex = (featuredArtistIndex + 1) % featuredArtists.length;

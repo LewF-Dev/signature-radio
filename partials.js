@@ -195,6 +195,7 @@
   window.SRUK.syncActiveNav    = syncActiveNav;
   window.SRUK.syncDashboardLink = syncDashboardLink;
   window.SRUK.syncPresenterPlacement = syncPresenterPlacement;
+  window.SRUK.syncPhoneHeroNav = syncPhoneHeroNav;
 
   function syncActiveNav() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
@@ -244,6 +245,13 @@
     const playerMeta = player ? player.querySelector('.player-meta') : null;
     const heroNowPlayingMeta = document.getElementById('heroNowPlayingMeta');
     const heroNowPlaying = document.getElementById('heroNowPlayingSlot');
+    const hero = document.getElementById('siteHero');
+    const heroImage = hero ? hero.querySelector('.hero-image') : null;
+    const heroBrand = hero ? hero.querySelector('.hero-brand') : null;
+    const heroIntro = hero ? hero.querySelector('.hero-intro') : null;
+    const heroAboutLink = hero ? document.getElementById('heroAboutLink') : null;
+    const heroDiscoveryControl = hero ? hero.querySelector('.hero-discovery-control') : null;
+    const heroTitleLastLine = hero ? hero.querySelector('.hero-title-last-line') : null;
     const controlRow = document.getElementById('pagePhoneControlRow');
     const menuSlot = document.getElementById('pagePhoneMenuSlot');
     const playerSlot = document.getElementById('pagePhonePlayerSlot');
@@ -253,7 +261,30 @@
         !controlRow || !menuSlot || !playerSlot || !menuPanel) return;
 
     const usePhoneHero = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
+    const useDesktopHomeHero = document.body.classList.contains('home-page') &&
+      window.matchMedia('(min-width: 768px)').matches;
+    const useComputerHomeHero = document.body.classList.contains('home-page') &&
+      window.matchMedia('(min-width: 1025px)').matches;
+    if (heroAboutLink) {
+      heroAboutLink.setAttribute('href', useComputerHomeHero ? 'newsletter.html' : '#about');
+      heroAboutLink.setAttribute('aria-label', useComputerHomeHero
+        ? 'Visit the Signature Radio UK newsletter'
+        : 'Open information about Signature Radio UK');
+    }
     if (usePhoneHero) {
+      if (heroNowPlaying && hero && heroNowPlaying.parentNode !== hero) {
+        hero.insertBefore(heroNowPlaying, heroImage || null);
+      }
+      if (heroDiscoveryControl && heroTitleLastLine) {
+        if (heroAboutLink && heroAboutLink.parentNode !== heroDiscoveryControl) {
+          heroDiscoveryControl.insertBefore(heroAboutLink, heroDiscoveryControl.querySelector('.hero-whats-new-arrow'));
+        }
+        if (heroDiscoveryControl.parentNode !== heroTitleLastLine) {
+          heroTitleLastLine.appendChild(heroDiscoveryControl);
+        }
+      } else if (heroAboutLink && heroTitleLastLine && heroAboutLink.parentNode !== heroTitleLastLine) {
+        heroTitleLastLine.appendChild(heroAboutLink);
+      }
       if (toggle.parentNode !== menuSlot) menuSlot.appendChild(toggle);
       if (player.parentNode !== playerSlot) playerSlot.appendChild(player);
       if (playerMeta && heroNowPlayingMeta && playerMeta.parentNode !== heroNowPlayingMeta) {
@@ -273,7 +304,31 @@
     if (links.parentNode !== nav) nav.appendChild(links);
     if (presenterSlot.parentNode !== nav) nav.appendChild(presenterSlot);
     if (player.parentNode !== nav) nav.appendChild(player);
-    if (playerMeta && playerMeta.parentNode !== player) player.insertBefore(playerMeta, player.firstChild);
+    if (useDesktopHomeHero && heroIntro && heroNowPlaying) {
+      if (heroNowPlaying.parentNode !== hero) {
+        hero.appendChild(heroNowPlaying);
+      }
+      if (heroAboutLink && heroBrand) {
+        if (useComputerHomeHero && heroDiscoveryControl) {
+          if (heroAboutLink.parentNode !== heroDiscoveryControl) {
+            heroDiscoveryControl.insertBefore(heroAboutLink, heroDiscoveryControl.querySelector('.hero-whats-new-arrow'));
+          }
+          if (heroDiscoveryControl.parentNode !== heroBrand) heroBrand.appendChild(heroDiscoveryControl);
+        } else {
+          if (heroDiscoveryControl && heroIntro && heroDiscoveryControl.parentNode === heroBrand) {
+            heroIntro.appendChild(heroDiscoveryControl);
+          }
+          if (heroAboutLink.parentNode !== heroBrand) heroBrand.appendChild(heroAboutLink);
+        }
+      }
+    } else if (heroNowPlaying && hero && heroNowPlaying.parentNode !== hero) {
+      hero.insertBefore(heroNowPlaying, heroImage || null);
+    }
+    if (useDesktopHomeHero && playerMeta && heroNowPlayingMeta) {
+      if (playerMeta.parentNode !== heroNowPlayingMeta) heroNowPlayingMeta.appendChild(playerMeta);
+    } else if (playerMeta && playerMeta.parentNode !== player) {
+      player.insertBefore(playerMeta, player.firstChild);
+    }
     menuPanel.classList.remove('is-open');
     menuPanel.setAttribute('aria-hidden', 'true');
     menuPanel.inert = true;
