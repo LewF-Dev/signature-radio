@@ -160,14 +160,13 @@
     const newHero = doc.getElementById('siteHero');
     if (!newHero) return;
 
-    const nav = document.querySelector('.nav-bar');
     const main = document.querySelector('main');
-    const anchor = nav || main;
 
     if (curHero) {
       curHero.replaceWith(newHero);
-    } else if (anchor && anchor.parentNode) {
-      anchor.parentNode.insertBefore(newHero, anchor);
+    } else if (main && main.parentNode) {
+      // Match index.html: keep the persistent navbar above the hero.
+      main.parentNode.insertBefore(newHero, main);
     }
   }
 
