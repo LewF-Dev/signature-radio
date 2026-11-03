@@ -566,6 +566,8 @@ window.SRUK_initHeroRain();
   let mediaSource = null;
   let frequencyData = null;
   let animationFrame = 0;
+  let silentAnalyserFrames = 0;
+  let analyserUnavailable = false;
   let analysisBandCount = 0;
   let smoothedLevels = [];
   let peakLevels = [];
@@ -609,7 +611,7 @@ window.SRUK_initHeroRain();
   }
 
   function initAudioAnalyser() {
-    if (!analysisBandCount) return false;
+    if (!analysisBandCount || analyserUnavailable) return false;
     if (analyser) return true;
 
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -663,6 +665,7 @@ window.SRUK_initHeroRain();
     updateAudioDebug(frequencyData);
     const binCount = frequencyData.length;
     const barCount = smoothedLevels.length;
+    let inputPeak = 0;
     const peakDecay = desktopVisualizerQuery.matches ? 0.0065 : 0.018;
     const capPush = desktopVisualizerQuery.matches ? 0.12 : 0;
     const useSoftCompression = computerVisualizerQuery.matches;
@@ -684,6 +687,7 @@ window.SRUK_initHeroRain();
       let count = 0;
       for (let bin = start; bin < Math.min(end, binCount); bin++) {
         const magnitude = frequencyData[bin] / 255;
+        inputPeak = Math.max(inputPeak, frequencyData[bin]);
         peak = Math.max(peak, magnitude);
         sum += magnitude;
         count++;
@@ -717,13 +721,29 @@ window.SRUK_initHeroRain();
       }
     });
 
+    // Some browsers play the cross-origin stream but expose no analyser data.
+    // Leave the CSS waveform moving while checking, then stop the empty RAF
+    // loop and keep the visual preset if the analyser stays silent.
+    if (inputPeak <= 1) {
+      silentAnalyserFrames++;
+      if (silentAnalyserFrames >= 75) {
+        analyserUnavailable = true;
+        stopAudioSpectrum();
+        updateAudioDebug(frequencyData);
+        return;
+      }
+    } else {
+      silentAnalyserFrames = 0;
+      if (heroDisplay) heroDisplay.classList.add('is-analysis-active');
+    }
+
     animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
   }
 
   function startAudioSpectrum() {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!analyser || audioContext.state !== 'running') return;
-    if (heroDisplay) heroDisplay.classList.add('is-analysis-active');
+    silentAnalyserFrames = 0;
     if (!animationFrame) animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
   }
 
@@ -840,6 +860,8 @@ window.SRUK_initHeroRain();
   setInterval(fetchNowPlaying, 30000);
 
   let playing = !audio.paused;
+  let isStarting = false;
+  let playAttempt = 0;
   const heroArtistName = document.getElementById('heroArtistName');
   const featuredArtists = [
     'Sanchez',
@@ -985,38 +1007,69 @@ window.SRUK_initHeroRain();
   }
 
   btn.addEventListener('click', function () {
+    if (isStarting) {
+      isStarting = false;
+      playAttempt++;
+      audio.pause();
+      audio.volume = preferredVolume;
+      heroDisplay?.classList.remove('is-connecting');
+      label.textContent = 'LISTEN';
+      btn.setAttribute('aria-label', 'Play live stream');
+      btn.removeAttribute('aria-busy');
+      setPlayIcon();
+      stopAudioSpectrum();
+      if (heroDisplay) returnArtistPanel();
+      return;
+    }
+
     if (!playing) {
+      isStarting = true;
+      const thisAttempt = ++playAttempt;
       const wasPaused = audio.paused;
       preferredVolume = slider ? parseFloat(slider.value) : preferredVolume;
       if (wasPaused) audio.volume = 0;
-      // Begin the user-requested stream fetch immediately. Creating/resuming a
-      // Web Audio graph first can add avoidable startup latency on slower devices.
-      const playbackRequest = audio.play();
       const canAnalyze = (!lightweightVisualizer || USE_REACTIVE_TOUCH_ANALYSER) && initAudioAnalyser();
       const contextReady = canAnalyze
         ? (audioContext.state === 'running'
           ? Promise.resolve(true)
           : audioContext.resume().then(function () { return true; }).catch(function () { return false; }))
         : Promise.resolve(false);
-      updateAudioDebug();
-      playbackRequest.then(function () {
+      label.textContent = 'LOADING';
+      btn.setAttribute('aria-label', 'Connecting to live stream');
+      btn.setAttribute('aria-busy', 'true');
+      heroDisplay?.classList.add('is-connecting');
+
+      function finishPlaybackStart() {
+        if (!isStarting || thisAttempt !== playAttempt) return;
+        isStarting = false;
         playing = true;
         fadeAudioTo(preferredVolume, 420);
         if (heroDisplay) {
           clearArtistReturn();
+          heroDisplay.classList.remove('is-connecting');
           heroDisplay.classList.add('is-playing');
         }
         contextReady.then(function (ready) {
           if (playing && canAnalyze && ready) startAudioSpectrum();
         });
         updateAudioDebug();
+        btn.removeAttribute('aria-busy');
         label.textContent = 'PAUSE';
         btn.setAttribute('aria-label', 'Pause live stream');
         setPauseIcon();
-      }).catch(function () {
+      }
+
+      audio.addEventListener('playing', finishPlaybackStart, { once: true });
+      const playbackRequest = audio.play();
+      updateAudioDebug();
+      playbackRequest.then(finishPlaybackStart).catch(function () {
+        if (!isStarting || thisAttempt !== playAttempt) return;
+        isStarting = false;
+        heroDisplay?.classList.remove('is-connecting');
         cancelVolumeFade();
         audio.volume = preferredVolume;
         stopAudioSpectrum();
+        btn.removeAttribute('aria-busy');
         label.textContent = 'ERROR';
         updateAudioDebug();
       });
@@ -1036,12 +1089,16 @@ window.SRUK_initHeroRain();
 
   // If the stream stalls or errors, reset the button state
   audio.addEventListener('error', function () {
+    isStarting = false;
+    playAttempt++;
+    heroDisplay?.classList.remove('is-connecting');
     cancelVolumeFade();
     audio.volume = preferredVolume;
     playing = false;
     stopAudioSpectrum();
     if (heroDisplay) returnArtistPanel();
     label.textContent = 'LISTEN';
+    btn.removeAttribute('aria-busy');
     setPlayIcon();
   });
 

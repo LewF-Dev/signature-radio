@@ -5636,6 +5636,35 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
   .home-page .hero-waveform span::before { box-shadow: none; }
 }
 
+/* Keep the waveform visibly moving while a device's analyser warms up or
+   cannot read the cross-origin stream. A live analyser takes over once data arrives. */
+@keyframes hero-wave-connection-preset {
+  0%, 100% {
+    transform: scaleY(var(--wave-rest, 0.2));
+    opacity: 0.62;
+  }
+  42% {
+    transform: scaleY(calc(var(--wave-rest, 0.2) + var(--wave-idle-rise, 0.16)));
+    opacity: var(--wave-idle-opacity, 0.82);
+  }
+  70% {
+    transform: scaleY(calc(var(--wave-rest, 0.2) + var(--wave-idle-rise, 0.1)));
+    opacity: 0.76;
+  }
+}
+
+.home-page .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span::before {
+  animation: hero-wave-connection-preset var(--wave-preset-speed, 2.2s) ease-in-out infinite;
+}
+.home-page .hero-now-playing.is-connecting .hero-waveform {
+  opacity: 0.72;
+  visibility: visible;
+  transition: opacity 0.2s ease, visibility 0s;
+}
+.home-page .hero-now-playing.is-connecting:not(.is-analysis-active) .hero-waveform span::before {
+  animation: hero-wave-connection-preset var(--wave-preset-speed, 2.2s) ease-in-out infinite;
+}
+
 /* Keep decorative animation work off the frame while the hero is offscreen. */
 .home-page .hero.hero-effects-paused .hero-rain-column,
 .home-page .hero.hero-effects-paused .hero-rain-track,
