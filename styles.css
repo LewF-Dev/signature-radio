@@ -5078,6 +5078,7 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
     opacity: 1;
     visibility: visible;
     transform: translateX(0);
+    transition: opacity 0.48s ease 0.3s, transform 0.72s cubic-bezier(0.22,0.72,0.22,1), visibility 0s;
   }
 
   .home-page .hero-artist-idle-statement {
@@ -5631,10 +5632,22 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
 }
 .home-page .hero-ambient-visualizer.is-light-rain .hero-rain-plane--main { filter: none; }
 
-@media (max-width: 1366px) and (pointer: coarse) {
-  .home-page .hero-waveform span:nth-child(even):not(.desktop-waveform-extra) { display: none; }
-  .home-page .hero-waveform span::before { box-shadow: none; }
+.tablet-layout.home-page .hero-waveform,
+.home-page .hero-waveform.hero-waveform--reduced { gap: clamp(1px, 0.3vw, 3px); }
+.tablet-layout.home-page .hero-waveform .desktop-waveform-extra { display: block; }
+.home-page .hero-waveform.hero-waveform--reduced .desktop-waveform-extra { display: block; }
+.tablet-layout.home-page .hero-waveform.hero-waveform--reduced span:nth-child(3n + 1),
+.home-page .hero-waveform.hero-waveform--reduced span:nth-child(3n + 1) { display: none; }
+.tablet-layout.home-page .hero-waveform span,
+.home-page .hero-waveform.hero-waveform--reduced span { max-width: 2px; }
+.tablet-layout.home-page .hero-waveform span::before,
+.home-page .hero-waveform.hero-waveform--reduced span::before {
+    background: linear-gradient(180deg, #79131a 0%, #b61c27 38%, #c5232d 58%, #89141c 100%);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.92), 1px 2px 3px rgba(0,0,0,0.72);
+    opacity: 0.92;
 }
+.tablet-layout.home-page .hero-waveform span::after,
+.home-page .hero-waveform.hero-waveform--reduced span::after { display: none; }
 
 /* Keep the waveform visibly moving while a device's analyser warms up or
    cannot read the cross-origin stream. A live analyser takes over once data arrives. */
@@ -5653,6 +5666,21 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
   }
 }
 
+@keyframes hero-wave-loading {
+  0%, 100% {
+    transform: scaleY(0.12);
+    opacity: 0.38;
+  }
+  36% {
+    transform: scaleY(0.92);
+    opacity: 1;
+  }
+  62% {
+    transform: scaleY(0.26);
+    opacity: 0.58;
+  }
+}
+
 .home-page .hero-now-playing.is-playing:not(.is-analysis-active) .hero-waveform span::before {
   animation: hero-wave-connection-preset var(--wave-preset-speed, 2.2s) ease-in-out infinite;
 }
@@ -5662,7 +5690,15 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
   transition: opacity 0.2s ease, visibility 0s;
 }
 .home-page .hero-now-playing.is-connecting:not(.is-analysis-active) .hero-waveform span::before {
-  animation: hero-wave-connection-preset var(--wave-preset-speed, 2.2s) ease-in-out infinite;
+  animation: hero-wave-loading 1.25s ease-in-out infinite;
+  animation-delay: var(--wave-load-delay, 0s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-page .hero-now-playing.is-connecting:not(.is-analysis-active) .hero-waveform span::before {
+    animation: none;
+    transform: scaleY(0.48);
+    opacity: 0.8;
+  }
 }
 
 /* Keep decorative animation work off the frame while the hero is offscreen. */
@@ -5671,11 +5707,6 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
 .home-page .hero.hero-effects-paused .hero-waveform span::before,
 .home-page .hero.hero-effects-paused .hero-waveform span::after {
   animation-play-state: paused !important;
-}
-
-.tablet-layout.home-page .hero-waveform .desktop-waveform-extra { display: none; }
-@media (min-width: 700px) and (max-width: 1366px) and (pointer: coarse) {
-  .home-page .hero-waveform .desktop-waveform-extra { display: none; }
 }
 
 /* A denser field stays barely visible between soft, low-contrast crests.

@@ -557,9 +557,10 @@ window.SRUK_initHeroRain();
 
   const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
   const landscapePhoneQuery = window.matchMedia('(max-width: 1024px) and (max-height: 520px) and (orientation: landscape)');
+  const tabletLayoutVisualizerQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px), (min-width: 768px) and (max-width: 1366px) and (pointer: coarse)');
   const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
   const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
-  const lightweightVisualizer = window.matchMedia('(max-width: 1366px) and (pointer: coarse)').matches;
+  let lightweightVisualizer = phoneLightQuery.matches || landscapePhoneQuery.matches || tabletLayoutVisualizerQuery.matches;
   let heroDisplay = null;
   let visualizerBars = [];
   let audioContext = null;
@@ -865,8 +866,13 @@ window.SRUK_initHeroRain();
   setInterval(fetchNowPlaying, 30000);
 
   let playing = !audio.paused;
+  let streamIsActive = !audio.paused;
   let isStarting = false;
   let playAttempt = 0;
+  let recoveryTimer = 0;
+  let stalledTimer = 0;
+  let recoveryAttempts = 0;
+  const MAX_STREAM_RECOVERY_ATTEMPTS = 5;
   const heroArtistName = document.getElementById('heroArtistName');
   const featuredArtists = [
     'Sanchez',
@@ -880,6 +886,117 @@ window.SRUK_initHeroRain();
     'A Tribe Called Quest'
   ];
   let featuredArtistIndex = 0;
+
+  function clearStreamRecoveryTimers() {
+    if (recoveryTimer) window.clearTimeout(recoveryTimer);
+    if (stalledTimer) window.clearTimeout(stalledTimer);
+    recoveryTimer = 0;
+    stalledTimer = 0;
+  }
+
+  function finishStreamRecovery() {
+    if (!streamIsActive) return;
+    clearStreamRecoveryTimers();
+    recoveryAttempts = 0;
+    isStarting = false;
+    playing = true;
+    heroDisplay?.classList.remove('is-connecting');
+    if (useTabletMuteControl() && audio.muted) {
+      label.textContent = 'PLAY';
+      btn.setAttribute('aria-label', 'Play live stream');
+      setPlayIcon();
+      if (heroDisplay) returnArtistPanel();
+    } else {
+      label.textContent = 'PAUSE';
+      btn.setAttribute('aria-label', 'Pause live stream');
+      setPauseIcon();
+      heroDisplay?.classList.add('is-playing');
+    }
+    btn.removeAttribute('aria-busy');
+    updateAudioDebug();
+  }
+
+  function giveUpStreamRecovery() {
+    streamIsActive = false;
+    playing = false;
+    clearStreamRecoveryTimers();
+    cancelVolumeFade();
+    audio.pause();
+    audio.muted = false;
+    audio.volume = preferredVolume;
+    heroDisplay?.classList.remove('is-connecting');
+    stopAudioSpectrum();
+    if (heroDisplay) returnArtistPanel();
+    label.textContent = 'LISTEN';
+    btn.setAttribute('aria-label', 'Play live stream');
+    btn.removeAttribute('aria-busy');
+    setPlayIcon();
+    updateAudioDebug();
+  }
+
+  function scheduleStreamRecovery(delay) {
+    if (!streamIsActive || recoveryTimer) return;
+    if (recoveryAttempts >= MAX_STREAM_RECOVERY_ATTEMPTS) {
+      giveUpStreamRecovery();
+      return;
+    }
+    heroDisplay?.classList.add('is-connecting');
+    btn.setAttribute('aria-busy', 'true');
+    recoveryTimer = window.setTimeout(function () {
+      recoveryTimer = 0;
+      if (!streamIsActive) return;
+      recoveryAttempts++;
+      try {
+        audio.load();
+        const request = audio.play();
+        if (request && typeof request.then === 'function') {
+          request.then(finishStreamRecovery).catch(function () {
+            scheduleStreamRecovery(Math.min(1000 * Math.pow(2, recoveryAttempts), 8000));
+          });
+        }
+      } catch (error) {
+        scheduleStreamRecovery(Math.min(1000 * Math.pow(2, recoveryAttempts), 8000));
+      }
+    }, delay);
+  }
+
+  audio.addEventListener('playing', finishStreamRecovery);
+  audio.addEventListener('error', function () {
+    if (streamIsActive) {
+      scheduleStreamRecovery(Math.min(800 * Math.pow(2, recoveryAttempts), 6400));
+      return;
+    }
+    isStarting = false;
+    playAttempt++;
+    heroDisplay?.classList.remove('is-connecting');
+    cancelVolumeFade();
+    audio.volume = preferredVolume;
+    audio.muted = false;
+    playing = false;
+    stopAudioSpectrum();
+    if (heroDisplay) returnArtistPanel();
+    label.textContent = 'LISTEN';
+    btn.removeAttribute('aria-busy');
+    btn.setAttribute('aria-label', 'Play live stream');
+    setPlayIcon();
+  });
+  audio.addEventListener('ended', function () {
+    if (streamIsActive) scheduleStreamRecovery(500);
+  });
+  audio.addEventListener('stalled', function () {
+    if (!streamIsActive || audio.paused || stalledTimer) return;
+    stalledTimer = window.setTimeout(function () {
+      stalledTimer = 0;
+      if (streamIsActive && !audio.paused) scheduleStreamRecovery(0);
+    }, 10000);
+  });
+  audio.addEventListener('waiting', function () {
+    if (!streamIsActive || audio.paused || stalledTimer) return;
+    stalledTimer = window.setTimeout(function () {
+      stalledTimer = 0;
+      if (streamIsActive && !audio.paused) scheduleStreamRecovery(0);
+    }, 12000);
+  });
 
   function setTouchWavePreset() {
     if (!lightweightVisualizer || !visualizerBars.length) return;
@@ -903,24 +1020,31 @@ window.SRUK_initHeroRain();
 
   function bindHeroVisualizer() {
     const nextHeroDisplay = document.getElementById('heroNowPlayingSlot');
-    if (nextHeroDisplay === heroDisplay) return;
+    const useLightweightVisualizer = phoneLightQuery.matches || landscapePhoneQuery.matches || tabletLayoutVisualizerQuery.matches;
+    if (nextHeroDisplay === heroDisplay && useLightweightVisualizer === lightweightVisualizer) return;
     if (animationFrame) stopAudioSpectrum();
 
     heroDisplay = nextHeroDisplay;
+    lightweightVisualizer = useLightweightVisualizer;
     const allBars = heroDisplay
       ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
       : [];
+    const waveform = heroDisplay?.querySelector('.hero-waveform');
+    waveform?.classList.toggle('hero-waveform--reduced', lightweightVisualizer);
     visualizerBars = lightweightVisualizer
-      ? allBars.filter(function (bar, index) {
-        return !bar.classList.contains('desktop-waveform-extra') && index % 2 === 0;
-      })
+      ? allBars.filter(function (_, index) { return index % 3 !== 0; })
       : allBars;
+    const loadingCycle = 1.25;
+    visualizerBars.forEach(function (bar, index) {
+      const phase = index / Math.max(1, visualizerBars.length);
+      bar.style.setProperty('--wave-load-delay', (-phase * loadingCycle).toFixed(3) + 's');
+    });
     analysisBandCount = visualizerBars.length;
     smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
     peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
     setTouchWavePreset();
 
-    if (heroDisplay && !audio.paused) {
+    if (heroDisplay && !audio.paused && !audio.muted) {
       heroDisplay.classList.add('is-playing');
       if (!lightweightVisualizer && analyser && audioContext?.state === 'running') startAudioSpectrum();
     }
@@ -929,6 +1053,18 @@ window.SRUK_initHeroRain();
   bindHeroVisualizer();
   window.SRUK = window.SRUK || {};
   window.SRUK.refreshPlayerHero = bindHeroVisualizer;
+  let visualizerRefreshFrame = 0;
+  function refreshHeroVisualizerForDisplay() {
+    if (visualizerRefreshFrame) window.cancelAnimationFrame(visualizerRefreshFrame);
+    visualizerRefreshFrame = window.requestAnimationFrame(function () {
+      visualizerRefreshFrame = 0;
+      bindHeroVisualizer();
+    });
+  }
+  [phoneLightQuery, landscapePhoneQuery, tabletLayoutVisualizerQuery].forEach(function (query) {
+    if (query.addEventListener) query.addEventListener('change', refreshHeroVisualizerForDisplay);
+    else query.addListener(refreshHeroVisualizerForDisplay);
+  });
 
   function rotateFeaturedArtist() {
     if (!heroArtistName || playing || document.visibilityState === 'hidden') return;
@@ -1015,6 +1151,8 @@ window.SRUK_initHeroRain();
     if (isStarting) {
       isStarting = false;
       playAttempt++;
+      streamIsActive = false;
+      clearStreamRecoveryTimers();
       audio.pause();
       audio.volume = preferredVolume;
       heroDisplay?.classList.remove('is-connecting');
@@ -1051,6 +1189,9 @@ window.SRUK_initHeroRain();
         if (!isStarting || thisAttempt !== playAttempt) return;
         isStarting = false;
         playing = true;
+        streamIsActive = true;
+        recoveryAttempts = 0;
+        clearStreamRecoveryTimers();
         fadeAudioTo(preferredVolume, 420);
         if (heroDisplay) {
           clearArtistReturn();
@@ -1096,6 +1237,8 @@ window.SRUK_initHeroRain();
       }
     } else {
       playing = false;
+      streamIsActive = false;
+      clearStreamRecoveryTimers();
       stopAudioSpectrum();
       if (heroDisplay) returnArtistPanel();
       label.textContent = 'LISTEN';
@@ -1106,22 +1249,6 @@ window.SRUK_initHeroRain();
         audio.volume = preferredVolume;
       });
     }
-  });
-
-  // If the stream stalls or errors, reset the button state
-  audio.addEventListener('error', function () {
-    isStarting = false;
-    playAttempt++;
-    heroDisplay?.classList.remove('is-connecting');
-    cancelVolumeFade();
-    audio.volume = preferredVolume;
-    audio.muted = false;
-    playing = false;
-    stopAudioSpectrum();
-    if (heroDisplay) returnArtistPanel();
-    label.textContent = 'LISTEN';
-    btn.removeAttribute('aria-busy');
-    setPlayIcon();
   });
 
   // Volume slider
