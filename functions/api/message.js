@@ -1,16 +1,26 @@
-const ALLOWED_ORIGINS = ['https://signatureradio.uk', 'https://www.signatureradio.uk'];
+const ALLOWED_ORIGINS = new Set(['https://signatureradio.uk', 'https://www.signatureradio.uk', 'http://127.0.0.1:8000', 'http://localhost:8000']);
 
 function getCorsHeaders(request) {
   const origin = request.headers.get('Origin') || '';
-  return {
+  const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-    'Vary': 'Origin',
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
   };
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    headers['Access-Control-Allow-Origin'] = origin;
+    headers.Vary = 'Origin';
+  }
+  return { headers, originAllowed: !origin || ALLOWED_ORIGINS.has(origin) };
 }
 
 export async function onRequest({ request, env }) {
-  const headers = getCorsHeaders(request);
+  const { headers, originAllowed } = getCorsHeaders(request);
+  if (!originAllowed) {
+    return new Response(JSON.stringify({ error: 'Origin not allowed' }), { status: 403, headers });
+  }
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers });
@@ -18,6 +28,9 @@ export async function onRequest({ request, env }) {
 
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers });
+  }
+  if (Number(request.headers.get('Content-Length') || 0) > 8192) {
+    return new Response(JSON.stringify({ error: 'Request is too large' }), { status: 413, headers });
   }
 
   let body;
@@ -27,8 +40,17 @@ export async function onRequest({ request, env }) {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
   }
 
-  const name    = (body.name    || '').trim().slice(0, 80);
-  const message = (body.message || '').trim().slice(0, 500);
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400, headers });
+  }
+  if (body.name != null && typeof body.name !== 'string') {
+    return new Response(JSON.stringify({ error: 'Name must be text' }), { status: 400, headers });
+  }
+  if (typeof body.message !== 'string') {
+    return new Response(JSON.stringify({ error: 'Message must be text' }), { status: 400, headers });
+  }
+  const name    = (body.name || '').trim().slice(0, 80);
+  const message = body.message.trim().slice(0, 500);
 
   if (!message) {
     return new Response(JSON.stringify({ error: 'Message is required' }), { status: 400, headers });

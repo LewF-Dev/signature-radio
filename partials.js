@@ -5,6 +5,10 @@
 
 (function injectPartials() {
 
+  // Keep larger touch tablets in the same composition when rotated.
+  const tabletLayoutQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px), (min-width: 768px) and (max-width: 1366px) and (pointer: coarse)');
+  const landscapePhoneQuery = window.matchMedia('(max-width: 1024px) and (max-height: 520px) and (orientation: landscape)');
+
   /* ── Ticker ─────────────────────────────────────── */
   const tickerText = 'Signature Radio UK - The Soundtrack Of Your Life - Now Live on DAB Digital Radio - Join The Revolution - Follow us @SignatureRadioUK';
   const sep = '\u00a0\u00a0\u00a0\u00a0\u00a0';
@@ -18,25 +22,39 @@
   </div>`;
 
   /* ── Nav ─────────────────────────────────────────── */
+  const navIconPaths = {
+    home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    about: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',
+    newsletter: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
+    presenters: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0m-7 7v4m-4 0h8"/>',
+    schedule: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18m-13 4h2m4 0h2m-8 4h2"/>',
+    store: '<path d="M4 8h16l-1 13H5L4 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    business: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12h18m-11 0v2h4v-2"/>',
+    contact: '<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/>',
+    archive: '<path d="M3 4h18v5H3zM5 9v11h14V9m-9 4h4"/>',
+    chat: '<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/>'
+  };
+  const navIcon = function (name) {
+    return `<svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${navIconPaths[name]}</svg>`;
+  };
   const navHTML = `
   <nav class="nav-bar" role="navigation" aria-label="Main navigation">
+    <a class="nav-brand-home" href="/home" aria-label="Home" title="Home"><img src="favicon.png?v=transparent-v2-20261103" alt="" aria-hidden="true"></a>
     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="navLinks" role="list">
-      <li><a href="index.html">HOME</a></li>
-      <li><a href="about.html">ABOUT US</a></li>
-      <li><a href="newsletter.html">NEWSLETTER</a></li>
-      <li><a href="presenters.html">PRESENTERS</a></li>
-      <li><a href="schedule.html">SCHEDULE</a></li>
-      <li><a href="store.html">STORE</a></li>
-      <li><a href="business.html">BUSINESS</a></li>
-      <li><a href="contact.html">CONTACT</a></li>
-      <li class="nav-phone-presenter-item" id="navPhonePresenterItem"><div class="hero-phone-presenter-slot" id="heroPhonePresenterSlot"></div></li>
-      <li><a href="https://drive.google.com/drive/folders/1xrrHW_wQUVmA8ssQkFez8WtezYM5hQze" target="_blank" rel="noopener">ARCHIVE</a></li>
-      <li class="nav-dashboard-item" id="navDashboardItem"><a href="presenter-dashboard.html" id="navDashboardLink">LIVE CHAT</a></li>
+      <li class="nav-home-menu-item"><a href="/home"><span class="nav-link-content">${navIcon('home')}<span class="nav-link-label">HOME</span></span></a></li>
+      <li><a href="/about"><span class="nav-link-content">${navIcon('about')}<span class="nav-link-label">ABOUT US</span></span></a></li>
+      <li><a href="/newsletter"><span class="nav-link-content">${navIcon('newsletter')}<span class="nav-link-label">NEWSLETTER</span></span></a></li>
+      <li><a href="/presenters"><span class="nav-link-content">${navIcon('presenters')}<span class="nav-link-label">PRESENTERS</span></span></a></li>
+      <li><a href="/schedule"><span class="nav-link-content">${navIcon('schedule')}<span class="nav-link-label">SCHEDULE</span></span></a></li>
+      <li><a href="/store"><span class="nav-link-content">${navIcon('store')}<span class="nav-link-label">STORE</span></span></a></li>
+      <li><a href="/business"><span class="nav-link-content">${navIcon('business')}<span class="nav-link-label">BUSINESS</span></span></a></li>
+      <li><a href="/contact"><span class="nav-link-content">${navIcon('contact')}<span class="nav-link-label">CONTACT</span></span></a></li>
+      <li><a href="https://drive.google.com/drive/folders/1xrrHW_wQUVmA8ssQkFez8WtezYM5hQze" target="_blank" rel="noopener"><span class="nav-link-content">${navIcon('archive')}<span class="nav-link-label">ARCHIVE</span></span></a></li>
+      <li class="nav-dashboard-item" id="navDashboardItem"><a href="/live-chat" id="navDashboardLink"><span class="nav-link-content">${navIcon('chat')}<span class="nav-link-label">LIVE CHAT</span></span></a></li>
     </ul>
-    <div class="nav-presenter-slot" id="navPresenterSlot" aria-label="Presenter access"></div>
     <div class="player-widget" id="playerWidget">
       <div class="player-meta">
         <span class="player-label">NOW PLAYING</span>
@@ -103,7 +121,7 @@
     <div class="hero-phone-control-row" id="pagePhoneControlRow">
       <div class="hero-phone-menu-slot" id="pagePhoneMenuSlot"></div>
       <div class="hero-phone-logo-slot" id="pagePhoneLogoSlot">
-        <a class="hero-phone-home-link" href="index.html" aria-label="Signature Radio UK home">
+        <a class="hero-phone-home-link" href="/home" aria-label="Signature Radio UK home">
           <div class="hero-logo-frame"><img src="signature-radio-logo-2-white_transparent_background.png" alt="" class="hero-logo" /></div>
         </a>
       </div>
@@ -117,12 +135,126 @@
   const footerTarget = document.getElementById('footer-mount');
   if (footerTarget) footerTarget.outerHTML = footerHTML;
 
+  // A versioned, once-per-visitor notice survives SPA navigation without blocking listening.
+  (function initExperienceNotice() {
+    const noticeVersion = 'site-refinements-v9';
+    const storageKey = 'sruk_experience_notice';
+
+    function hasSeenNotice() {
+      try { if (localStorage.getItem(storageKey) === noticeVersion) return true; } catch (error) {}
+      try { return sessionStorage.getItem(storageKey) === noticeVersion; } catch (error) { return false; }
+    }
+
+    function rememberNotice() {
+      try { localStorage.setItem(storageKey, noticeVersion); } catch (error) {}
+      try { sessionStorage.setItem(storageKey, noticeVersion); } catch (error) {}
+    }
+
+    if (hasSeenNotice()) return;
+
+    const notice = document.createElement('aside');
+    notice.className = 'experience-notice';
+    notice.id = 'experienceNotice';
+    notice.hidden = true;
+    notice.setAttribute('aria-label', 'Site improvements');
+    notice.innerHTML = `
+      <div class="experience-notice-copy" role="status" aria-live="polite">
+        <h2>Always improving</h2>
+        <p>Expect occasional updates as we refine the site and make your Signature Radio experience even better.</p>
+      </div>
+      <button class="experience-notice-dismiss" type="button" aria-label="Close site update">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" />
+        </svg>
+      </button>`;
+
+    const phoneNoticeQuery = window.matchMedia('(max-width: 767px)');
+    function placeNotice() {
+      const announcement = document.querySelector('.home-page #siteHero + main .announcement');
+      if (phoneNoticeQuery.matches && announcement) {
+        notice.classList.add('is-in-flow');
+        announcement.parentNode.insertBefore(notice, announcement);
+      } else {
+        notice.classList.remove('is-in-flow');
+        if (notice.parentNode !== document.body) document.body.appendChild(notice);
+      }
+    }
+    placeNotice();
+    phoneNoticeQuery.addEventListener('change', placeNotice);
+
+    let dismissTimer = 0;
+    let remainingTime = 14000;
+    let countdownStarted = 0;
+    let dismissing = false;
+
+    function pauseCountdown() {
+      if (!dismissTimer) return;
+      window.clearTimeout(dismissTimer);
+      dismissTimer = 0;
+      remainingTime = Math.max(0, remainingTime - (Date.now() - countdownStarted));
+    }
+
+    function dismissNotice() {
+      if (notice.hidden || dismissing) return;
+      pauseCountdown();
+      dismissing = true;
+      notice.classList.add('is-dismissing');
+      // Return keyboard focus to the page without moving the viewport.
+      if (notice.contains(document.activeElement)) notice.querySelector('button').blur();
+      const exitDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 :
+        (notice.classList.contains('is-in-flow') ? 180 : 250);
+      window.setTimeout(function () { notice.hidden = true; }, exitDelay);
+    }
+
+    function resumeCountdown() {
+      if (notice.hidden || dismissing || dismissTimer || document.visibilityState === 'hidden' ||
+          notice.matches(':hover, :focus-within')) return;
+      countdownStarted = Date.now();
+      dismissTimer = window.setTimeout(dismissNotice, remainingTime);
+    }
+
+    function showNotice() {
+      // Another open tab may already have shown this version.
+      if (hasSeenNotice()) return;
+      const blocked = document.visibilityState === 'hidden' ||
+        document.body.classList.contains('mobile-nav-open') ||
+        document.querySelector('dialog[open], .modal-overlay:not([hidden]), .presenter-panel-overlay:not([hidden])');
+      if (blocked) {
+        window.setTimeout(showNotice, 1500);
+        return;
+      }
+      notice.hidden = false;
+      placeNotice();
+      rememberNotice();
+      resumeCountdown();
+    }
+
+    notice.querySelector('button').addEventListener('click', dismissNotice);
+    notice.addEventListener('mouseenter', pauseCountdown);
+    notice.addEventListener('mouseleave', resumeCountdown);
+    notice.addEventListener('focusin', pauseCountdown);
+    notice.addEventListener('focusout', function () { window.setTimeout(resumeCountdown, 0); });
+    notice.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') dismissNotice();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') pauseCountdown();
+      else resumeCountdown();
+    });
+    window.setTimeout(showNotice, 3500);
+  })();
+
   // Inject presenter auth UI (bubble + panels)
   const authHTML = `
   <!-- Presenter bubble -->
   <div class="presenter-bubble" id="presenterBubble" role="complementary" aria-label="Presenter controls">
     <button class="presenter-bubble-btn" id="presenterBubbleBtn" aria-expanded="false" aria-controls="presenterLoginPanel">
-      Are you a presenter? <span class="presenter-bubble-arrow">→</span>
+      <span class="presenter-bubble-content">
+        <span class="presenter-bubble-icon" aria-hidden="true">
+          <img src="assets/dj-logo-white.png" alt="" width="44" height="44" />
+        </span>
+        <span class="presenter-bubble-label">Presenter login</span>
+      </span>
     </button>
     <div class="presenter-bubble-loggedin" id="presenterBubbleLoggedIn" style="display:none">
       <span class="presenter-bubble-status">● ON AIR</span>
@@ -175,6 +307,7 @@
   authMount.innerHTML = authHTML;
   document.body.appendChild(authMount);
 
+  initPresenterFooterAvoidance();
   syncPhoneHeroNav();
   syncPresenterPlacement();
   window.addEventListener('resize', function () {
@@ -198,11 +331,18 @@
   window.SRUK.syncPhoneHeroNav = syncPhoneHeroNav;
 
   function syncActiveNav() {
-    const page = window.location.pathname.split('/').pop() || 'index.html';
+    const routeFor = function (url) {
+      const segment = new URL(url, window.location.href).pathname.split('/').filter(Boolean).pop() || 'home';
+      if (segment === 'index' || segment === 'index.html') return 'home';
+      return segment.replace(/\.html$/, '');
+    };
+    const page = routeFor(window.location.href);
+    const brandHome = document.querySelector('.nav-brand-home');
+    if (brandHome) brandHome.classList.toggle('active', page === 'home');
     document.querySelectorAll('.nav-links a').forEach(function (a) {
       const href = a.getAttribute('href');
       if (!href || href.startsWith('http')) return;
-      const aPage = href.split('/').pop() || 'index.html';
+      const aPage = routeFor(href);
       a.classList.toggle('active', aPage === page);
     });
   }
@@ -221,26 +361,103 @@
 
   function syncPresenterPlacement() {
     const bubble = document.getElementById('presenterBubble');
-    const slot = document.getElementById('navPresenterSlot');
-    if (!bubble || !slot) return;
+    if (!bubble) return;
 
-    const phoneMenuSlot = document.getElementById('heroPhonePresenterSlot');
-    const usePhoneHero = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
-    const shouldUseNav = window.matchMedia('(max-width: 1024px)').matches;
-    if (usePhoneHero && phoneMenuSlot) {
-      if (bubble.parentNode !== phoneMenuSlot) phoneMenuSlot.appendChild(bubble);
-    } else if (shouldUseNav) {
-      if (bubble.parentNode !== slot) slot.appendChild(bubble);
-    } else if (bubble.parentNode !== authMount) {
-      authMount.insertBefore(bubble, authMount.firstChild);
+    const label = bubble.querySelector('.presenter-bubble-label');
+    if (label) label.textContent = 'Presenter login';
+    if (bubble.parentNode !== authMount) authMount.insertBefore(bubble, authMount.firstChild);
+  }
+
+  function initPresenterFooterAvoidance() {
+    const footer = document.querySelector('.footer');
+    const bubble = document.getElementById('presenterBubble');
+    if (!footer || !bubble || !('IntersectionObserver' in window)) return;
+
+    let tabArrivalTimer = 0;
+    let tabDepartureTimer = 0;
+    let buttonArrivalTimer = 0;
+    let scrollSyncScheduled = false;
+
+    function syncFooterBubbleMode() {
+      const footerBounds = footer.getBoundingClientRect();
+      const footerIsVisible = footerBounds.top < window.innerHeight && footerBounds.bottom > 0;
+      const useCompactDock = footerIsVisible && window.matchMedia('(max-width: 767px)').matches;
+
+      footer.classList.toggle('has-presenter-login', useCompactDock);
+
+      if (useCompactDock) {
+        window.clearTimeout(tabArrivalTimer);
+        window.clearTimeout(tabDepartureTimer);
+        window.clearTimeout(buttonArrivalTimer);
+        bubble.classList.remove('is-slinging-away', 'is-tab-slinging-away', 'is-button-peeking');
+        bubble.classList.add('is-footer-visible', 'is-footer-mobile-dock');
+        bubble.style.setProperty('--presenter-footer-top', (footerBounds.top + window.scrollY + 12) + 'px');
+      } else if (footerIsVisible) {
+        window.clearTimeout(tabDepartureTimer);
+        window.clearTimeout(buttonArrivalTimer);
+        bubble.classList.remove('is-footer-mobile-dock');
+        bubble.classList.remove('is-tab-slinging-away', 'is-button-peeking');
+        bubble.style.removeProperty('--presenter-footer-top');
+
+        const alreadyInTabMode = bubble.classList.contains('is-footer-visible');
+        const alreadySlinging = bubble.classList.contains('is-slinging-away');
+        if (!alreadyInTabMode && !alreadySlinging) {
+          const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (reducedMotion) {
+            bubble.classList.add('is-footer-visible');
+          } else {
+            bubble.classList.add('is-slinging-away');
+            tabArrivalTimer = window.setTimeout(function () {
+              bubble.classList.remove('is-slinging-away');
+              bubble.classList.add('is-footer-visible');
+            }, 620);
+          }
+        }
+      } else {
+        window.clearTimeout(tabArrivalTimer);
+        if (bubble.classList.contains('is-slinging-away')) {
+          bubble.classList.remove('is-slinging-away');
+        }
+        bubble.classList.remove('is-footer-mobile-dock');
+        bubble.style.removeProperty('--presenter-footer-top');
+
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reducedMotion) {
+          window.clearTimeout(tabDepartureTimer);
+          window.clearTimeout(buttonArrivalTimer);
+          bubble.classList.remove('is-tab-slinging-away', 'is-button-peeking', 'is-footer-visible');
+        } else if (bubble.classList.contains('is-footer-visible') && !bubble.classList.contains('is-tab-slinging-away')) {
+          window.clearTimeout(tabDepartureTimer);
+          window.clearTimeout(buttonArrivalTimer);
+          bubble.classList.add('is-tab-slinging-away');
+          tabDepartureTimer = window.setTimeout(function () {
+            bubble.classList.remove('is-tab-slinging-away', 'is-footer-visible');
+            bubble.classList.add('is-button-peeking');
+            buttonArrivalTimer = window.setTimeout(function () {
+              bubble.classList.remove('is-button-peeking');
+            }, 560);
+          }, 480);
+        }
+      }
     }
+
+    const footerObserver = new IntersectionObserver(syncFooterBubbleMode, { threshold: 0 });
+    footerObserver.observe(footer);
+    window.addEventListener('scroll', function () {
+      if (scrollSyncScheduled) return;
+      scrollSyncScheduled = true;
+      window.requestAnimationFrame(function () {
+        scrollSyncScheduled = false;
+        syncFooterBubbleMode();
+      });
+    }, { passive: true });
+    window.addEventListener('resize', syncFooterBubbleMode);
   }
 
   function syncPhoneHeroNav() {
     const nav = document.querySelector('.nav-bar');
     const toggle = document.getElementById('navToggle');
     const links = document.getElementById('navLinks');
-    const presenterSlot = document.getElementById('navPresenterSlot');
     const player = document.getElementById('playerWidget');
     const playerMeta = player ? player.querySelector('.player-meta') : null;
     const heroNowPlayingMeta = document.getElementById('heroNowPlayingMeta');
@@ -257,21 +474,24 @@
     const playerSlot = document.getElementById('pagePhonePlayerSlot');
     const menuPanel = document.getElementById('pagePhoneMenuPanel');
 
-    if (!nav || !toggle || !links || !presenterSlot || !player ||
+    if (!nav || !toggle || !links || !player ||
         !controlRow || !menuSlot || !playerSlot || !menuPanel) return;
 
-    const usePhoneHero = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches;
+    const usePhoneHero = window.matchMedia('(max-width: 767px) and (orientation: portrait)').matches || landscapePhoneQuery.matches;
+    const useTabletLayout = tabletLayoutQuery.matches || landscapePhoneQuery.matches;
+    document.body.classList.toggle('tablet-layout', useTabletLayout);
+    document.body.classList.toggle('phone-landscape', landscapePhoneQuery.matches);
     const useDesktopHomeHero = document.body.classList.contains('home-page') &&
       window.matchMedia('(min-width: 768px)').matches;
     const useComputerHomeHero = document.body.classList.contains('home-page') &&
-      window.matchMedia('(min-width: 1025px)').matches;
+      !useTabletLayout && window.matchMedia('(min-width: 1025px)').matches;
     if (heroAboutLink) {
-      heroAboutLink.setAttribute('href', useComputerHomeHero ? 'newsletter.html' : '#about');
+      heroAboutLink.setAttribute('href', useComputerHomeHero ? '/newsletter' : '#about');
       heroAboutLink.setAttribute('aria-label', useComputerHomeHero
         ? 'Visit the Signature Radio UK newsletter'
         : 'Open information about Signature Radio UK');
     }
-    if (usePhoneHero) {
+    if (usePhoneHero || useTabletLayout) {
       if (heroNowPlaying && hero && heroNowPlaying.parentNode !== hero) {
         hero.insertBefore(heroNowPlaying, heroImage || null);
       }
@@ -302,7 +522,6 @@
 
     if (toggle.parentNode !== nav) nav.appendChild(toggle);
     if (links.parentNode !== nav) nav.appendChild(links);
-    if (presenterSlot.parentNode !== nav) nav.appendChild(presenterSlot);
     if (player.parentNode !== nav) nav.appendChild(player);
     if (useDesktopHomeHero && heroIntro && heroNowPlaying) {
       if (heroNowPlaying.parentNode !== hero) {
@@ -313,9 +532,10 @@
           if (heroAboutLink.parentNode !== heroDiscoveryControl) {
             heroDiscoveryControl.insertBefore(heroAboutLink, heroDiscoveryControl.querySelector('.hero-whats-new-arrow'));
           }
-          if (heroDiscoveryControl.parentNode !== heroBrand) heroBrand.appendChild(heroDiscoveryControl);
+          if (heroDiscoveryControl.parentNode !== hero) hero.appendChild(heroDiscoveryControl);
         } else {
-          if (heroDiscoveryControl && heroIntro && heroDiscoveryControl.parentNode === heroBrand) {
+          if (heroDiscoveryControl && heroIntro &&
+              (heroDiscoveryControl.parentNode === heroBrand || heroDiscoveryControl.parentNode === hero)) {
             heroIntro.appendChild(heroDiscoveryControl);
           }
           if (heroAboutLink.parentNode !== heroBrand) heroBrand.appendChild(heroAboutLink);

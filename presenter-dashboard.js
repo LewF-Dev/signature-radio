@@ -5,6 +5,8 @@
    toast popups, and sign out.
 ═══════════════════════════════════════════════════════ */
 
+let dashboardInitInFlight = false;
+
 window.SRUK_initDashboard = async function initDashboard() {
 
   const SUPABASE_URL      = window.SRUK_SUPABASE_URL      || '';
@@ -17,10 +19,12 @@ window.SRUK_initDashboard = async function initDashboard() {
   const toastContainer = document.getElementById('toastContainer');
   const logoutBtn    = document.getElementById('logoutBtn');
 
-  if (!messageList) return;
+  if (!messageList || dashboardInitInFlight) return;
+  dashboardInitInFlight = true;
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     setStatus('error', 'Supabase not configured');
+    dashboardInitInFlight = false;
     return;
   }
 
@@ -31,30 +35,39 @@ window.SRUK_initDashboard = async function initDashboard() {
     createClient = mod.createClient;
   } catch (e) {
     setStatus('error', 'Failed to load Supabase SDK');
+    dashboardInitInFlight = false;
     return;
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── Auth check — presenters get sign-out button, guests view read-only ─
+  // ── Require a signed-in presenter before reading or subscribing ─
   const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    if (logoutBtn) {
-      logoutBtn.style.display = '';
-      logoutBtn.addEventListener('click', async function () {
-        await supabase.auth.signOut();
-        localStorage.removeItem('sruk_presenter_login_at');
-        window.location.href = 'index.html';
-      });
-    }
-  } else {
+  if (!session) {
     if (logoutBtn) logoutBtn.style.display = 'none';
+    if (emptyMsg) emptyMsg.textContent = 'Sign in with Presenter login to view listener messages.';
+    setStatus('', 'Presenter sign-in required');
+    dashboardInitInFlight = false;
+    return;
+  }
+
+  if (logoutBtn) {
+    logoutBtn.style.display = '';
+    logoutBtn.addEventListener('click', async function () {
+      await supabase.auth.signOut();
+      localStorage.removeItem('sruk_presenter_login_at');
+      window.location.href = '/home';
+    }, { once: true });
   }
 
   // ── Load message history ───────────────────────────
-  // Fetch via the server-side function so RLS doesn't block unauthenticated reads.
+  // The server verifies this access token before using its private database key.
   try {
-    const res = await fetch('/api/messages/public');
+    const res = await fetch('/api/messages', {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error('Message history request failed');
     const json = await res.json();
     const messages = json.messages || [];
     if (messages.length > 0) {
@@ -98,6 +111,7 @@ window.SRUK_initDashboard = async function initDashboard() {
     channel.unsubscribe();
     window.SRUK.cleanupDashboard = null;
   };
+  dashboardInitInFlight = false;
 
   // ── Helpers ────────────────────────────────────────
   function setStatus(type, text) {

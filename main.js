@@ -34,10 +34,13 @@
 })();
 
 /* ── Video player ─────────────────────────────────────
-   Custom play/pause overlay. #t=0.1 in the src causes
-   browsers to load the first frame as a natural poster.
+   Re-initialised when the router restores the homepage.
+   Load metadata as the player approaches the viewport.
 ─────────────────────────────────────────────────────── */
-(function initVideo() {
+window.SRUK = window.SRUK || {};
+window.SRUK_initVideo = function initVideo() {
+  if (typeof window.SRUK.cleanupVideo === 'function') window.SRUK.cleanupVideo();
+
   const container = document.getElementById('videoContainer');
   const video     = document.getElementById('stationVideo');
   const btn       = document.getElementById('videoPlayBtn');
@@ -45,6 +48,7 @@
   if (!container || !video) return;
 
   let videoLoadStarted = false;
+  let videoObserver = null;
   function prepareVideo() {
     if (videoLoadStarted) return;
     videoLoadStarted = true;
@@ -53,7 +57,7 @@
   }
 
   if ('IntersectionObserver' in window) {
-    const videoObserver = new IntersectionObserver(function (entries) {
+    videoObserver = new IntersectionObserver(function (entries) {
       if (entries.some(function (entry) { return entry.isIntersecting; })) {
         prepareVideo();
         videoObserver.disconnect();
@@ -66,24 +70,47 @@
 
   function play() {
     prepareVideo();
-    video.play();
+    const playback = video.play();
+    if (playback && typeof playback.catch === 'function') playback.catch(resetPlayingState);
+  }
+
+  function showPlayingState() {
     container.classList.add('playing');
+    if (btn) btn.setAttribute('aria-label', 'Pause video');
+  }
+
+  function resetPlayingState() {
+    container.classList.remove('playing');
+    if (btn) btn.setAttribute('aria-label', 'Play video');
   }
 
   function pause() {
     video.pause();
-    container.classList.remove('playing');
+    resetPlayingState();
   }
 
-  container.addEventListener('click', function () {
+  function togglePlayback() {
     if (video.paused) { play(); } else { pause(); }
-  });
+  }
 
-  // Show overlay again when video ends
-  video.addEventListener('ended', function () {
-    container.classList.remove('playing');
-  });
-})();
+  container.addEventListener('click', togglePlayback);
+  video.addEventListener('playing', showPlayingState);
+  video.addEventListener('pause', resetPlayingState);
+  video.addEventListener('ended', resetPlayingState);
+  video.addEventListener('error', resetPlayingState);
+
+  window.SRUK.cleanupVideo = function () {
+    if (videoObserver) videoObserver.disconnect();
+    pause();
+    container.removeEventListener('click', togglePlayback);
+    video.removeEventListener('playing', showPlayingState);
+    video.removeEventListener('pause', resetPlayingState);
+    video.removeEventListener('ended', resetPlayingState);
+    video.removeEventListener('error', resetPlayingState);
+    window.SRUK.cleanupVideo = null;
+  };
+};
+window.SRUK_initVideo();
 
 /* ── Slideshow ────────────────────────────────────────
    Fade transition between slides. Auto-advances every 8s.
@@ -291,44 +318,131 @@ window.SRUK_initSlideshow();
 })();
 
 
-/* ── Live Player ──────────────────────────────────────
-   Plays the live Shoutcast stream. Fetches now-playing
-   metadata from /api/nowplaying on load and every 30s.
-─────────────────────────────────────────────────────── */
-(function initPlayer() {
-  const btn        = document.getElementById('playerBtn');
-  const label      = document.getElementById('playerBtnLabel');
-  const audio      = document.getElementById('liveAudio');
-  const slider     = document.getElementById('volumeSlider');
+/* Crossfade the previous photo crop into its new layout after a resize. */
+window.SRUK = window.SRUK || {};
+window.SRUK_initHeroImageTransition = function initHeroImageTransition() {
+  if (typeof window.SRUK.cleanupHeroImageTransition === 'function') window.SRUK.cleanupHeroImageTransition();
+  const hero = document.getElementById('siteHero');
+  const frame = hero?.querySelector('.hero-image');
+  const photo = frame?.querySelector('img');
+  if (!photo) return;
 
-  if (!btn || !audio) return;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let previousCrop = null;
+  let snapshot = null;
+  let settleTimer = 0;
+  let incoming = null;
+  let outgoing = null;
+  let captureFrame = 0;
 
-  const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
-  const desktopRainQuery = window.matchMedia('(min-width: 1025px)');
-  const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
-  const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
-  const heroDisplay = document.getElementById('heroNowPlayingSlot');
-  const visualizerBars = heroDisplay
-    ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
-    : [];
+  function captureCrop() {
+    const heroRect = hero.getBoundingClientRect();
+    const photoRect = frame.getBoundingClientRect();
+    if (!photoRect.width || !photoRect.height) return;
+    const style = getComputedStyle(photo);
+    previousCrop = {
+      left: photoRect.left - heroRect.left,
+      top: photoRect.top - heroRect.top,
+      width: photoRect.width,
+      height: photoRect.height,
+      objectPosition: style.objectPosition,
+      objectFit: style.objectFit,
+      filter: style.filter,
+      opacity: getComputedStyle(frame).opacity
+    };
+  }
+
+  function resetTransition() {
+    window.clearTimeout(settleTimer);
+    incoming?.cancel();
+    outgoing?.cancel();
+    incoming = outgoing = null;
+    snapshot?.remove();
+    snapshot = null;
+  }
+
+  function resizePhoto() {
+    if (!hero.isConnected) return;
+    if (reducedMotion.matches || !previousCrop) {
+      resetTransition();
+      captureCrop();
+      return;
+    }
+    window.clearTimeout(settleTimer);
+    incoming?.cancel();
+    outgoing?.cancel();
+    if (!snapshot) {
+      snapshot = document.createElement('div');
+      snapshot.className = 'hero-image-resize-snapshot';
+      snapshot.setAttribute('aria-hidden', 'true');
+      for (const dimension of ['left', 'top', 'width', 'height']) {
+        snapshot.style[dimension] = previousCrop[dimension] + 'px';
+      }
+      const frozenPhoto = photo.cloneNode(false);
+      frozenPhoto.removeAttribute('id');
+      Object.assign(frozenPhoto.style, {
+        animation: 'none', opacity: '1',
+        objectFit: previousCrop.objectFit,
+        objectPosition: previousCrop.objectPosition,
+        filter: previousCrop.filter
+      });
+      snapshot.appendChild(frozenPhoto);
+      hero.appendChild(snapshot);
+    }
+    snapshot.style.opacity = previousCrop.opacity;
+    const targetOpacity = getComputedStyle(frame).opacity;
+    // Keep the old crop still while dragging or rotating, then reveal the new one.
+    incoming = frame.animate([{ opacity: 0 }, { opacity: 0 }], { duration: 1, fill: 'both' });
+    settleTimer = window.setTimeout(function () {
+      incoming.cancel();
+      const timing = { duration: 500, easing: 'ease-in-out', fill: 'both' };
+      incoming = frame.animate([{ opacity: 0 }, { opacity: targetOpacity }], timing);
+      outgoing = snapshot.animate([{ opacity: previousCrop.opacity }, { opacity: 0 }], timing);
+      incoming.onfinish = function () {
+        resetTransition();
+        captureCrop();
+      };
+    }, 120);
+  }
+
+  captureFrame = window.requestAnimationFrame(captureCrop);
+  const cropObserver = new ResizeObserver(function () {
+    if (!snapshot) captureCrop();
+  });
+  cropObserver.observe(frame);
+  window.addEventListener('resize', resizePhoto);
+  reducedMotion.addEventListener('change', resizePhoto);
+  window.SRUK.cleanupHeroImageTransition = function () {
+    window.cancelAnimationFrame(captureFrame);
+    cropObserver.disconnect();
+    resetTransition();
+    window.removeEventListener('resize', resizePhoto);
+    reducedMotion.removeEventListener('change', resizePhoto);
+    window.SRUK.cleanupHeroImageTransition = null;
+  };
+};
+window.SRUK_initHeroImageTransition();
+
+/* The same quiet, CSS-animated rain is used on every screen. */
+window.SRUK_initHeroRain = function initHeroRain() {
+  if (typeof window.SRUK.cleanupHeroRain === 'function') window.SRUK.cleanupHeroRain();
   const heroAmbient = document.getElementById('heroAmbientVisualizer');
-  const ambientBars = [];
-  const heroRainColumns = [];
-  if (heroAmbient) {
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    function createHeroRain() {
-      const isPhoneRain = phoneLightQuery.matches;
-      const isDesktopRain = desktopRainQuery.matches;
-      if ((!isPhoneRain && !isDesktopRain) || heroRainColumns.length) return;
-      const rainColumnCount = isDesktopRain ? 50 : 32;
-      const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
-      for (let index = 0; index < rainColumnCount; index++) {
+  if (!heroAmbient) return;
+  let currentColumnCount = 0;
+  function syncHeroRain() {
+    const width = heroAmbient.clientWidth;
+    if (!width) return;
+    // Retain the desktop field; scale its density down on smaller screens.
+    const rainColumnCount = width >= 1025 ? 108 : Math.max(32, Math.round(108 * width / 1280));
+    if (rainColumnCount === currentColumnCount) return;
+    currentColumnCount = rainColumnCount;
+    heroAmbient.replaceChildren();
+    const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
+    for (let index = 0; index < rainColumnCount; index++) {
       const column = document.createElement('div');
       const height = 0.56 + ((Math.sin(index * 1.17 + 0.6) + 1) / 2) * 0.44;
       const density = 0.15 + ((Math.sin(index * 0.81 + 1.4) + 1) / 2) * 0.24;
-      const fadeStart = 0.74 + ((Math.sin(index * 1.31 + 0.7) + 1) / 2) * 0.22;
-      const duration = 7.5 + ((index * 7) % 17) * 0.42;
-      const liveDuration = duration * (0.66 + ((index * 3) % 5) * 0.035);
+      const duration = 15 + ((index * 7) % 17) * 0.65;
       const delay = -(((index * 13) % 49) / 3.2);
       let content = '';
 
@@ -352,7 +466,6 @@ window.SRUK_initSlideshow();
         sequence.textContent = content;
         repeat.textContent = content;
         track.style.setProperty('--rain-plane-speed', (duration * speedScale).toFixed(2) + 's');
-        track.style.setProperty('--rain-plane-live-speed', (liveDuration * speedScale).toFixed(2) + 's');
         track.style.setProperty('--rain-plane-delay', (delay + delayOffset).toFixed(2) + 's');
         track.append(sequence, repeat);
         return track;
@@ -360,112 +473,50 @@ window.SRUK_initSlideshow();
 
       column.style.setProperty('--rain-height', height.toFixed(3));
       column.style.setProperty('--rain-opacity', density.toFixed(3));
-      column.style.setProperty('--rain-fade-start', (fadeStart * 100).toFixed(1) + '%');
+      column.style.setProperty('--rain-left', (index / (rainColumnCount - 1) * 98).toFixed(3) + '%');
+      column.style.setProperty('--rain-glimpse-duration', (23 + ((index * 11) % 19)).toFixed(1) + 's');
+      column.style.setProperty('--rain-glimpse-delay', (-((index * 17.3) % 41)).toFixed(1) + 's');
       column.appendChild(makeRainPlane('far', 1.28, -2.7));
       column.appendChild(makeRainPlane('main', 1, 0));
       if (index % 4 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
       heroAmbient.appendChild(column);
-      heroRainColumns.push(column);
-      // Keep analyser-driven column updates on phones only. Desktop rain is
-      // ambient texture, so it adds no per-frame DOM work to the visualiser.
-      if (isPhoneRain) ambientBars.push(column);
-      }
     }
-
-    function syncHeroRainMode() {
-      heroRainColumns.forEach(function (column) { column.remove(); });
-      heroRainColumns.length = 0;
-      ambientBars.length = 0;
-      createHeroRain();
-    }
-
-    createHeroRain();
-    if (desktopRainQuery.addEventListener) desktopRainQuery.addEventListener('change', syncHeroRainMode);
-    else desktopRainQuery.addListener(syncHeroRainMode);
-
-    let lightMoveTimer = 0;
-    let rainFadeTimer = 0;
-    let previousLightX = 0;
-    let previousLightY = 0;
-
-    function startRainFadeShifts() {
-      if (rainFadeTimer || !ambientBars.length || reducedMotionQuery.matches) return;
-      rainFadeTimer = window.setInterval(function () {
-        if (!phoneLightQuery.matches || document.visibilityState === 'hidden') return;
-
-        const columnsToShift = Math.max(5, Math.ceil(ambientBars.length * 0.14));
-        const shuffledColumns = ambientBars.slice();
-        for (let index = shuffledColumns.length - 1; index > 0; index--) {
-          const swapIndex = Math.floor(Math.random() * (index + 1));
-          [shuffledColumns[index], shuffledColumns[swapIndex]] = [shuffledColumns[swapIndex], shuffledColumns[index]];
-        }
-
-        shuffledColumns.slice(0, columnsToShift).forEach(function (column) {
-          const nextFadeStart = 0.68 + Math.random() * 0.3;
-          column.style.setProperty('--rain-fade-start', (nextFadeStart * 100).toFixed(1) + '%');
-        });
-      }, 1800);
-    }
-
-    function stopRainFadeShifts() {
-      if (!rainFadeTimer) return;
-      window.clearInterval(rainFadeTimer);
-      rainFadeTimer = 0;
-    }
-
-    function movePhoneLight() {
-      lightMoveTimer = 0;
-      if (!phoneLightQuery.matches || reducedMotionQuery.matches || document.visibilityState === 'hidden') {
-        heroAmbient.style.setProperty('--hero-light-opacity', '0');
-        return;
-      }
-
-      const x = -20 + Math.random() * 190;
-      const y = -80 + Math.random() * 115;
-      const lightWidth = heroAmbient.clientWidth * 0.19;
-      const lightHeight = heroAmbient.clientHeight * 0.28;
-      const travelDistance = Math.hypot(
-        (x - previousLightX) * lightWidth / 100,
-        (y - previousLightY) * lightHeight / 100
-      );
-      const duration = Math.max(1.8, travelDistance / 22);
-      const opacity = Math.random() < 0.2 ? 0 : 0.38 + Math.random() * 0.52;
-      const pause = 250 + Math.random() * 850;
-      previousLightX = x;
-      previousLightY = y;
-      heroAmbient.style.setProperty('--hero-light-duration', duration.toFixed(2) + 's');
-      heroAmbient.style.setProperty('--hero-light-x', x.toFixed(1) + '%');
-      heroAmbient.style.setProperty('--hero-light-y', y.toFixed(1) + '%');
-      heroAmbient.style.setProperty('--hero-light-opacity', opacity.toFixed(2));
-      lightMoveTimer = window.setTimeout(movePhoneLight, duration * 1000 + pause);
-    }
-
-    function syncPhoneLight() {
-      window.clearTimeout(lightMoveTimer);
-      lightMoveTimer = 0;
-      if (!phoneLightQuery.matches || reducedMotionQuery.matches || document.visibilityState === 'hidden') {
-        stopRainFadeShifts();
-        heroAmbient.style.setProperty('--hero-light-opacity', '0');
-        return;
-      }
-      createHeroRain();
-      startRainFadeShifts();
-      lightMoveTimer = window.setTimeout(movePhoneLight, 180 + Math.random() * 240);
-    }
-
-    if (phoneLightQuery.addEventListener) phoneLightQuery.addEventListener('change', syncPhoneLight);
-    else phoneLightQuery.addListener(syncPhoneLight);
-    if (reducedMotionQuery.addEventListener) reducedMotionQuery.addEventListener('change', syncPhoneLight);
-    else reducedMotionQuery.addListener(syncPhoneLight);
-    document.addEventListener('visibilitychange', syncPhoneLight);
-    syncPhoneLight();
   }
+  syncHeroRain();
+  const resizeObserver = new ResizeObserver(syncHeroRain);
+  resizeObserver.observe(heroAmbient);
+  window.SRUK.cleanupHeroRain = function () {
+    resizeObserver.disconnect();
+    window.SRUK.cleanupHeroRain = null;
+  };
+};
+window.SRUK_initHeroRain();
+
+/* ── Live Player ──────────────────────────────────────
+   Plays the live Shoutcast stream. Fetches now-playing
+   metadata from /api/nowplaying on load and every 30s.
+─────────────────────────────────────────────────────── */
+(function initPlayer() {
+  const btn        = document.getElementById('playerBtn');
+  const label      = document.getElementById('playerBtnLabel');
+  const audio      = document.getElementById('liveAudio');
+  const slider     = document.getElementById('volumeSlider');
+
+  if (!btn || !audio) return;
+
+  const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
+  const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
+  const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
+  const heroDisplay = document.getElementById('heroNowPlayingSlot');
+  const visualizerBars = heroDisplay
+    ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
+    : [];
   let audioContext = null;
   let analyser = null;
   let mediaSource = null;
   let frequencyData = null;
   let animationFrame = 0;
-  const analysisBandCount = Math.max(visualizerBars.length, ambientBars.length);
+  const analysisBandCount = visualizerBars.length;
   const smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
   const peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
   // Phone preset mode stays enabled until iOS Safari exposes the live SHOUTcast
@@ -619,16 +670,6 @@ window.SRUK_initSlideshow();
       }
     });
 
-    ambientBars.forEach(function (bar, index) {
-      const position = (index / Math.max(1, ambientBars.length - 1)) * (smoothedLevels.length - 1);
-      const lowerIndex = Math.floor(position);
-      const upperIndex = Math.min(smoothedLevels.length - 1, lowerIndex + 1);
-      const blend = position - lowerIndex;
-      const level = smoothedLevels[lowerIndex] * (1 - blend) + smoothedLevels[upperIndex] * blend;
-      bar.style.setProperty('--rain-height', (0.48 + level * 0.78).toFixed(3));
-      bar.style.setProperty('--rain-opacity', (0.07 + level * 0.38).toFixed(3));
-    });
-
     animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
   }
 
@@ -636,7 +677,6 @@ window.SRUK_initSlideshow();
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!analyser || audioContext.state !== 'running') return;
     if (heroDisplay) heroDisplay.classList.add('is-analysis-active');
-    if (heroAmbient) heroAmbient.classList.add('is-analysis-active');
     if (!animationFrame) animationFrame = window.requestAnimationFrame(drawAudioSpectrum);
   }
 
@@ -644,13 +684,6 @@ window.SRUK_initSlideshow();
     if (animationFrame) window.cancelAnimationFrame(animationFrame);
     animationFrame = 0;
     if (heroDisplay) heroDisplay.classList.remove('is-analysis-active');
-    if (heroAmbient) {
-      heroAmbient.classList.remove('is-analysis-active');
-      ambientBars.forEach(function (bar) {
-        bar.style.removeProperty('--rain-height');
-        bar.style.removeProperty('--rain-opacity');
-      });
-    }
     visualizerBars.forEach(function (bar) {
       bar.style.removeProperty('--wave-level');
       bar.style.removeProperty('--wave-cap-top');
@@ -898,7 +931,6 @@ window.SRUK_initSlideshow();
           clearArtistReturn();
           heroDisplay.classList.add('is-playing');
         }
-        if (heroAmbient) heroAmbient.classList.add('is-playing');
         if (canAnalyze && results[1]) startAudioSpectrum();
         updateAudioDebug();
         label.textContent = 'PAUSE';
@@ -915,7 +947,6 @@ window.SRUK_initSlideshow();
       playing = false;
       stopAudioSpectrum();
       if (heroDisplay) returnArtistPanel();
-      if (heroAmbient) heroAmbient.classList.remove('is-playing');
       label.textContent = 'LISTEN';
       btn.setAttribute('aria-label', 'Play live stream');
       setPlayIcon();
@@ -933,7 +964,6 @@ window.SRUK_initSlideshow();
     playing = false;
     stopAudioSpectrum();
     if (heroDisplay) returnArtistPanel();
-    if (heroAmbient) heroAmbient.classList.remove('is-playing');
     label.textContent = 'LISTEN';
     setPlayIcon();
   });

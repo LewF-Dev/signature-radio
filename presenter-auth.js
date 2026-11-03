@@ -267,9 +267,11 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
 
     // Start site-wide real-time toasts — presenter only, skip dashboard
     // (presenter-dashboard.js handles its own subscription there)
-    const page = window.location.pathname.split('/').pop();
-    if (page !== 'presenter-dashboard.html') {
+    const page = window.location.pathname.split('/').filter(Boolean).pop() || 'home';
+    if (page !== 'presenter-dashboard.html' && page !== 'presenter-dashboard' && page !== 'live-chat') {
       startSitewideRealtime();
+    } else if (typeof window.SRUK_initDashboard === 'function') {
+      window.SRUK_initDashboard();
     }
   }
 
@@ -277,9 +279,9 @@ window.SRUK_initPresenterAuth = async function initPresenterAuth() {
   // Presenter-only. Subscribed once — guarded against double-subscription.
   // Exposed on window.SRUK so the re-run path can call it after SPA navigation.
   function startSitewideRealtime() {
-    const page = window.location.pathname.split('/').pop();
+    const page = window.location.pathname.split('/').filter(Boolean).pop() || 'home';
     // Never subscribe on the dashboard — it manages its own subscription
-    if (page === 'presenter-dashboard.html') {
+    if (page === 'presenter-dashboard.html' || page === 'presenter-dashboard' || page === 'live-chat') {
       stopSitewideRealtime();
       return;
     }

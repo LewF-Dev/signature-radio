@@ -10,6 +10,18 @@
 
   const SAME_ORIGIN = window.location.origin;
   let activeNavigationId = 0;
+  const ROUTE_FILES = {
+    home: 'index.html',
+    about: 'about.html',
+    newsletter: 'newsletter.html',
+    presenters: 'presenters.html',
+    schedule: 'schedule.html',
+    store: 'store.html',
+    business: 'business.html',
+    contact: 'contact.html',
+    'live-chat': 'presenter-dashboard.html',
+    'presenter-dashboard': 'presenter-dashboard.html'
+  };
 
   // Pages that require a full reload (auth token in hash, etc.)
   const FULL_RELOAD_PAGES = [];
@@ -38,7 +50,7 @@
     // Skip absolute URLs pointing to a different origin
     if (href.startsWith('http') && !href.startsWith(SAME_ORIGIN)) return;
 
-    const dest = href.split('/').pop().split('?')[0] || 'index.html';
+    const dest = getPageFromUrl(href);
     if (FULL_RELOAD_PAGES.includes(dest)) return;
 
     e.preventDefault();
@@ -69,7 +81,11 @@
     }
 
     try {
-      const res  = await fetch(targetUrl);
+      // Fetch the physical HTML filename so clean routes work in local static
+      // previews too; the address bar keeps the human-friendly route.
+      const fetchTarget = new URL(getPageFromUrl(targetUrl), target.origin);
+      fetchTarget.search = target.search;
+      const res  = await fetch(fetchTarget.href);
       if (!res.ok) throw new Error('Page request failed: ' + res.status);
       const html = await res.text();
       if (navigationId !== activeNavigationId) return;
@@ -135,6 +151,9 @@
     document.body.classList.remove('mobile-nav-open');
 
     if (window.SRUK) {
+      if (typeof window.SRUK.cleanupHeroRain     === 'function') window.SRUK.cleanupHeroRain();
+      if (typeof window.SRUK.cleanupHeroImageTransition === 'function') window.SRUK.cleanupHeroImageTransition();
+      if (typeof window.SRUK.cleanupVideo        === 'function') window.SRUK.cleanupVideo();
       if (typeof window.SRUK.cleanupSlideshow    === 'function') window.SRUK.cleanupSlideshow();
       if (typeof window.SRUK.cleanupDashboard    === 'function') window.SRUK.cleanupDashboard();
       if (typeof window.SRUK.cleanupCoverflow    === 'function') window.SRUK.cleanupCoverflow();
@@ -182,6 +201,9 @@
 
     // Page-specific
     if (page === 'index.html' || page === '') {
+      if (typeof window.SRUK_initHeroRain === 'function') window.SRUK_initHeroRain();
+      if (typeof window.SRUK_initHeroImageTransition === 'function') window.SRUK_initHeroImageTransition();
+      if (typeof window.SRUK_initVideo === 'function') window.SRUK_initVideo();
       if (window.initMessageModal) window.initMessageModal();
     }
 
@@ -248,27 +270,27 @@
 
   // ── Active nav link ────────────────────────────────
   function updateActiveNav(url) {
-    // Resolve to a pathname so both relative and absolute hrefs work
-    let page;
-    try {
-      page = new URL(url, window.location.href).pathname.split('/').pop().split('?')[0] || 'index.html';
-    } catch (e) {
-      page = url.split('/').pop().split('?')[0] || 'index.html';
-    }
+    const page = getPageFromUrl(url).replace(/\.html$/, '').replace(/^index$/, 'home');
+    const brandHome = document.querySelector('.nav-brand-home');
+    if (brandHome) brandHome.classList.toggle('active', page === 'home');
 
     document.querySelectorAll('.nav-links a').forEach(function (a) {
       const href = a.getAttribute('href');
       if (!href || href.startsWith('http')) return;
-      const aPage = href.split('/').pop().split('?')[0] || 'index.html';
+      const aPage = getPageFromUrl(href).replace(/\.html$/, '').replace(/^index$/, 'home');
       a.classList.toggle('active', aPage === page);
     });
   }
 
   function getPageFromUrl(url) {
     try {
-      return new URL(url, window.location.href).pathname.split('/').pop().split('?')[0] || 'index.html';
+      const segment = new URL(url, window.location.href).pathname.split('/').filter(Boolean).pop() || 'home';
+      if (segment === 'index' || segment === 'index.html') return 'index.html';
+      return ROUTE_FILES[segment] || segment;
     } catch (e) {
-      return url.split('/').pop().split('?')[0] || 'index.html';
+      const segment = url.split('/').pop().split('?')[0] || 'home';
+      if (segment === 'index' || segment === 'index.html') return 'index.html';
+      return ROUTE_FILES[segment] || segment;
     }
   }
 

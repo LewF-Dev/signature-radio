@@ -94,7 +94,7 @@ All contact details in one place: studio line, general and business enquiries, s
 
 ![Live Chat](docs/screenshots/live-chat.png)
 
-A public feed of messages sent to the studio. Anyone can view it — no login required. Messages from the last 12 hours are shown on load, and new ones appear automatically in real time. Logged-in presenters also see a Sign Out button here.
+A presenter-only message dashboard. Signed-in presenters can review listener messages and receive new ones in real time. Visitors are prompted to sign in before any message history or live feed is loaded.
 
 ---
 
@@ -122,7 +122,7 @@ A button on the homepage opens a form where listeners can send their name (optio
 
 ![Presenter bubble — logged out](docs/screenshots/bubble-logged-out.png)
 
-A small button in the bottom-left corner of every page. For listeners it shows "Are you a presenter?" — clicking it opens a login panel.
+A compact **Presenter login** button sits in the bottom-left corner of every page. Clicking it opens the login panel.
 
 ![Presenter bubble — on air](docs/screenshots/bubble-on-air.png)
 
@@ -141,7 +141,7 @@ When a presenter is signed in, the Live Chat page shows a Sign Out button and re
 ## For Presenters
 
 ### Signing In
-Click the **"Are you a presenter?"** bubble in the bottom-left corner of any page. Enter your Signature Radio email and password. Once signed in, the bubble changes to **● ON AIR**.
+Click the **Presenter login** button in the bottom-left corner of any page. Enter your Signature Radio email and password. Once signed in, the button changes to **● ON AIR**.
 
 ### Accessing the Dashboard
 Navigate to **Live Chat** in the navigation bar. Listener messages appear here in real time.
@@ -221,7 +221,6 @@ The site runs entirely on free-tier services:
         ├── counter.js          # GET /api/counter — visit counter (Upstash Redis)
         ├── message.js          # POST /api/message — submit listener message
         ├── messages.js         # GET /api/messages — fetch messages (auth required)
-        ├── messages-public.js  # GET /api/messages/public — fetch last 12h (no auth)
         └── nowplaying.js       # GET /api/nowplaying — track + show metadata
 ```
 
@@ -241,8 +240,8 @@ Set these in the Netlify dashboard under **Site configuration → Environment va
 
 | Variable | Used by |
 |----------|---------|
-| `SUPABASE_URL` | `message.js`, `messages.js`, `messages-public.js` |
-| `SUPABASE_SERVICE_ROLE_KEY` | `message.js`, `messages.js`, `messages-public.js` |
+| `SUPABASE_URL` | `message.js`, `messages.js` |
+| `SUPABASE_SERVICE_ROLE_KEY` | `message.js`, `messages.js` |
 | `SUPABASE_ANON_KEY` | `messages.js` (JWT validation) |
 | `UPSTASH_REDIS_REST_URL` | `counter.js` |
 | `UPSTASH_REDIS_REST_TOKEN` | `counter.js` |
@@ -259,7 +258,7 @@ The Supabase public URL and anon key are also set in `supabase-config.js` for br
 | `message` | text | Message body, max 500 chars |
 | `created_at` | timestamptz | Set automatically |
 
-Row Level Security is enabled. The browser-side anon key cannot read rows directly — all reads go through the `/api/messages/public` Netlify function which uses the service role key server-side. Writes also go through `/api/message`.
+Row Level Security is enabled. The browser-side anon key cannot read rows directly. Presenter message history is served by `/api/messages` only after the server validates an invited Supabase account; the service-role key stays server-side. Anonymous listener submissions go through `/api/message`.
 
 Real-time is enabled on the table for the live dashboard subscription.
 

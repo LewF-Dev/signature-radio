@@ -1,0 +1,21 @@
+/ /home 301
+/index.html /home 301
+/about.html /about 301
+/newsletter.html /newsletter 301
+/presenters.html /presenters 301
+/schedule.html /schedule 301
+/store.html /store 301
+/business.html /business 301
+/contact.html /contact 301
+/presenter-dashboard.html /live-chat 301
+
+/home /index.html 200
+/about /about.html 200
+/newsletter /newsletter.html 200
+/presenters /presenters.html 200
+/schedule /schedule.html 200
+/store /store.html 200
+/business /business.html 200
+/contact /contact.html 200
+/live-chat /presenter-dashboard.html 200
+/presenter-dashboard /presenter-dashboard.html 200
