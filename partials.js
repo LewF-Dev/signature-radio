@@ -6,7 +6,7 @@
 (function injectPartials() {
 
   // Keep larger touch tablets in the same composition when rotated.
-  const tabletLayoutQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px), (min-width: 768px) and (max-width: 1366px) and (pointer: coarse)');
+  const tabletLayoutQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px), (min-width: 768px) and (max-width: 1366px) and (pointer: coarse), (min-width: 1025px) and (max-width: 1200px) and (max-height: 900px) and (orientation: landscape)');
   const landscapePhoneQuery = window.matchMedia('(max-width: 1024px) and (max-height: 520px) and (orientation: landscape)');
 
   /* ── Ticker ─────────────────────────────────────── */

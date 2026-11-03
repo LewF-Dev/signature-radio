@@ -557,7 +557,7 @@ window.SRUK_initHeroRain();
 
   const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
   const landscapePhoneQuery = window.matchMedia('(max-width: 1024px) and (max-height: 520px) and (orientation: landscape)');
-  const tabletLayoutVisualizerQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px), (min-width: 768px) and (max-width: 1366px) and (pointer: coarse)');
+  const tabletLayoutVisualizerQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px), (min-width: 768px) and (max-width: 1366px) and (pointer: coarse), (min-width: 1025px) and (max-width: 1200px) and (max-height: 900px) and (orientation: landscape)');
   const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
   const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
   let lightweightVisualizer = phoneLightQuery.matches || landscapePhoneQuery.matches || tabletLayoutVisualizerQuery.matches;
@@ -583,6 +583,8 @@ window.SRUK_initHeroRain();
   const audioDebugEnabled = new URLSearchParams(window.location.search).get('audioDebug') === '1';
   let audioDebugPanel = null;
   let lastAudioDebugUpdate = 0;
+  let audioDiagnosticStartedAt = 0;
+  let audioDiagnosticEvents = [];
 
   if (audioDebugEnabled) {
     audioDebugPanel = document.createElement('output');
@@ -612,8 +614,27 @@ window.SRUK_initHeroRain();
       'Audio: ' + (audio.paused ? 'paused' : 'playing') + ' | readyState ' + audio.readyState + ' | time ' + audio.currentTime.toFixed(1) + 's',
       (!lightweightVisualizer || USE_REACTIVE_TOUCH_ANALYSER)
         ? (levels ? 'Analyser max/avg: ' + peak + '/' + (total / Math.max(1, levels.length)).toFixed(1) + ' of 255' : 'Analyser: waiting for samples')
-        : 'Analyser: disabled; touch preset is active'
+        : 'Analyser: disabled; touch preset is active',
+      'Stream startup (ms): ' + (audioDiagnosticEvents.length ? audioDiagnosticEvents.join(' | ') : 'tap Listen to record'),
+      'Network state: ' + audio.networkState + ' | source: ' + (function () {
+        try { return new URL(audio.currentSrc || audio.querySelector('source')?.src || '').host || 'not selected'; }
+        catch (error) { return 'not selected'; }
+      })()
     ].join('\n');
+  }
+
+  function recordAudioDiagnostic(eventName) {
+    if (!audioDebugPanel || !audioDiagnosticStartedAt) return;
+    audioDiagnosticEvents.push(eventName + ' ' + Math.round(performance.now() - audioDiagnosticStartedAt));
+    audioDiagnosticEvents = audioDiagnosticEvents.slice(-8);
+    updateAudioDebug();
+  }
+
+  if (audioDebugEnabled) {
+    ['loadstart', 'loadedmetadata', 'loadeddata', 'canplay', 'playing', 'waiting', 'stalled', 'error', 'abort']
+      .forEach(function (eventName) {
+        audio.addEventListener(eventName, function () { recordAudioDiagnostic(eventName); });
+      });
   }
 
   function initAudioAnalyser() {
@@ -1176,6 +1197,9 @@ window.SRUK_initHeroRain();
 
     if (!playing) {
       clearArtistReturn();
+      audioDiagnosticStartedAt = performance.now();
+      audioDiagnosticEvents = ['tap 0'];
+      updateAudioDebug();
       isStarting = true;
       const thisAttempt = ++playAttempt;
       const wasPaused = audio.paused;
