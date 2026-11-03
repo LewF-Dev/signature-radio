@@ -1,12 +1,1 @@
-/ /home 301
-
-/home /index.html 200
-/about /about.html 200
-/newsletter /newsletter.html 200
-/presenters /presenters.html 200
-/schedule /schedule.html 200
-/store /store.html 200
-/business /business.html 200
-/contact /contact.html 200
-/live-chat /presenter-dashboard.html 200
-/presenter-dashboard /presenter-dashboard.html 200
+/home / 200

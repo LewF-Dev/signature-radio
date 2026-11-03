@@ -17,12 +17,6 @@
   [headers.values]
     Cache-Control = "no-store"
 
-[[redirects]]
-  from = "/"
-  to = "/home"
-  status = 301
-  force = true
-
 
 [[redirects]]
   from = "/about.html"
