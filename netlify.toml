@@ -23,11 +23,6 @@
   status = 301
   force = true
 
-[[redirects]]
-  from = "/index.html"
-  to = "/home"
-  status = 301
-  force = true
 
 [[redirects]]
   from = "/about.html"
