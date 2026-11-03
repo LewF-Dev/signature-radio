@@ -874,6 +874,10 @@ window.SRUK_initHeroRain();
   let recoveryAttempts = 0;
   const MAX_STREAM_RECOVERY_ATTEMPTS = 5;
   const heroArtistName = document.getElementById('heroArtistName');
+  const playerStatusLabel = document.querySelector('.player-label');
+  function setPlayerStatusLabel(isLoading) {
+    if (playerStatusLabel) playerStatusLabel.textContent = isLoading ? 'LOADING' : 'NOW PLAYING';
+  }
   const featuredArtists = [
     'Sanchez',
     'Angie Stone',
@@ -900,6 +904,7 @@ window.SRUK_initHeroRain();
     recoveryAttempts = 0;
     isStarting = false;
     playing = true;
+    setPlayerStatusLabel(false);
     heroDisplay?.classList.remove('is-connecting');
     if (useTabletMuteControl() && audio.muted) {
       label.textContent = 'PLAY';
@@ -924,6 +929,7 @@ window.SRUK_initHeroRain();
     audio.pause();
     audio.muted = false;
     audio.volume = preferredVolume;
+    setPlayerStatusLabel(false);
     heroDisplay?.classList.remove('is-connecting');
     stopAudioSpectrum();
     if (heroDisplay) returnArtistPanel();
@@ -940,6 +946,7 @@ window.SRUK_initHeroRain();
       giveUpStreamRecovery();
       return;
     }
+    setPlayerStatusLabel(true);
     heroDisplay?.classList.add('is-connecting');
     btn.setAttribute('aria-busy', 'true');
     recoveryTimer = window.setTimeout(function () {
@@ -968,6 +975,7 @@ window.SRUK_initHeroRain();
     }
     isStarting = false;
     playAttempt++;
+    setPlayerStatusLabel(false);
     heroDisplay?.classList.remove('is-connecting');
     cancelVolumeFade();
     audio.volume = preferredVolume;
@@ -1155,6 +1163,7 @@ window.SRUK_initHeroRain();
       clearStreamRecoveryTimers();
       audio.pause();
       audio.volume = preferredVolume;
+      setPlayerStatusLabel(false);
       heroDisplay?.classList.remove('is-connecting');
       label.textContent = 'LISTEN';
       btn.setAttribute('aria-label', 'Play live stream');
@@ -1166,6 +1175,7 @@ window.SRUK_initHeroRain();
     }
 
     if (!playing) {
+      clearArtistReturn();
       isStarting = true;
       const thisAttempt = ++playAttempt;
       const wasPaused = audio.paused;
@@ -1183,6 +1193,7 @@ window.SRUK_initHeroRain();
       label.textContent = 'LOADING';
       btn.setAttribute('aria-label', 'Connecting to live stream');
       btn.setAttribute('aria-busy', 'true');
+      setPlayerStatusLabel(true);
       heroDisplay?.classList.add('is-connecting');
 
       function finishPlaybackStart() {
@@ -1193,6 +1204,7 @@ window.SRUK_initHeroRain();
         recoveryAttempts = 0;
         clearStreamRecoveryTimers();
         fadeAudioTo(preferredVolume, 420);
+        setPlayerStatusLabel(false);
         if (heroDisplay) {
           clearArtistReturn();
           heroDisplay.classList.remove('is-connecting');
@@ -1214,6 +1226,7 @@ window.SRUK_initHeroRain();
       playbackRequest.then(finishPlaybackStart).catch(function () {
         if (!isStarting || thisAttempt !== playAttempt) return;
         isStarting = false;
+        setPlayerStatusLabel(false);
         heroDisplay?.classList.remove('is-connecting');
         cancelVolumeFade();
         audio.volume = preferredVolume;

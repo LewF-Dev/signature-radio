@@ -57,7 +57,7 @@
     </ul>
     <div class="player-widget" id="playerWidget">
       <div class="player-meta">
-        <span class="player-label">NOW PLAYING</span>
+        <span class="player-label" aria-live="polite">NOW PLAYING</span>
         <div class="player-track-wrap">
           <span class="player-track" id="playerTrackA" aria-label="Signature Radio UK"><span class="player-track-copy">Signature Radio UK</span><span class="player-track-copy player-track-copy--duplicate" aria-hidden="true">Signature Radio UK</span></span>
         </div>
