@@ -363,6 +363,19 @@ window.SRUK_initHeroImageTransition = function initHeroImageTransition() {
 
   function resizePhoto() {
     if (!hero.isConnected) return;
+    if (previousCrop) {
+      const nextRect = frame.getBoundingClientRect();
+      const widthChange = Math.abs(nextRect.width - previousCrop.width);
+      const heightChange = Math.abs(nextRect.height - previousCrop.height);
+      // iPad Safari can dispatch viewport resizes as its browser chrome moves
+      // during scrolling. Keep the crop current for those small changes, but
+      // reserve the crossfade for an actual orientation or layout change.
+      if (widthChange < 24 && heightChange < 96) {
+        if (snapshot) resetTransition();
+        captureCrop();
+        return;
+      }
+    }
     if (reducedMotion.matches || !previousCrop) {
       resetTransition();
       captureCrop();
@@ -428,15 +441,23 @@ window.SRUK_initHeroRain = function initHeroRain() {
   if (typeof window.SRUK.cleanupHeroRain === 'function') window.SRUK.cleanupHeroRain();
   const heroAmbient = document.getElementById('heroAmbientVisualizer');
   if (!heroAmbient) return;
+  const hero = document.getElementById('siteHero');
+  const tabletRain = document.body.classList.contains('tablet-layout') ||
+    window.matchMedia('(min-width: 700px) and (max-width: 1366px) and (pointer: coarse)').matches;
   let currentColumnCount = 0;
+  let visibilityObserver = null;
   function syncHeroRain() {
     const width = heroAmbient.clientWidth;
     if (!width) return;
-    // Retain the desktop field; scale its density down on smaller screens.
-    const rainColumnCount = width >= 1025 ? 108 : Math.max(32, Math.round(108 * width / 1280));
+    // Tablets get a lighter version of the same rain treatment. Their mobile
+    // GPUs struggle with hundreds of independently animated, filtered layers.
+    const rainColumnCount = tabletRain
+      ? Math.max(44, Math.min(88, Math.round(width / 16)))
+      : width >= 1025 ? 108 : Math.max(32, Math.round(108 * width / 1280));
     if (rainColumnCount === currentColumnCount) return;
     currentColumnCount = rainColumnCount;
     heroAmbient.replaceChildren();
+    heroAmbient.classList.toggle('is-tablet-rain', tabletRain);
     const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
     for (let index = 0; index < rainColumnCount; index++) {
       const column = document.createElement('div');
@@ -444,15 +465,16 @@ window.SRUK_initHeroRain = function initHeroRain() {
       const density = 0.15 + ((Math.sin(index * 0.81 + 1.4) + 1) / 2) * 0.24;
       const duration = 15 + ((index * 7) % 17) * 0.65;
       const delay = -(((index * 13) % 49) / 3.2);
+      const rainRowCount = tabletRain ? 18 : 22;
       let content = '';
 
-      for (let row = 0; row < 22; row++) {
+      for (let row = 0; row < rainRowCount; row++) {
         const gate = (index * 11 + row * 7 + index * row) % 13;
         const glyphIndex = (index * 5 + row * 3 + (row * index) % 7) % musicGlyphs.length;
         const glyph = musicGlyphs[glyphIndex];
         const secondGlyph = musicGlyphs[(glyphIndex + index + row + 3) % musicGlyphs.length];
         content += row > 0 && gate < 1 ? '  ' : glyph + (gate % 4 === 0 ? ' ' : secondGlyph);
-        content += row === 21 ? '' : '\n';
+        content += row === rainRowCount - 1 ? '' : '\n';
       }
 
       column.className = 'hero-rain-column';
@@ -476,17 +498,27 @@ window.SRUK_initHeroRain = function initHeroRain() {
       column.style.setProperty('--rain-left', (index / (rainColumnCount - 1) * 98).toFixed(3) + '%');
       column.style.setProperty('--rain-glimpse-duration', (23 + ((index * 11) % 19)).toFixed(1) + 's');
       column.style.setProperty('--rain-glimpse-delay', (-((index * 17.3) % 41)).toFixed(1) + 's');
-      column.appendChild(makeRainPlane('far', 1.28, -2.7));
+      if (!tabletRain) column.appendChild(makeRainPlane('far', 1.28, -2.7));
       column.appendChild(makeRainPlane('main', 1, 0));
-      if (index % 4 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
+      if (!tabletRain && index % 4 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
       heroAmbient.appendChild(column);
     }
   }
   syncHeroRain();
   const resizeObserver = new ResizeObserver(syncHeroRain);
   resizeObserver.observe(heroAmbient);
+  if (hero && 'IntersectionObserver' in window) {
+    visibilityObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        hero.classList.toggle('hero-effects-paused', !entry.isIntersecting);
+      });
+    });
+    visibilityObserver.observe(hero);
+  }
   window.SRUK.cleanupHeroRain = function () {
     resizeObserver.disconnect();
+    visibilityObserver?.disconnect();
+    hero?.classList.remove('hero-effects-paused');
     window.SRUK.cleanupHeroRain = null;
   };
 };

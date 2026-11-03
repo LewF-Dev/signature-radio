@@ -942,7 +942,6 @@ body:not(.home-page) #siteHero { display: none; }
   flex-direction: column;
   animation: hero-code-rain var(--rain-plane-speed, 8s) linear infinite;
   animation-delay: var(--rain-plane-delay, 0s);
-  will-change: transform;
 }
 
 .hero-rain-plane--far {
@@ -5614,6 +5613,30 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
 .home-page .hero-ambient-visualizer::after { display: none; }
 .home-page .hero-rain-plane--far { filter: blur(1.15px); }
 .home-page .hero-rain-plane--near { filter: blur(0.2px); }
+
+/* The single-layer tablet rain keeps the same quiet look without stacking
+   dozens of filtered GPU layers on iPad-class hardware. */
+.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-plane--far,
+.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-plane--near { display: none; }
+.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-track { filter: none; }
+.home-page .hero-ambient-visualizer.is-tablet-rain { mix-blend-mode: normal; }
+.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-column {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* Keep decorative animation work off the frame while the hero is offscreen. */
+.home-page .hero.hero-effects-paused .hero-rain-column,
+.home-page .hero.hero-effects-paused .hero-rain-track,
+.home-page .hero.hero-effects-paused .hero-waveform span::before,
+.home-page .hero.hero-effects-paused .hero-waveform span::after {
+  animation-play-state: paused !important;
+}
+
+.tablet-layout.home-page .hero-waveform .desktop-waveform-extra { display: none; }
+@media (min-width: 700px) and (max-width: 1366px) and (pointer: coarse) {
+  .home-page .hero-waveform .desktop-waveform-extra { display: none; }
+}
 
 /* A denser field stays barely visible between soft, low-contrast crests.
    Independent durations and phases keep the field from pulsing in unison. */
