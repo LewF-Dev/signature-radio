@@ -556,6 +556,7 @@ window.SRUK_initHeroRain();
   if (!btn || !audio) return;
 
   const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
+  const landscapePhoneQuery = window.matchMedia('(max-width: 1024px) and (max-height: 520px) and (orientation: landscape)');
   const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
   const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
   const lightweightVisualizer = window.matchMedia('(max-width: 1366px) and (pointer: coarse)').matches;
@@ -574,6 +575,10 @@ window.SRUK_initHeroRain();
   // Touch devices use the preset waveform: iOS Safari can play this live
   // cross-origin stream while returning zeroed Web Audio analyser samples.
   const USE_REACTIVE_TOUCH_ANALYSER = false;
+
+  function useTabletMuteControl() {
+    return document.body.classList.contains('tablet-layout') && !landscapePhoneQuery.matches;
+  }
   const audioDebugEnabled = new URLSearchParams(window.location.search).get('audioDebug') === '1';
   let audioDebugPanel = null;
   let lastAudioDebugUpdate = 0;
@@ -1027,7 +1032,10 @@ window.SRUK_initHeroRain();
       const thisAttempt = ++playAttempt;
       const wasPaused = audio.paused;
       preferredVolume = slider ? parseFloat(slider.value) : preferredVolume;
-      if (wasPaused) audio.volume = 0;
+      if (wasPaused) {
+        audio.volume = 0;
+        audio.muted = false;
+      }
       const canAnalyze = (!lightweightVisualizer || USE_REACTIVE_TOUCH_ANALYSER) && initAudioAnalyser();
       const contextReady = canAnalyze
         ? (audioContext.state === 'running'
@@ -1073,6 +1081,19 @@ window.SRUK_initHeroRain();
         label.textContent = 'ERROR';
         updateAudioDebug();
       });
+    } else if (useTabletMuteControl()) {
+      // Keep the radio connection warm on tablets so a later unmute is instant.
+      audio.muted = !audio.muted;
+      label.textContent = audio.muted ? 'PLAY' : 'PAUSE';
+      btn.setAttribute('aria-label', audio.muted ? 'Play live stream' : 'Pause live stream');
+      if (audio.muted) {
+        setPlayIcon();
+        stopAudioSpectrum();
+        if (heroDisplay) returnArtistPanel();
+      } else {
+        setPauseIcon();
+        if (heroDisplay) heroDisplay.classList.add('is-playing');
+      }
     } else {
       playing = false;
       stopAudioSpectrum();
@@ -1094,6 +1115,7 @@ window.SRUK_initHeroRain();
     heroDisplay?.classList.remove('is-connecting');
     cancelVolumeFade();
     audio.volume = preferredVolume;
+    audio.muted = false;
     playing = false;
     stopAudioSpectrum();
     if (heroDisplay) returnArtistPanel();
