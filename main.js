@@ -334,6 +334,7 @@ window.SRUK_initHeroImageTransition = function initHeroImageTransition() {
   let incoming = null;
   let outgoing = null;
   let captureFrame = 0;
+  const coarsePointer = window.matchMedia('(pointer: coarse)');
 
   function captureCrop() {
     const heroRect = hero.getBoundingClientRect();
@@ -363,6 +364,13 @@ window.SRUK_initHeroImageTransition = function initHeroImageTransition() {
 
   function resizePhoto() {
     if (!hero.isConnected) return;
+    // On touch devices the image can simply adopt its responsive crop. Building
+    // and fading a second full-size image during orientation changes adds a
+    // costly compositing layer and can hold the new frame back on iOS Safari.
+    if (coarsePointer.matches) {
+      resetTransition();
+      return;
+    }
     if (previousCrop) {
       const nextRect = frame.getBoundingClientRect();
       const widthChange = Math.abs(nextRect.width - previousCrop.width);
@@ -422,8 +430,10 @@ window.SRUK_initHeroImageTransition = function initHeroImageTransition() {
   const cropObserver = new ResizeObserver(function () {
     if (!snapshot) captureCrop();
   });
-  cropObserver.observe(frame);
-  window.addEventListener('resize', resizePhoto);
+  if (!coarsePointer.matches) {
+    cropObserver.observe(frame);
+    window.addEventListener('resize', resizePhoto);
+  }
   reducedMotion.addEventListener('change', resizePhoto);
   window.SRUK.cleanupHeroImageTransition = function () {
     window.cancelAnimationFrame(captureFrame);
@@ -442,22 +452,23 @@ window.SRUK_initHeroRain = function initHeroRain() {
   const heroAmbient = document.getElementById('heroAmbientVisualizer');
   if (!heroAmbient) return;
   const hero = document.getElementById('siteHero');
-  const tabletRain = document.body.classList.contains('tablet-layout') ||
-    window.matchMedia('(min-width: 700px) and (max-width: 1366px) and (pointer: coarse)').matches;
+  const lightweightRain = document.body.classList.contains('tablet-layout') ||
+    window.matchMedia('(max-width: 1366px) and (pointer: coarse)').matches;
   let currentColumnCount = 0;
   let visibilityObserver = null;
+  let resizeTimer = 0;
   function syncHeroRain() {
     const width = heroAmbient.clientWidth;
     if (!width) return;
-    // Tablets get a lighter version of the same rain treatment. Their mobile
-    // GPUs struggle with hundreds of independently animated, filtered layers.
-    const rainColumnCount = tabletRain
-      ? Math.max(44, Math.min(88, Math.round(width / 16)))
+    // Touch devices get a lighter version of the same rain treatment because
+    // mobile GPUs struggle with hundreds of independently animated text layers.
+    const rainColumnCount = lightweightRain
+      ? Math.max(24, Math.min(36, Math.round(width / 32)))
       : width >= 1025 ? 108 : Math.max(32, Math.round(108 * width / 1280));
     if (rainColumnCount === currentColumnCount) return;
     currentColumnCount = rainColumnCount;
     heroAmbient.replaceChildren();
-    heroAmbient.classList.toggle('is-tablet-rain', tabletRain);
+    heroAmbient.classList.toggle('is-light-rain', lightweightRain);
     const musicGlyphs = ['♪', '♫', '♩', '♬', '♭', '♮', '♯', '𝄞'];
     for (let index = 0; index < rainColumnCount; index++) {
       const column = document.createElement('div');
@@ -465,7 +476,7 @@ window.SRUK_initHeroRain = function initHeroRain() {
       const density = 0.15 + ((Math.sin(index * 0.81 + 1.4) + 1) / 2) * 0.24;
       const duration = 15 + ((index * 7) % 17) * 0.65;
       const delay = -(((index * 13) % 49) / 3.2);
-      const rainRowCount = tabletRain ? 18 : 22;
+      const rainRowCount = lightweightRain ? 9 : 22;
       let content = '';
 
       for (let row = 0; row < rainRowCount; row++) {
@@ -498,14 +509,21 @@ window.SRUK_initHeroRain = function initHeroRain() {
       column.style.setProperty('--rain-left', (index / (rainColumnCount - 1) * 98).toFixed(3) + '%');
       column.style.setProperty('--rain-glimpse-duration', (23 + ((index * 11) % 19)).toFixed(1) + 's');
       column.style.setProperty('--rain-glimpse-delay', (-((index * 17.3) % 41)).toFixed(1) + 's');
-      if (!tabletRain) column.appendChild(makeRainPlane('far', 1.28, -2.7));
+      if (!lightweightRain) column.appendChild(makeRainPlane('far', 1.28, -2.7));
       column.appendChild(makeRainPlane('main', 1, 0));
-      if (!tabletRain && index % 4 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
+      if (!lightweightRain && index % 4 === 1) column.appendChild(makeRainPlane('near', 0.78, -5.1));
       heroAmbient.appendChild(column);
     }
   }
   syncHeroRain();
-  const resizeObserver = new ResizeObserver(syncHeroRain);
+  const resizeObserver = new ResizeObserver(function () {
+    if (!lightweightRain) {
+      syncHeroRain();
+      return;
+    }
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(syncHeroRain, 100);
+  });
   resizeObserver.observe(heroAmbient);
   if (hero && 'IntersectionObserver' in window) {
     visibilityObserver = new IntersectionObserver(function (entries) {
@@ -516,6 +534,7 @@ window.SRUK_initHeroRain = function initHeroRain() {
     visibilityObserver.observe(hero);
   }
   window.SRUK.cleanupHeroRain = function () {
+    window.clearTimeout(resizeTimer);
     resizeObserver.disconnect();
     visibilityObserver?.disconnect();
     hero?.classList.remove('hero-effects-paused');
@@ -540,9 +559,15 @@ window.SRUK_initHeroRain();
   const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
   const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
   const heroDisplay = document.getElementById('heroNowPlayingSlot');
-  const visualizerBars = heroDisplay
+  const lightweightVisualizer = window.matchMedia('(max-width: 1366px) and (pointer: coarse)').matches;
+  const allVisualizerBars = heroDisplay
     ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
     : [];
+  const visualizerBars = lightweightVisualizer
+    ? allVisualizerBars.filter(function (bar, index) {
+      return !bar.classList.contains('desktop-waveform-extra') && index % 2 === 0;
+    })
+    : allVisualizerBars;
   let audioContext = null;
   let analyser = null;
   let mediaSource = null;

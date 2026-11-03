@@ -5614,15 +5614,26 @@ body .presenter-bubble.is-footer-visible.is-tab-slinging-away {
 .home-page .hero-rain-plane--far { filter: blur(1.15px); }
 .home-page .hero-rain-plane--near { filter: blur(0.2px); }
 
-/* The single-layer tablet rain keeps the same quiet look without stacking
-   dozens of filtered GPU layers on iPad-class hardware. */
-.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-plane--far,
-.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-plane--near { display: none; }
-.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-track { filter: none; }
-.home-page .hero-ambient-visualizer.is-tablet-rain { mix-blend-mode: normal; }
-.home-page .hero-ambient-visualizer.is-tablet-rain .hero-rain-column {
+/* A smaller, single-layer rain field keeps the effect light on touch devices. */
+.home-page .hero-ambient-visualizer.is-light-rain .hero-rain-plane--far,
+.home-page .hero-ambient-visualizer.is-light-rain .hero-rain-plane--near { display: none; }
+.home-page .hero-ambient-visualizer.is-light-rain .hero-rain-track { filter: none; }
+.home-page .hero-ambient-visualizer.is-light-rain { mix-blend-mode: normal; }
+.home-page .hero-ambient-visualizer.is-light-rain .hero-rain-column {
+  animation: none;
+  opacity: var(--rain-opacity, 0.3);
   -webkit-mask-image: none;
   mask-image: none;
+}
+.home-page .hero-ambient-visualizer.is-light-rain .hero-rain-run,
+.home-page .hero-ambient-visualizer.is-light-rain .hero-rain-run::first-line {
+  text-shadow: none;
+}
+.home-page .hero-ambient-visualizer.is-light-rain .hero-rain-plane--main { filter: none; }
+
+@media (max-width: 1366px) and (pointer: coarse) {
+  .home-page .hero-waveform span:nth-child(even):not(.desktop-waveform-extra) { display: none; }
+  .home-page .hero-waveform span::before { box-shadow: none; }
 }
 
 /* Keep decorative animation work off the frame while the hero is offscreen. */

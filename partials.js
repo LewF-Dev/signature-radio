@@ -310,10 +310,24 @@
   initPresenterFooterAvoidance();
   syncPhoneHeroNav();
   syncPresenterPlacement();
-  window.addEventListener('resize', function () {
+  let responsiveSyncTimer = 0;
+  function syncResponsiveParts() {
     syncPhoneHeroNav();
     syncPresenterPlacement();
+  }
+  window.addEventListener('resize', function () {
+    // Mobile Safari emits a stream of resize events during rotation and while
+    // its browser chrome changes. Only reconcile DOM placement after it settles.
+    window.clearTimeout(responsiveSyncTimer);
+    responsiveSyncTimer = window.setTimeout(syncResponsiveParts, 90);
   });
+  [tabletLayoutQuery, landscapePhoneQuery, window.matchMedia('(max-width: 767px) and (orientation: portrait)')]
+    .forEach(function (query) {
+      query.addEventListener('change', function () {
+        window.clearTimeout(responsiveSyncTimer);
+        window.requestAnimationFrame(syncResponsiveParts);
+      });
+    });
 
   // Highlight active nav link based on current page
   syncActiveNav();
@@ -451,7 +465,11 @@
         syncFooterBubbleMode();
       });
     }, { passive: true });
-    window.addEventListener('resize', syncFooterBubbleMode);
+    let footerResizeTimer = 0;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(footerResizeTimer);
+      footerResizeTimer = window.setTimeout(syncFooterBubbleMode, 90);
+    });
   }
 
   function syncPhoneHeroNav() {
