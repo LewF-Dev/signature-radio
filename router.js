@@ -109,6 +109,9 @@
       // add/remove it separately when moving between inner pages and Home.
       const destPage = getPageFromUrl(targetUrl);
       syncHomepageHero(doc, destPage);
+      if (window.SRUK && typeof window.SRUK.refreshPlayerHero === 'function') {
+        window.SRUK.refreshPlayerHero();
+      }
       if (window.SRUK && typeof window.SRUK.syncPhoneHeroNav === 'function') {
         window.SRUK.syncPhoneHeroNav();
       }

@@ -5,6 +5,17 @@
 
 (function injectPartials() {
 
+  // Resolve the live stream host before the listener presses Play. The audio
+  // itself remains unloaded until requested, avoiding background stream usage.
+  if (!document.head.querySelector('link[data-live-stream-preconnect]')) {
+    const streamPreconnect = document.createElement('link');
+    streamPreconnect.rel = 'preconnect';
+    streamPreconnect.href = 'https://centova87.shoutcastservices.com';
+    streamPreconnect.crossOrigin = 'anonymous';
+    streamPreconnect.dataset.liveStreamPreconnect = '';
+    document.head.appendChild(streamPreconnect);
+  }
+
   // Keep larger touch tablets in the same composition when rotated.
   const tabletLayoutQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px), (min-width: 768px) and (max-width: 1366px) and (pointer: coarse)');
   const landscapePhoneQuery = window.matchMedia('(max-width: 1024px) and (max-height: 520px) and (orientation: landscape)');

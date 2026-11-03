@@ -558,30 +558,20 @@ window.SRUK_initHeroRain();
   const phoneLightQuery = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
   const desktopVisualizerQuery = window.matchMedia('(min-width: 768px)');
   const computerVisualizerQuery = window.matchMedia('(min-width: 1025px)');
-  const heroDisplay = document.getElementById('heroNowPlayingSlot');
   const lightweightVisualizer = window.matchMedia('(max-width: 1366px) and (pointer: coarse)').matches;
-  const allVisualizerBars = heroDisplay
-    ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
-    : [];
-  const visualizerBars = lightweightVisualizer
-    ? allVisualizerBars.filter(function (bar, index) {
-      return !bar.classList.contains('desktop-waveform-extra') && index % 2 === 0;
-    })
-    : allVisualizerBars;
+  let heroDisplay = null;
+  let visualizerBars = [];
   let audioContext = null;
   let analyser = null;
   let mediaSource = null;
   let frequencyData = null;
   let animationFrame = 0;
-  const analysisBandCount = visualizerBars.length;
-  const smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
-  const peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
-  // Phone preset mode stays enabled until iOS Safari exposes the live SHOUTcast
-  // samples to Web Audio. The diagnostic on 2026-10-30 showed a running context
-  // and advancing playback time, but analyser max/average levels of 0/0.
-  // The reactive analyser functions below are intentionally retained for later;
-  // set this true to restore reactive analysis on phones. Other displays keep it.
-  const USE_REACTIVE_PHONE_ANALYSER = false;
+  let analysisBandCount = 0;
+  let smoothedLevels = [];
+  let peakLevels = [];
+  // Touch devices use the preset waveform: iOS Safari can play this live
+  // cross-origin stream while returning zeroed Web Audio analyser samples.
+  const USE_REACTIVE_TOUCH_ANALYSER = false;
   const audioDebugEnabled = new URLSearchParams(window.location.search).get('audioDebug') === '1';
   let audioDebugPanel = null;
   let lastAudioDebugUpdate = 0;
@@ -590,9 +580,9 @@ window.SRUK_initHeroRain();
     audioDebugPanel = document.createElement('output');
     audioDebugPanel.setAttribute('aria-live', 'polite');
     audioDebugPanel.style.cssText = 'position:fixed;z-index:99999;top:8px;left:8px;right:8px;padding:8px 10px;background:rgba(0,0,0,.92);border:1px solid #c00;color:#fff;font:12px/1.45 monospace;white-space:pre-wrap;pointer-events:none';
-    audioDebugPanel.textContent = (!phoneLightQuery.matches || USE_REACTIVE_PHONE_ANALYSER)
+    audioDebugPanel.textContent = (!lightweightVisualizer || USE_REACTIVE_TOUCH_ANALYSER)
       ? 'Audio diagnostic: waiting for play'
-      : 'Phone preset visualiser active\nReactive analyser preserved and disabled';
+      : 'Touch preset visualiser active\nReactive analyser preserved and disabled';
     document.body.appendChild(audioDebugPanel);
   }
 
@@ -612,9 +602,9 @@ window.SRUK_initHeroRain();
     audioDebugPanel.textContent = [
       'AudioContext: ' + (audioContext ? audioContext.state : 'not created'),
       'Audio: ' + (audio.paused ? 'paused' : 'playing') + ' | readyState ' + audio.readyState + ' | time ' + audio.currentTime.toFixed(1) + 's',
-      (!phoneLightQuery.matches || USE_REACTIVE_PHONE_ANALYSER)
+      (!lightweightVisualizer || USE_REACTIVE_TOUCH_ANALYSER)
         ? (levels ? 'Analyser max/avg: ' + peak + '/' + (total / Math.max(1, levels.length)).toFixed(1) + ' of 255' : 'Analyser: waiting for samples')
-        : 'Analyser: disabled; phone preset is active'
+        : 'Analyser: disabled; touch preset is active'
     ].join('\n');
   }
 
@@ -864,8 +854,8 @@ window.SRUK_initHeroRain();
   ];
   let featuredArtistIndex = 0;
 
-  function setPhoneWavePreset() {
-    if (!phoneLightQuery.matches || !visualizerBars.length) return;
+  function setTouchWavePreset() {
+    if (!lightweightVisualizer || !visualizerBars.length) return;
     visualizerBars.forEach(function (bar, index) {
       const broad = (Math.sin(index * 0.173 + 0.41) + 1) / 2;
       const cluster = (Math.sin(index * 0.437 + 1.83) + 1) / 2;
@@ -884,9 +874,34 @@ window.SRUK_initHeroRain();
     });
   }
 
-  setPhoneWavePreset();
-  if (phoneLightQuery.addEventListener) phoneLightQuery.addEventListener('change', setPhoneWavePreset);
-  else phoneLightQuery.addListener(setPhoneWavePreset);
+  function bindHeroVisualizer() {
+    const nextHeroDisplay = document.getElementById('heroNowPlayingSlot');
+    if (nextHeroDisplay === heroDisplay) return;
+    if (animationFrame) stopAudioSpectrum();
+
+    heroDisplay = nextHeroDisplay;
+    const allBars = heroDisplay
+      ? Array.from(heroDisplay.querySelectorAll('.hero-waveform span'))
+      : [];
+    visualizerBars = lightweightVisualizer
+      ? allBars.filter(function (bar, index) {
+        return !bar.classList.contains('desktop-waveform-extra') && index % 2 === 0;
+      })
+      : allBars;
+    analysisBandCount = visualizerBars.length;
+    smoothedLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
+    peakLevels = Array.from({ length: analysisBandCount }, function () { return 0.12; });
+    setTouchWavePreset();
+
+    if (heroDisplay && !audio.paused) {
+      heroDisplay.classList.add('is-playing');
+      if (!lightweightVisualizer && analyser && audioContext?.state === 'running') startAudioSpectrum();
+    }
+  }
+
+  bindHeroVisualizer();
+  window.SRUK = window.SRUK || {};
+  window.SRUK.refreshPlayerHero = bindHeroVisualizer;
 
   function rotateFeaturedArtist() {
     if (!heroArtistName || playing || document.visibilityState === 'hidden') return;
@@ -974,21 +989,26 @@ window.SRUK_initHeroRain();
       const wasPaused = audio.paused;
       preferredVolume = slider ? parseFloat(slider.value) : preferredVolume;
       if (wasPaused) audio.volume = 0;
-      const canAnalyze = (!phoneLightQuery.matches || USE_REACTIVE_PHONE_ANALYSER) && initAudioAnalyser();
+      // Begin the user-requested stream fetch immediately. Creating/resuming a
+      // Web Audio graph first can add avoidable startup latency on slower devices.
+      const playbackRequest = audio.play();
+      const canAnalyze = (!lightweightVisualizer || USE_REACTIVE_TOUCH_ANALYSER) && initAudioAnalyser();
       const contextReady = canAnalyze
         ? (audioContext.state === 'running'
           ? Promise.resolve(true)
           : audioContext.resume().then(function () { return true; }).catch(function () { return false; }))
         : Promise.resolve(false);
       updateAudioDebug();
-      Promise.all([audio.play(), contextReady]).then(function (results) {
+      playbackRequest.then(function () {
         playing = true;
         fadeAudioTo(preferredVolume, 420);
         if (heroDisplay) {
           clearArtistReturn();
           heroDisplay.classList.add('is-playing');
         }
-        if (canAnalyze && results[1]) startAudioSpectrum();
+        contextReady.then(function (ready) {
+          if (playing && canAnalyze && ready) startAudioSpectrum();
+        });
         updateAudioDebug();
         label.textContent = 'PAUSE';
         btn.setAttribute('aria-label', 'Pause live stream');
